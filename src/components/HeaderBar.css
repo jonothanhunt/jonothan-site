@@ -1,0 +1,40 @@
+.header {
+    margin: 0;
+    height: 100px;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name {
+    display: inline-block;
+
+    margin: 20px 0 20px 0;
+
+    color: var(--main-1);
+    font-weight: bold;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: .2rem;
+
+}
+
+.header-links {
+    display: inline-block;
+
+    list-style-type: none;
+    margin: 0;
+
+    padding: 10px 0 10px 0;
+
+}
+
+.header-link {
+    display: inline;
+    padding: 0 10px;
+
+    font-size: 1.5rem;
+    color: var(--main-1);
+}

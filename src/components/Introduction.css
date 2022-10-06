@@ -1,0 +1,11 @@
+.introduction-section {
+    max-width: 15rem;
+}
+
+.introduction {
+    margin: 0;
+    font-weight: normal;
+    font-size: 1.2rem;
+
+    color: var(--main-1);
+}
