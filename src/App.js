@@ -1,23 +1,45 @@
-import logo from './logo.svg';
 import './App.css';
+import HeaderBar from './components/HeaderBar';
+import Introduction from './components/Introduction';
+import PageWrapper from './components/PageWrapper';
+import Thing from './components/Thing';
+import Things from './components/Things';
 
-function App() {
+import things from './things/things'
+
+function App()
+{
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <PageWrapper>
+        <HeaderBar />
+
+        <Introduction />
+
+        <Things>
+
+          {things.map((thing, index) => (
+
+            <Thing
+
+              key={"thing_" + index}
+
+              tags={thing.tags}
+              image={thing.image}
+              title={thing.title}
+              description={thing.description}
+              stack={thing.stack}
+              links={thing.links}
+
+            />
+
+          ))}
+
+        </Things>
+
+      </PageWrapper>
+
     </div>
   );
 }
