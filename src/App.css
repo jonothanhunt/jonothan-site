@@ -21,11 +21,7 @@ body {
   margin: 0;
 }
 
-#gradient-canvas {
+.padding-element {
   width: 100%;
-  height: 100%;
-  --gradient-color-1: #accbdc;
-  --gradient-color-2: #c9dde8;
-  --gradient-color-3: #c4eee0;
-  --gradient-color-4: #e8e8e8;
+  height: min(60vw, 50vh);
 }
