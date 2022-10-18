@@ -4,9 +4,12 @@ const Introduction = (props) =>
 {
     return (
         <div className="introduction-section">
-            <h2 className="introduction">
-                Creative Technologist at Wunderman Thompson
+            <h2 className="introduction-title">
+                Creative Technologist
             </h2>
+            <p className="introduction-subtitle">
+                at Wunderman Thompson
+            </p>
         </div>
     )
 }

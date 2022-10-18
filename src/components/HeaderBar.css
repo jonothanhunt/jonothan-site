@@ -37,4 +37,10 @@
 
     font-size: 1.5rem;
     color: var(--main-1);
+
+    text-decoration: none;
+    text-decoration-color: var(--main-1);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 7px;
 }
