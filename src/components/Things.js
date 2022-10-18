@@ -3,7 +3,7 @@ import './Things.css'
 const Things = (props) =>
 {
     return (
-        <div class="things-wrapper">
+        <div className="things-wrapper">
             {props.children}
         </div>
     )
