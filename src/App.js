@@ -13,12 +13,16 @@ function App()
 
   return (
     <div className="App">
+
+      <HeaderThree />
+
       <PageWrapper>
+
         <HeaderBar />
 
-        <Introduction />
+        <div className="padding-element"></div>
 
-        <HeaderThree />
+        <Introduction />
 
         <Things>
 

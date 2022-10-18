@@ -1,4 +1,8 @@
 .webgl {
-    width: 100%;
-    height: 50vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+
+    z-index: -1;
 }
