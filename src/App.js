@@ -1,6 +1,7 @@
 import './App.css';
 import HeaderBar from './components/HeaderBar';
 import Introduction from './components/Introduction';
+import HeaderThree from './components/HeaderThree';
 import PageWrapper from './components/PageWrapper';
 import Thing from './components/Thing';
 import Things from './components/Things';
@@ -16,6 +17,8 @@ function App()
         <HeaderBar />
 
         <Introduction />
+
+        <HeaderThree />
 
         <Things>
 
