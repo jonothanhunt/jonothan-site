@@ -1,9 +1,15 @@
 :root {
-  --main-1: #003b49;
+  /* --main-1: #003b49;
   --main-2: #d0d3d4;
-  /* 
-  --main-1: #d0d3d4;
-  --main-2: #003b49; */
+  --back-1: rgb(227, 231, 232); */
+
+  /* --main-1: #003b49;
+  --main-2: #fefefe;
+  --back-1: #f0f0f0; */
+
+  --main-1: #003b49;
+  --main-2: #f0f0f0;
+  --back-1: #fefefe;
 }
 
 html {
