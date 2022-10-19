@@ -4,8 +4,7 @@ import './HeaderThree.css'
 
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { PlaneHelper } from "three";
-// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 const HeaderThree = (props) =>
 {
@@ -21,6 +20,10 @@ const HeaderThree = (props) =>
         let mouseX = 0
         let mouseY = 0
 
+        let mobileWidth = window.innerWidth <= 400
+
+        const main1Colour = new THREE.Color(0xf0f0f0)
+
         // LOADERS
 
         const loadingManager = new THREE.LoadingManager();
@@ -32,13 +35,9 @@ const HeaderThree = (props) =>
         // Texture loader
         const textureLoader = new THREE.TextureLoader(loadingManager)
 
-        // // Draco loader
-        // const dracoLoader = new DRACOLoader(loadingManager)
-        // dracoLoader.setDecoderPath('draco/')
-
         // GLTF loader
         const gltfLoader = new GLTFLoader(loadingManager)
-        // gltfLoader.setDRACOLoader(dracoLoader)
+
 
         // EXPERIENCE VARIABLES
 
@@ -53,6 +52,10 @@ const HeaderThree = (props) =>
         var scene = new THREE.Scene();
 
         const group = new THREE.Group()
+
+        const mouseMoveGroup = new THREE.Group()
+        group.add(mouseMoveGroup);
+
         scene.add(group)
 
         // Camera
@@ -74,11 +77,9 @@ const HeaderThree = (props) =>
         var renderer = new THREE.WebGLRenderer({
             antialias: true
         });
-        renderer.setClearColor(0xf0f0f0);
+        renderer.setClearColor(main1Colour);
         renderer.setSize(canvasRefW, canvasRefH);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-        renderer.sortObjects = false
-
         canvasRef.current.appendChild(renderer.domElement);
 
 
@@ -91,7 +92,6 @@ const HeaderThree = (props) =>
         // Jonothan Material
         const jonothanMaterialBaked = new THREE.MeshBasicMaterial({
             map: jonothanTextureBaked,
-            color: new THREE.Color(1, 1, 1),
         })
 
         // Jonothan Model
@@ -125,7 +125,7 @@ const HeaderThree = (props) =>
         // PLANE BLOCKER
 
         const planeMaterial = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(0xf0f0f0),
+            color: main1Colour,
             depthTest: false,
             transparent: true,
             opacity: 0
@@ -145,32 +145,64 @@ const HeaderThree = (props) =>
                 hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
             })
 
-        // REFRACTED ELEMENTS
+        // DECORATION ELEMENTS
 
-        // Material
+        // Refraction Material
         const refractMaterial = new THREE.MeshPhysicalMaterial({
             roughness: 0,
             transmission: 1,
-            thickness: 0.03,
+            thickness: 0.035,
             depthTest: false,
+            depthWrite: false,
             envMap: hdrEquirect,
             envMapIntensity: 5,
             // ior: 4
         });
 
-        // Top bubble
-        const bubbleGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+        // Non-refraction Material
+        const nonRefractMaterial = new THREE.MeshStandardMaterial({
+            color: main1Colour,
+            envMap: hdrEquirect,
+            envMapIntensity: 3,
+            roughness: 0,
+            transparent: true,
+            depthTest: false
+        })
+
+        // Top refraction bubble
+        const bubbleGeometry = new THREE.SphereGeometry(0.2, 32, 32);
         const bubbleMesh = new THREE.Mesh(bubbleGeometry, refractMaterial);
-        bubbleMesh.scale.set(aspect, aspect, aspect)
-        bubbleMesh.position.set(0.2, -0.1, 0.2) // 0.2
-
-        const mouseMoveGroup = new THREE.Group()
+        bubbleMesh.position.set(0.1, -0.1, 0.2) // 0.2
         mouseMoveGroup.add(bubbleMesh)
-        group.add(mouseMoveGroup);
 
-        // NON REFRACTED ELEMENTS
+        // Donut
+        const donutGeometry = new THREE.TorusGeometry(0.13, 0.07, 16, 100);
+        const donutMesh = new THREE.Mesh(donutGeometry, nonRefractMaterial)
+        donutMesh.position.set(-0.3, -0.7, 0.2)
+        donutMesh.rotation.set(-0.7, 0.3, 0)
+        mouseMoveGroup.add(donutMesh)
 
 
+        // MINI BUBBLES
+
+        const count = 6
+        const geometries = []
+
+        for (let i = 0; i < count; i++)
+        {
+            const miniBubbleGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+            const miniBubbleX = (Math.random() - 0.5) * 1.5
+            const miniBubbleY = (Math.random() - 0.5) * 0.7
+            const miniBubbleZ = (Math.random() - 0.5) * 5
+
+            miniBubbleGeometry.translate(miniBubbleX, miniBubbleY, miniBubbleZ)
+
+            geometries.push(miniBubbleGeometry)
+        }
+
+        const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries)
+        const miniBubbleMesh = new THREE.Mesh(mergedGeometry, refractMaterial)
+        mouseMoveGroup.add(miniBubbleMesh)
 
         // HELPER FUNCTIONS
 
@@ -193,7 +225,12 @@ const HeaderThree = (props) =>
 
         let onWindowResize = function ()
         {
-            aspect = window.innerWidth / window.innerHeight;
+            const windowWidth = window.innerWidth
+            const windowHeight = window.innerHeight
+
+            mobileWidth = windowWidth <= 400
+
+            aspect = windowWidth / windowHeight;
 
             group.scale.set(aspect, aspect, aspect)
 
@@ -204,7 +241,7 @@ const HeaderThree = (props) =>
 
             camera.updateProjectionMatrix();
 
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(windowWidth, windowHeight);
 
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         };
@@ -219,7 +256,7 @@ const HeaderThree = (props) =>
             requestAnimationFrame(animate);
 
             // Rotation and position of Jonothan
-            group.rotation.x = - window.scrollY / 700
+            jonothanGroup.rotation.x = - window.scrollY / 700
             group.position.y = 0.4 + (window.scrollY / 1000)
 
             // Opacity of Jonothan
@@ -246,8 +283,22 @@ const HeaderThree = (props) =>
             }
 
             // Mouse animation
-            mouseMoveGroup.position.x = lerp(mouseMoveGroup.position.x, mouseX, 0.1)
-            mouseMoveGroup.position.y = lerp(mouseMoveGroup.position.y, mouseY, 0.1)
+
+            if (!mobileWidth)
+            {
+                const lerpedMouseX = lerp(mouseMoveGroup.position.x, mouseX, 0.1)
+                const lerpedMouseY = lerp(mouseMoveGroup.position.y, mouseY, 0.1)
+
+                mouseMoveGroup.position.x = lerpedMouseX
+                mouseMoveGroup.position.y = lerpedMouseY
+
+                mouseMoveGroup.rotation.y = lerpedMouseX
+
+                jonothanGroup.rotation.y = lerpedMouseX
+                jonothanGroup.rotation.z = lerpedMouseX / 2
+
+                jonothanGroup.rotation.x = - lerpedMouseY - window.scrollY / 700
+            }
 
             // Render frame
             renderer.render(scene, camera);

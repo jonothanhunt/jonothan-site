@@ -5,6 +5,7 @@
     border-radius: 5px;
 
     background-color: var(--back-1);
+    backdrop-filter: blur(10px);
 }
 
 .card-tags-wrapper {
