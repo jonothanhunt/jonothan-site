@@ -46,7 +46,7 @@
     list-style-type: none;
     margin: 0;
 
-    padding: 10px 0 10px 0;
+    padding: 5px 0 10px 0;
 
 }
 
@@ -77,6 +77,10 @@
 }
 
 @media only screen and (max-width: 650px) {
+    .header-links {
+        padding-top: 15px;
+    }
+
     .header-link.header-link-text {
         display: none
     }

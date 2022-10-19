@@ -9,7 +9,7 @@
 
   --main-1: #003b49;
   --main-2: #f0f0f0;
-  --back-1: #fefefe;
+  --back-1: rgba(254, 254, 254, 0.747);
 }
 
 html {
