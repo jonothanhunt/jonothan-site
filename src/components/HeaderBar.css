@@ -10,9 +10,13 @@
     top: 0;
     position: sticky;
 
-    background-color: var(--main-2);
+    background-color: transparent;
 
     transition: 0.5s all ease;
+}
+
+.header.active {
+    background-color: var(--main-2);
 }
 
 .name {
@@ -47,7 +51,6 @@
 }
 
 .header-link {
-    display: inline;
     padding: 0 10px;
 
     font-size: 1.5rem;
@@ -58,4 +61,28 @@
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 7px;
+}
+
+.header-link.header-link-text {
+    display: inline;
+}
+
+.header-link.header-link-icon {
+    display: none;
+}
+
+
+.header-icon {
+    width: 2rem;
+}
+
+@media only screen and (max-width: 650px) {
+    .header-link.header-link-text {
+        display: none
+    }
+
+    .header-link.header-link-icon {
+        display: inline;
+    }
+
 }
