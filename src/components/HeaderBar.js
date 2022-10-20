@@ -11,7 +11,7 @@ const HeaderBar = (props) =>
 
         window.addEventListener('scroll', (event) =>
         {
-            if (window.scrollY > (window.innerHeight / 3))
+            if (window.scrollY > (window.innerHeight / 2.7))
             {
                 if (!alreadyVisible)
                 {

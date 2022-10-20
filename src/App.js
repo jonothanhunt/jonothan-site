@@ -6,7 +6,7 @@ import PageWrapper from './components/PageWrapper';
 import Thing from './components/Thing';
 import Things from './components/Things';
 
-import things from './things/things'
+import things from './data/things'
 
 function App()
 {
@@ -16,9 +16,9 @@ function App()
 
       <HeaderThree />
 
-      <PageWrapper>
+      <HeaderBar />
 
-        <HeaderBar />
+      <PageWrapper>
 
         <div className="padding-element"></div>
 
