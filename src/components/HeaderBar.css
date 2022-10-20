@@ -1,5 +1,5 @@
 .header {
-    margin: 0;
+    padding: 0 35px;
     height: 100px;
 
     display: flex;
@@ -13,6 +13,8 @@
     background-color: transparent;
 
     transition: 0.5s all ease;
+
+    z-index: 2;
 }
 
 .header.active {

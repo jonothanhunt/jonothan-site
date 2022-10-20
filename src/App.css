@@ -7,9 +7,13 @@
   --main-2: #fefefe;
   --back-1: #f0f0f0; */
 
-  --main-1: #003b49;
+  /* --main-1: #003b49;
   --main-2: #f0f0f0;
-  --back-1: rgba(254, 254, 254, 0.747);
+  --back-1: rgba(254, 254, 254, 0.539); */
+
+  --main-1: #f0f0f0;
+  --main-2: #003b49;
+  --back-1: #064555c1;
 }
 
 html {
@@ -19,7 +23,7 @@ html {
 body {
   font-family: 'Atkinson Hyperlegible', sans-serif;
   margin: 0;
-  min-width: 400px;
+  min-width: 375px;
 }
 
 .padding-element {

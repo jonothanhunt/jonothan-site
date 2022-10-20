@@ -13,56 +13,50 @@ const HeaderThree = (props) =>
 
     const [threeVisible, setThreeVisibility] = useState(false);
 
+    const bubbleImage = useRef(null);
+
     useEffect(() =>
     {
         // VARIABLES
-
         let mouseX = 0
         let mouseY = 0
 
-        let mobileWidth = window.innerWidth <= 400
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        let aspect = window.innerWidth / window.innerHeight;
 
-        const main1Colour = new THREE.Color(0xf0f0f0)
+        const main1Colour = new THREE.Color(0x003b49) // new THREE.Color(0xf0f0f0)
+
 
         // LOADERS
-
         const loadingManager = new THREE.LoadingManager();
         loadingManager.onLoad = () =>
         {
             setThreeVisibility(true)
         }
-
-        // Texture loader
         const textureLoader = new THREE.TextureLoader(loadingManager)
-
-        // GLTF loader
         const gltfLoader = new GLTFLoader(loadingManager)
 
 
         // EXPERIENCE VARIABLES
 
-        // Canvas dims
-        const canvasRefW = window.innerWidth;
-        const canvasRefH = window.innerHeight;
-
-
-        // SETUP
-
         // Scene setup
         var scene = new THREE.Scene();
 
-        const group = new THREE.Group()
+        // Groups
+        const mainGroup = new THREE.Group()
+        mainGroup.scale.set(aspect, aspect, aspect)
+        mainGroup.position.y = 0.4
+        scene.add(mainGroup)
 
         const mouseMoveGroup = new THREE.Group()
-        group.add(mouseMoveGroup);
+        mainGroup.add(mouseMoveGroup);
 
-        scene.add(group)
+        const jonothanGroup = new THREE.Group()
+        mainGroup.add(jonothanGroup)
 
         // Camera
-        let aspect = window.innerWidth / window.innerHeight;
         let frustumSize = 1.5
-
-        // var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         var camera = new THREE.OrthographicCamera(
             frustumSize * aspect / - 2,
             frustumSize * aspect / 2,
@@ -78,7 +72,7 @@ const HeaderThree = (props) =>
             antialias: true
         });
         renderer.setClearColor(main1Colour);
-        renderer.setSize(canvasRefW, canvasRefH);
+        renderer.setSize(windowWidth, windowHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         canvasRef.current.appendChild(renderer.domElement);
 
@@ -86,7 +80,7 @@ const HeaderThree = (props) =>
         // JONOTHAN 3D
 
         // Jonothan texture
-        const jonothanTextureBaked = textureLoader.load(require('../resources/baked.jpg'))
+        const jonothanTextureBaked = textureLoader.load(require('../resources/dark_mode_jonothan.jpg'))
         jonothanTextureBaked.flipY = false
 
         // Jonothan Material
@@ -95,9 +89,6 @@ const HeaderThree = (props) =>
         })
 
         // Jonothan Model
-        const jonothanGroup = new THREE.Group()
-        group.add(jonothanGroup)
-
         gltfLoader.load(
             require('../resources/jonothan.glb'),
             (gltf) =>
@@ -108,31 +99,28 @@ const HeaderThree = (props) =>
                 })
 
                 gltf.scene.scale.set(1, 1, 1)
-
                 gltf.scene.rotation.x = 0.4
                 gltf.scene.rotation.y = 0.3
-
                 gltf.scene.position.y = -0.2
 
                 jonothanGroup.add(gltf.scene)
-
-                group.scale.set(aspect, aspect, aspect)
-
-                group.position.y = 0.4
             }
         )
+
 
         // PLANE BLOCKER
 
         const planeMaterial = new THREE.MeshBasicMaterial({
             color: main1Colour,
             depthTest: false,
+            depthWrite: false,
             transparent: true,
             opacity: 0
         })
 
         const planeGeometry = new THREE.PlaneGeometry(10, 10);
         const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
+        planeMesh.renderOrder = 0
         scene.add(planeMesh)
 
 
@@ -144,6 +132,7 @@ const HeaderThree = (props) =>
             {
                 hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
             })
+
 
         // DECORATION ELEMENTS
 
@@ -159,50 +148,38 @@ const HeaderThree = (props) =>
             // ior: 4
         });
 
-        // Non-refraction Material
-        const nonRefractMaterial = new THREE.MeshStandardMaterial({
-            color: main1Colour,
-            envMap: hdrEquirect,
-            envMapIntensity: 3,
-            roughness: 0,
-            transparent: true,
-            depthTest: false
-        })
-
-        // Top refraction bubble
-        const bubbleGeometry = new THREE.SphereGeometry(0.2, 32, 32);
-        const bubbleMesh = new THREE.Mesh(bubbleGeometry, refractMaterial);
-        bubbleMesh.position.set(0.1, -0.1, 0.2) // 0.2
-        mouseMoveGroup.add(bubbleMesh)
-
-        // Donut
-        const donutGeometry = new THREE.TorusGeometry(0.13, 0.07, 16, 100);
-        const donutMesh = new THREE.Mesh(donutGeometry, nonRefractMaterial)
-        donutMesh.position.set(-0.3, -0.7, 0.2)
-        donutMesh.rotation.set(-0.7, 0.3, 0)
-        mouseMoveGroup.add(donutMesh)
-
-
-        // MINI BUBBLES
-
-        const count = 6
+        // BUBBLES
         const geometries = []
+
+        // BUBBLES
+        const count = 8
 
         for (let i = 0; i < count; i++)
         {
-            const miniBubbleGeometry = new THREE.SphereGeometry(0.05, 16, 16);
-            const miniBubbleX = (Math.random() - 0.5) * 1.5
+            const miniBubbleX = (Math.random() - 0.5) * 1.25
             const miniBubbleY = (Math.random() - 0.5) * 0.7
-            const miniBubbleZ = (Math.random() - 0.5) * 5
-
+            const miniBubbleZ = (i / count - 0.5) * 5
+            const miniBubbleScale = (miniBubbleZ + 2.5) / 50 + 0.01 //Math.random() * 0.1 // + 0.05
+            const miniBubbleGeometry = new THREE.SphereGeometry(miniBubbleScale, 16, 16);
             miniBubbleGeometry.translate(miniBubbleX, miniBubbleY, miniBubbleZ)
+
+            if (i == Math.floor(count / 2))
+            {
+                const bubbleGeometry = new THREE.SphereGeometry(0.18, 32, 32);
+                bubbleGeometry.translate(0.1, -0.1, 0.2) // 0.2
+                bubbleGeometry.renderOrder = 1
+                geometries.push(bubbleGeometry)
+            }
 
             geometries.push(miniBubbleGeometry)
         }
 
         const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries)
-        const miniBubbleMesh = new THREE.Mesh(mergedGeometry, refractMaterial)
-        mouseMoveGroup.add(miniBubbleMesh)
+        const bubblesMesh = new THREE.Mesh(mergedGeometry, refractMaterial)
+        bubblesMesh.renderOrder = 2
+        mouseMoveGroup.add(bubblesMesh)
+
+
 
         // HELPER FUNCTIONS
 
@@ -228,81 +205,66 @@ const HeaderThree = (props) =>
             const windowWidth = window.innerWidth
             const windowHeight = window.innerHeight
 
-            mobileWidth = windowWidth <= 400
-
             aspect = windowWidth / windowHeight;
-
-            group.scale.set(aspect, aspect, aspect)
+            mainGroup.scale.set(aspect, aspect, aspect)
 
             camera.left = - frustumSize * aspect / 2;
             camera.right = frustumSize * aspect / 2;
             camera.top = frustumSize / 2;
             camera.bottom = - frustumSize / 2;
-
             camera.updateProjectionMatrix();
 
             renderer.setSize(windowWidth, windowHeight);
-
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         };
         window.addEventListener("resize", onWindowResize, false);
 
 
         // ANIMATE
-
         var animate = function ()
         {
             // Request animation frame
             requestAnimationFrame(animate);
 
+            const windowScrollY = window.scrollY
+
             // Rotation and position of Jonothan
-            jonothanGroup.rotation.x = - window.scrollY / 700
-            group.position.y = 0.4 + (window.scrollY / 1000)
+            jonothanGroup.rotation.x = - windowScrollY / 700
+            mainGroup.position.y = 0.4 + (windowScrollY / 1000)
 
-            // Opacity of Jonothan
-            const newOpacity = 1 - Math.max(Math.min(3 - (window.scrollY / 100), 1), 0)
+            // Scroll progress
+            const firstScrollProgress = 1 - Math.max(Math.min(3 - (windowScrollY / 100), 1), 0)
 
-            if (newOpacity !== planeMaterial.opacity)
+            // There is a change since last frame
+            if (firstScrollProgress !== planeMaterial.opacity)
             {
-                if (newOpacity === 1)
-                {
-                    jonothanGroup.visible = false
-                    bubbleMesh.visible = false
-                    planeGeometry.visible = false
-                }
-                else
-                {
-                    jonothanGroup.visible = true
-                    bubbleMesh.visible = true
-                    planeGeometry.visible = true
-                }
+                const firstScrollProgressEnd = !(firstScrollProgress === 1)
 
-                planeMaterial.opacity = newOpacity
+                jonothanGroup.visible = firstScrollProgressEnd
+                planeGeometry.visible = firstScrollProgressEnd
+                bubblesMesh.visible = firstScrollProgressEnd
+
+                planeMaterial.opacity = firstScrollProgress
                 planeMaterial.needsUpdate = true
-
             }
 
             // Mouse animation
+            const lerpedMouseX = lerp(mouseMoveGroup.position.x, mouseX, 0.1)
+            const lerpedMouseY = lerp(mouseMoveGroup.position.y, mouseY, 0.1)
 
-            if (!mobileWidth)
-            {
-                const lerpedMouseX = lerp(mouseMoveGroup.position.x, mouseX, 0.1)
-                const lerpedMouseY = lerp(mouseMoveGroup.position.y, mouseY, 0.1)
+            mouseMoveGroup.position.x = lerpedMouseX
+            mouseMoveGroup.position.y = lerpedMouseY
+            mouseMoveGroup.rotation.y = lerpedMouseX
 
-                mouseMoveGroup.position.x = lerpedMouseX
-                mouseMoveGroup.position.y = lerpedMouseY
+            jonothanGroup.rotation.y = lerpedMouseX
+            jonothanGroup.rotation.z = lerpedMouseX / 2
+            jonothanGroup.rotation.x = - lerpedMouseY - window.scrollY / 700
 
-                mouseMoveGroup.rotation.y = lerpedMouseX
-
-                jonothanGroup.rotation.y = lerpedMouseX
-                jonothanGroup.rotation.z = lerpedMouseX / 2
-
-                jonothanGroup.rotation.x = - lerpedMouseY - window.scrollY / 700
-            }
+            // Bubble image transform
+            bubbleImage.current.style.transform = `translate(${lerpedMouseX * 400}px, ${- windowScrollY / 2 + (- lerpedMouseY * 400)}px)`
 
             // Render frame
             renderer.render(scene, camera);
-
         };
         animate();
 
@@ -315,7 +277,10 @@ const HeaderThree = (props) =>
     }, []);
 
     return (
-        <div className={threeVisible ? "webgl active" : "webgl"} ref={canvasRef}></div>
+        <>
+            <div className={threeVisible ? "webgl active" : "webgl"} ref={canvasRef}></div>
+            <img ref={bubbleImage} alt={""} className={threeVisible ? "bubble-image active" : "bubble-image"} src={require('../resources/bubble_dark_mode.png')} />
+        </>
     )
 
 }
