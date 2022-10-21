@@ -8,6 +8,8 @@
 
     opacity: 0;
     transition: 1.5s opacity ease;
+
+    background-color: var(--main-2);
 }
 
 .webgl.active {

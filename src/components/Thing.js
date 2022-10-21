@@ -20,7 +20,7 @@ const Thing = (props) =>
 
             <div className="card-links-wrapper">
                 {Object.keys(props.links).length > 0 && Object.keys(props.links).map((link, index) => (
-                    <a key={"link_" + index} className="card-link" href={props.links[link]}>{link}</a>
+                    <a key={"link_" + index} className={index === 0 ? "card-link whole-card-clickable" : "card-link individual-clickable"} href={props.links[link]}>{link}</a>
                 ))}
             </div>
 

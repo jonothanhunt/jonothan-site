@@ -52,6 +52,10 @@
 
 }
 
+.header-link-list-item {
+    display: inline;
+}
+
 .header-link {
     padding: 0 10px;
 
@@ -63,6 +67,10 @@
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 7px;
+}
+
+.header-link:hover {
+    text-decoration-thickness: 2px;
 }
 
 .header-link.header-link-text {

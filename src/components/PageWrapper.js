@@ -3,9 +3,9 @@ import './PageWrapper.css'
 const PageWrapper = (props) =>
 {
     return (
-        <div className="wrapper">
+        <main className="wrapper">
             {props.children}
-        </div>
+        </main>
     )
 }
 
