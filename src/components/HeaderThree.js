@@ -20,8 +20,8 @@ const HeaderThree = (props) =>
         let mouseY = 0
 
         const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        let aspect = window.innerWidth / window.innerHeight;
+        const windowHeight = window.document.documentElement.clientHeight;
+        let aspect = window.innerWidth / window.document.documentElement.clientHeight;
 
         const main1Colour = new THREE.Color(0x003b49) // new THREE.Color(0xf0f0f0)
 
@@ -182,7 +182,7 @@ const HeaderThree = (props) =>
         window.addEventListener('mousemove', (event) =>
         {
             mouseX = (event.clientX / window.innerWidth) * 0.1
-            mouseY = - (event.clientY / window.innerHeight) * 0.1
+            mouseY = - (event.clientY / window.document.documentElement.clientHeight) * 0.1
         });
 
 
@@ -191,7 +191,7 @@ const HeaderThree = (props) =>
         let onWindowResize = function ()
         {
             const windowWidth = window.innerWidth
-            const windowHeight = window.innerHeight
+            const windowHeight = window.document.documentElement.clientHeight
 
             aspect = windowWidth / windowHeight;
             mainGroup.scale.set(aspect, aspect, aspect)
@@ -274,4 +274,3 @@ const HeaderThree = (props) =>
 }
 
 export default HeaderThree
-
