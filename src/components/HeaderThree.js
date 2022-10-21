@@ -151,7 +151,7 @@ const HeaderThree = (props) =>
             const miniBubbleGeometry = new THREE.SphereGeometry(miniBubbleScale, 16, 16);
             miniBubbleGeometry.translate(miniBubbleX, miniBubbleY, miniBubbleZ)
 
-            if (i == Math.floor(bubbleCount / 2)) // Big bubble
+            if (i === Math.floor(bubbleCount / 2)) // Big bubble
             {
                 const bubbleGeometry = new THREE.SphereGeometry(0.18, 32, 32);
                 bubbleGeometry.translate(0.1, -0.1, 0.2) // 0.2
