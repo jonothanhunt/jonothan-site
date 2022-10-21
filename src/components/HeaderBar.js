@@ -43,8 +43,8 @@ const HeaderBar = (props) =>
                 <ul className="header-links">
                     <li className="header-link-list-item" ><a href="mailto:hello@jonothankh.com" className="header-link header-link-text">Email</a></li>
                     <li className="header-link-list-item" ><a href="https://www.linkedin.com/in/jonothankh/" className="header-link header-link-text">LinkedIn</a></li>
-                    <li className="header-link header-link-icon"><img className="header-icon" src={require('../icons/email.svg').default} alt="" /></li>
-                    <li className="header-link header-link-icon"><img className="header-icon" src={require('../icons/linkedin.svg').default} alt="" /></li>
+                    <li className="header-link header-link-icon"><a href="mailto:hello@jonothankh.com"><img className="header-icon" src={require('../icons/email.svg').default} alt="" /></a></li>
+                    <li className="header-link header-link-icon"><a href="https://www.linkedin.com/in/jonothankh/"><img className="header-icon" src={require('../icons/linkedin.svg').default} alt="" /></a></li>
                 </ul>
             </nav>
         </header>

@@ -249,7 +249,7 @@ const HeaderThree = (props) =>
             jonothanGroup.rotation.x = - lerpedMouseY - window.scrollY / 700
 
             // Bubble image transform
-            bubbleImage.current.style.transform = `translate(${lerpedMouseX * 400}px, ${- windowScrollY / 2 + (- lerpedMouseY * 400)}px)`
+            bubbleImage.current.style.transform = `translate(${lerpedMouseX * 400}px, ${- windowScrollY + (- lerpedMouseY * 400)}px)`
 
             // Render frame
             renderer.render(scene, camera);
