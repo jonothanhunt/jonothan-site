@@ -5,8 +5,10 @@ import HeaderThree from './components/HeaderThree';
 import PageWrapper from './components/PageWrapper';
 import Thing from './components/Thing';
 import Things from './components/Things';
+import Footer from './components/Footer';
 
 import things from './data/things'
+
 
 function App()
 {
@@ -44,6 +46,8 @@ function App()
           ))}
 
         </Things>
+
+        <Footer />
 
       </PageWrapper>
 

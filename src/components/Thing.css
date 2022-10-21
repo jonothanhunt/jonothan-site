@@ -1,11 +1,25 @@
 .card {
-    flex: 1 1 300px;
+    /* flex: 1 1 300px; */
+    flex: 1 1 450px;
 
     padding: 20px;
     border-radius: 5px;
 
     background-color: var(--back-1);
     backdrop-filter: blur(10px);
+
+
+    transition: 0.25s all ease;
+
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: transparent;
+    outline-offset: 0px;
+}
+
+.card:hover {
+    outline-color: var(--main-1);
+    outline-offset: 5px;
 }
 
 .card-tags-wrapper {
@@ -52,8 +66,11 @@
 
 .card-link {
     color: var(--main-1);
-    display: block;
-    margin-bottom: 15px;
+    display: inline-block;
+
+    margin: 5px 20px 5px 0;
+
+    padding: 10px 0 10px 0;
 
     font-weight: bold;
 
@@ -62,4 +79,22 @@
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 7px;
+}
+
+.card-link:hover {
+    text-decoration-thickness: 2px;
+}
+
+.card-link.individual-clickable {
+    position: relative;
+    z-index: 2;
+}
+
+.card-link.whole-card-clickable::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    content: "";
 }

@@ -8,12 +8,10 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 
 const HeaderThree = (props) =>
 {
-
     const canvasRef = useRef(null);
+    const bubbleImage = useRef(null);
 
     const [threeVisible, setThreeVisibility] = useState(false);
-
-    const bubbleImage = useRef(null);
 
     useEffect(() =>
     {
@@ -39,7 +37,6 @@ const HeaderThree = (props) =>
 
 
         // EXPERIENCE VARIABLES
-
         // Scene setup
         var scene = new THREE.Scene();
 
@@ -78,7 +75,6 @@ const HeaderThree = (props) =>
 
 
         // JONOTHAN 3D
-
         // Jonothan texture
         const jonothanTextureBaked = textureLoader.load(require('../resources/dark_mode_jonothan.jpg'))
         jonothanTextureBaked.flipY = false
@@ -91,6 +87,7 @@ const HeaderThree = (props) =>
         // Jonothan Model
         gltfLoader.load(
             require('../resources/jonothan.glb'),
+            // require('../resources/site_dark_combined.glb'),
             (gltf) =>
             {
                 gltf.scene.traverse((child) =>
@@ -109,7 +106,6 @@ const HeaderThree = (props) =>
 
 
         // PLANE BLOCKER
-
         const planeMaterial = new THREE.MeshBasicMaterial({
             color: main1Colour,
             depthTest: false,
@@ -117,24 +113,18 @@ const HeaderThree = (props) =>
             transparent: true,
             opacity: 0
         })
-
         const planeGeometry = new THREE.PlaneGeometry(10, 10);
         const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
         planeMesh.renderOrder = 0
         scene.add(planeMesh)
 
-
-        // IMPORTS FOR OBJECTS
-
+        // BUBBLES
         // HDR import
         const hdrEquirect = textureLoader.load(require('../resources/warehouse.jpg'),
             () =>
             {
                 hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
             })
-
-
-        // DECORATION ELEMENTS
 
         // Refraction Material
         const refractMaterial = new THREE.MeshPhysicalMaterial({
@@ -148,22 +138,20 @@ const HeaderThree = (props) =>
             // ior: 4
         });
 
-        // BUBBLES
         const geometries = []
 
-        // BUBBLES
-        const count = 8
+        const bubbleCount = 8
 
-        for (let i = 0; i < count; i++)
+        for (let i = 0; i < bubbleCount; i++)
         {
             const miniBubbleX = (Math.random() - 0.5) * 1.25
             const miniBubbleY = (Math.random() - 0.5) * 0.7
-            const miniBubbleZ = (i / count - 0.5) * 5
-            const miniBubbleScale = (miniBubbleZ + 2.5) / 50 + 0.01 //Math.random() * 0.1 // + 0.05
+            const miniBubbleZ = (i / bubbleCount - 0.5) * 5
+            const miniBubbleScale = (miniBubbleZ + 2.5) / 50 + 0.01
             const miniBubbleGeometry = new THREE.SphereGeometry(miniBubbleScale, 16, 16);
             miniBubbleGeometry.translate(miniBubbleX, miniBubbleY, miniBubbleZ)
 
-            if (i == Math.floor(count / 2))
+            if (i == Math.floor(bubbleCount / 2)) // Big bubble
             {
                 const bubbleGeometry = new THREE.SphereGeometry(0.18, 32, 32);
                 bubbleGeometry.translate(0.1, -0.1, 0.2) // 0.2

@@ -1,13 +1,26 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+:root {
+  /* --main-1: #003b49;
+  --main-2: #f0f0f0;
+  --back-1: rgba(254, 254, 254, 0.539); */
+
+  --main-1: #f0f0f0;
+  --main-2: #003b49;
+  --back-1: #064555d2;
+}
+
+html {
+  background-color: var(--main-2);
+}
+
+body {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  margin: 0;
+  min-width: 375px;
 }
