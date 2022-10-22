@@ -13,7 +13,7 @@ const things = [
         tags: ["App"],
         image: "magpie_app.jpg",
         title: "Magpie mentorship app",
-        description: "Business mentorship app with integration to Microsoft teams.",
+        description: "Business mentorship app with integration to Microsoft Teams.",
         links: {
             "In the news": "https://www.creativeboom.com/news/wunderman-thompson-launches-magpie/"
         }
@@ -22,7 +22,7 @@ const things = [
         tags: ["Toolkit"],
         image: "microsoft_be_you.jpg",
         title: "Campaign to raise awareness of accessibility tech",
-        description: "Microsoft makes some fab tech that helps people like me with dyslexia as well as other learning differences.",
+        description: "Microsoft makes some fab tech that helps dyslexic people like me.",
         links: {
             "Accessibility tips and tricks": "https://www.microsoft.com/en-gb/business/accessibility/tips-tricks/",
             "Press release": "https://news.microsoft.com/en-gb/2022/09/29/be-you-campaign-aims-to-raise-awareness-of-how-technology-can-help-people-with-dyslexia-and-other-learning-differences/"
