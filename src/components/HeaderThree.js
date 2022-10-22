@@ -5,6 +5,7 @@ import './HeaderThree.css'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { render } from "@testing-library/react";
 
 const HeaderThree = (props) =>
 {
@@ -207,6 +208,12 @@ const HeaderThree = (props) =>
         };
         window.addEventListener("resize", onWindowResize, false);
 
+        let renderController = {
+            renderThisFrame: true,
+            renderNextFrame: true
+        }
+
+        let fadeOutProgress = 0;
 
         // ANIMATE
         var animate = function ()
@@ -218,22 +225,26 @@ const HeaderThree = (props) =>
 
             // Rotation and position of Jonothan
             jonothanGroup.rotation.x = - windowScrollY / 700
+            mouseMoveGroup.rotation.x = - windowScrollY / 5000
             mainGroup.position.y = 0.4 + (windowScrollY / 1000)
 
             // Scroll progress
-            const firstScrollProgress = 1 - Math.max(Math.min(3 - (windowScrollY / 100), 1), 0)
+            const newFadeOutProgress = 1 - Math.max(Math.min(3 - (windowScrollY / 100), 1), 0)
+            const firstScrollInProgress = !(newFadeOutProgress === 1)
+
+            windowScrollY > 305 && fadeOutProgress === 1 ? renderController.renderNextFrame = false : renderController.renderThisFrame = true
 
             // There is a change since last frame
-            if (firstScrollProgress !== planeMaterial.opacity)
+            if (newFadeOutProgress !== fadeOutProgress)
             {
-                const firstScrollProgressEnd = !(firstScrollProgress === 1)
+                jonothanGroup.visible = firstScrollInProgress
+                planeGeometry.visible = firstScrollInProgress
+                bubblesMesh.visible = firstScrollInProgress
 
-                jonothanGroup.visible = firstScrollProgressEnd
-                planeGeometry.visible = firstScrollProgressEnd
-                bubblesMesh.visible = firstScrollProgressEnd
-
-                planeMaterial.opacity = firstScrollProgress
+                planeMaterial.opacity = newFadeOutProgress
                 planeMaterial.needsUpdate = true
+
+                fadeOutProgress = newFadeOutProgress
             }
 
             // Mouse animation
@@ -252,7 +263,12 @@ const HeaderThree = (props) =>
             bubbleImage.current.style.transform = `translate(${lerpedMouseX * 400}px, ${- (windowScrollY / 3) + (- lerpedMouseY * 400)}px)`
 
             // Render frame
-            renderer.render(scene, camera);
+            if (renderController.renderThisFrame)
+            {
+                renderer.render(scene, camera);
+            }
+
+            renderController.renderThisFrame = renderController.renderNextFrame
         };
         animate();
 
