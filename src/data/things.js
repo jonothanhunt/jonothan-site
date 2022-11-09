@@ -1,5 +1,15 @@
 const things = [
     {
+        tags: ["Article"],
+        image: "metaverse_article.jpg",
+        title: "Building and understanding the metaversal landscape",
+        description: "A rundown of the metaversal landscape and how to get building in it.",
+        links: {
+            "Read on Medium": "https://medium.com/@jonothankh/building-and-understanding-the-metaversal-landscape-2b93a86a4277",
+        }
+
+    },
+    {
         tags: ["Social AR"],
         image: "bunny_hop.jpg",
         title: "Duracell Bunny Hop game",
