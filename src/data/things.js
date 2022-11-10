@@ -1,7 +1,7 @@
 const things = [
     {
         tags: ["Article"],
-        image: "metaverse_article.jpg",
+        image: "metaverse_article.webp",
         title: "Building and understanding the metaversal landscape",
         description: "A rundown of the metaversal landscape and how to get building in it.",
         links: {
@@ -10,8 +10,18 @@ const things = [
 
     },
     {
+        tags: ["Site"],
+        image: "accessible_things.webp",
+        title: "Accessible Things",
+        description: "A growing collection of accessible things that I use or have been told are great.",
+        links: {
+            "Visit site": "https://accessible.jonothan.dev",
+        }
+
+    },
+    {
         tags: ["Social AR"],
-        image: "bunny_hop.jpg",
+        image: "bunny_hop.webp",
         title: "Duracell Bunny Hop game",
         description: "Retro-style game for Duracell on Instagram and Facebook.",
         links: {
@@ -21,7 +31,7 @@ const things = [
     },
     {
         tags: ["App"],
-        image: "magpie_app.jpg",
+        image: "magpie_app.webp",
         title: "Magpie mentorship app",
         description: "Business mentorship app with integration to Microsoft Teams.",
         links: {
@@ -30,7 +40,7 @@ const things = [
     },
     {
         tags: ["Toolkit"],
-        image: "microsoft_be_you.jpg",
+        image: "microsoft_be_you.webp",
         title: "Campaign to raise awareness of accessibility tech",
         description: "Microsoft makes some fab tech that helps dyslexic people like me.",
         links: {
@@ -40,7 +50,7 @@ const things = [
     },
     {
         tags: ["Social AR"],
-        image: "meta_spark_gallery.jpg",
+        image: "meta_spark_gallery.webp",
         title: "Meta Spark gallery",
         description: "A selection of AR experiences I've made with Meta Spark.",
         links: {
@@ -49,7 +59,7 @@ const things = [
     },
     {
         tags: ["Social AR"],
-        image: "tiktok_effect_house.jpg",
+        image: "tiktok_effect_house.webp",
         title: "TikTok Effect House gallery",
         description: "A selection of AR experiences I've made with Effect House.",
         links: {
