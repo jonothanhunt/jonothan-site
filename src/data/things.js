@@ -33,9 +33,9 @@ const things = [
         tags: ["App"],
         image: "magpie_app.webp",
         title: "Magpie mentorship app",
-        description: "Business mentorship app with integration to Microsoft Teams.",
+        description: "Award-winning mentorship app with integration to Microsoft Teams.",
         links: {
-            "In the news": "https://www.creativeboom.com/news/wunderman-thompson-launches-magpie/"
+            "In the news": "https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
         }
     },
     {
