@@ -61,7 +61,7 @@ const things = [
         tags: ["Social AR"],
         image: "tiktok_effect_house.webp",
         title: "TikTok Effect House gallery",
-        description: "A selection of AR experiences I've made with Effect House.",
+        description: "Views of videos using my AR effects on TikTok have reached over 1 billion!",
         links: {
             "See my effects on TikTok": "https://www.tiktok.com/@jonothankh"
         }
