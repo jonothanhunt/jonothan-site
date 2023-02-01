@@ -10,6 +10,15 @@ const things = [
 
     },
     {
+        tags: ["Social AR"],
+        image: "tiktok_effect_house.webp",
+        title: "TikTok Effect House gallery",
+        description: "Views of videos using my AR effects on TikTok have reached over 1 billion!",
+        links: {
+            "See my effects on TikTok": "https://www.tiktok.com/@jonothankh"
+        }
+    },
+    {
         tags: ["Site"],
         image: "accessible_things.webp",
         title: "Accessible Things",
@@ -55,15 +64,6 @@ const things = [
         description: "A selection of AR experiences I've made with Meta Spark.",
         links: {
             "View gallery": "https://www.facebook.com/sparkarhub/portfolios/ig/jonothankh/"
-        }
-    },
-    {
-        tags: ["Social AR"],
-        image: "tiktok_effect_house.webp",
-        title: "TikTok Effect House gallery",
-        description: "Views of videos using my AR effects on TikTok have reached over 1 billion!",
-        links: {
-            "See my effects on TikTok": "https://www.tiktok.com/@jonothankh"
         }
     }
 ]
