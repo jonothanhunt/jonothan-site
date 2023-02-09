@@ -8,6 +8,7 @@ import Things from './components/Things';
 import Footer from './components/Footer';
 
 import things from './data/things'
+import Experience from './components/Experience';
 
 
 function App()
@@ -16,7 +17,8 @@ function App()
   return (
     <div className="App">
 
-      <HeaderThree />
+      {/* <HeaderThree /> */}
+      <Experience />
 
       <HeaderBar />
 
