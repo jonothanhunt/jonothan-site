@@ -10,7 +10,6 @@ import { render } from "@testing-library/react";
 const HeaderThree = (props) =>
 {
     const canvasRef = useRef(null);
-    const bubbleImage = useRef(null);
 
     const [threeVisible, setThreeVisibility] = useState(false);
 
@@ -259,9 +258,6 @@ const HeaderThree = (props) =>
             jonothanGroup.rotation.z = lerpedMouseX / 2
             jonothanGroup.rotation.x = - lerpedMouseY - window.scrollY / 700
 
-            // Bubble image transform
-            bubbleImage.current.style.transform = `translate(${lerpedMouseX * 400}px, ${- (windowScrollY / 3) + (- lerpedMouseY * 400)}px)`
-
             // Render frame
             if (renderController.renderThisFrame)
             {
@@ -283,7 +279,6 @@ const HeaderThree = (props) =>
     return (
         <>
             <div className={threeVisible ? "webgl active" : "webgl"} ref={canvasRef}></div>
-            <img ref={bubbleImage} alt={""} className={threeVisible ? "bubble-image active" : "bubble-image"} src={require('../resources/bubble_dark_mode.png')} />
         </>
     )
 
