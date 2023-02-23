@@ -20,6 +20,16 @@ const things = [
     },
     {
         tags: ["Site"],
+        image: "playground.webp",
+        title: "Playground",
+        description: "My 3D playground built in Three.js and R3F.",
+        links: {
+            "Visit site": "https://playground.jonothan.dev",
+        }
+
+    },
+    {
+        tags: ["Site"],
         image: "accessible_things.webp",
         title: "Accessible Things",
         description: "A growing collection of accessible things that I use or have been told are great.",
