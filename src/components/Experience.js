@@ -152,11 +152,11 @@ function Scene()
         sceneRef.current.rotation.x = smoothedMouseY * 0.01
         sceneRef.current.rotation.z = smoothedMouseY * 0.01
         sceneRef.current.scale.set(resizedFromX, resizedFromX, resizedFromX)
-        sceneRef.current.position.y = (size.height / size.width) * 2 - 2.6
+
+        sceneRef.current.position.y = (size.height / size.width) * 1.6 - 2.6
 
         textRef.current.rotation.x = windowScrollY / -2400
         textRef.current.rotation.z = windowScrollY / -4000
-
         textRef.current.position.y = (windowScrollY / 60) * (1000 / size.width)
 
         bubblesRef.current.rotation.x = smoothedWindowScrollY * 0.002
