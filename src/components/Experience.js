@@ -19,7 +19,7 @@ const Experience = (props) =>
     return (
 
         // canvas wrapper for css fade in
-        <div className={useProgress().loaded == 6 ? "experience active" : "experience"}>
+        <div className={useProgress().loaded === 6 ? "experience active" : "experience"}>
 
             {/* R3F canvas */}
             <Canvas
