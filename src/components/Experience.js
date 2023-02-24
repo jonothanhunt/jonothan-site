@@ -19,7 +19,7 @@ const Experience = (props) =>
     return (
 
         // canvas wrapper for css fade in
-        <div className={useProgress().loaded === 6 ? "experience active" : "experience"}>
+        <div className={useProgress().loaded === 7 ? "experience active" : "experience"}>
 
             {/* R3F canvas */}
             <Canvas
@@ -36,10 +36,10 @@ const Experience = (props) =>
                 }
 
                 {/* sets scene background (mostly to avoid plane edge being visisble in physical material refraction) */}
-                <color attach="background" args={[0, 59 / 255, 73 / 255]} />
+                <color attach="background" args={props.theme === 'dark' ? [0, 59 / 255, 73 / 255] : [240 / 255, 240 / 255, 240 / 255]} />
 
                 {/* All 3D objects in group with movement effects on scroll and mouse move */}
-                <Scene />
+                <Scene theme={props.theme} />
 
             </Canvas>
 
@@ -51,11 +51,21 @@ const Experience = (props) =>
 // Imported glb of text with baked texture
 function Text({ color, ...props })
 {
-    const texture = useTexture(require('../resources/dark_mode_jonothan.jpg'))
-    texture.flipY = false
+    const darkModetexture = useTexture(require('../resources/dark_mode_jonothan.jpg'))
+    const lightModetexture = useTexture(require('../resources/light_mode_jonothan.jpg'))
+    darkModetexture.flipY = false
+    lightModetexture.flipY = false
+
     const { nodes, materials } = useGLTF(require("../resources/jonothan.glb"));
 
-    const textMaterial = new THREE.MeshBasicMaterial({ map: texture })
+    let textMaterial = new THREE.MeshBasicMaterial()
+    textMaterial.map = props.theme === 'dark' ? darkModetexture : lightModetexture
+
+    useEffect(() =>
+    {
+        textMaterial.map = props.theme === 'dark' ? darkModetexture : lightModetexture
+        textMaterial.needsUpdate = true
+    }, [props.theme])
 
     return (
         <group {...props} >
@@ -117,7 +127,7 @@ useGLTF.preload(require("../resources/jonothan.glb"));
 useGLTF.preload(require('../resources/gradient.jpg'))
 
 // All 3D objects in group with movement effects on scroll and mouse move
-function Scene()
+function Scene(props)
 {
     const { viewport } = useThree()
     const sceneRef = useRef(null)
@@ -127,6 +137,8 @@ function Scene()
 
     const { size } = useThree()
     const resizedFromX = size.width * 0.0008
+
+    let windowScrollY = window.scrollY
 
     let mouseX = 0
     let mouseY = 0
@@ -140,7 +152,7 @@ function Scene()
     useFrame(({ mouse }) =>
     {
 
-        const windowScrollY = window.scrollY
+        windowScrollY = window.scrollY
         smoothedWindowScrollY = lerp(smoothedWindowScrollY, windowScrollY, 0.05)
 
         mouseX = (mouse.x * viewport.width) / 2
@@ -181,8 +193,16 @@ function Scene()
             </Float>
 
             <group ref={textRef} scale={[14, 14, 14]} rotation={[0, 0, 0]} position={[0, 0, 0]}>
-                <Text color="#fef4ef" />
-                <Sparkles position={[0, .5, 0]} count={40} speed={1} size={10} scale={1} noise={0.006} />
+                <Text theme={props.theme} color="#fef4ef" />
+                <Sparkles
+                    position={[0, .5, 0]}
+                    count={40}
+                    speed={1}
+                    size={10}
+                    scale={1}
+                    noise={0.006}
+                    color="white"
+                />
             </group>
 
         </group>
