@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import './HeaderBar.css'
+import ThemeSwitcher from "./ThemeSwitcher";
 
 const HeaderBar = (props) =>
 {
@@ -41,6 +42,12 @@ const HeaderBar = (props) =>
             <h1 className={titleVisible ? "name active" : "name"}>Jonothan</h1>
             <nav>
                 <ul className="header-links">
+                    {/* <li className="header-link-list-item">
+                        <ThemeSwitcher
+                            theme={props.theme}
+                            setTheme={props.setTheme}
+                        />
+                    </li> */}
                     <li className="header-link-list-item" ><a href="mailto:hello@jonothankh.com" className="header-link header-link-text">hello@jonothan.dev</a></li>
                     <li className="header-link-list-item" ><a href="https://github.com/jonothanhunt" className="header-link header-link-text">GitHub</a></li>
                     <li className="header-link header-link-icon"><a href="mailto:hello@jonothan.dev"><img className="header-icon" src={require('../icons/email.svg').default} alt="" /></a></li>

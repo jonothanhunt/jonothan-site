@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import './App.css';
 import HeaderBar from './components/HeaderBar';
@@ -16,14 +16,21 @@ function App()
 {
   const appRoot = useRef(null)
 
+  const [theme, setTheme] = useState(localStorage.getItem('theme') ? localStorage.getItem('theme') : 'dark')
+
   return (
     <div ref={appRoot} className="App">
 
       {/* <HeaderThree /> */}
       <Experience
-        appRoot={appRoot} />
+        appRoot={appRoot}
+        theme={theme}
+      />
 
-      <HeaderBar />
+      <HeaderBar
+        theme={theme}
+        setTheme={setTheme}
+      />
 
       <PageWrapper>
 
@@ -52,7 +59,10 @@ function App()
 
         </Things>
 
-        <Footer />
+        <Footer
+          theme={theme}
+          setTheme={setTheme}
+        />
 
       </PageWrapper>
 

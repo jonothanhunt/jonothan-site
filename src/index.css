@@ -6,10 +6,18 @@ code {
 }
 
 :root {
-  /* --main-1: #003b49;
-  --main-2: #f0f0f0;
-  --back-1: rgba(254, 254, 254, 0.539); */
+  --main-1: #f0f0f0;
+  --main-2: #003b49;
+  --back-1: #064555d2;
+}
 
+[data-theme="light"] {
+  --main-1: #003b49;
+  --main-2: #f0f0f0;
+  --back-1: #d6e0dfd2;
+}
+
+[data-theme="dark"] {
   --main-1: #f0f0f0;
   --main-2: #003b49;
   --back-1: #064555d2;
