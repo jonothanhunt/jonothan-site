@@ -1,22 +1,22 @@
-.webgl {
+.experience {
     position: fixed;
     top: 0;
     left: 0;
     outline: none;
     /* 
     position: absolute; */
-    /* overflow: hidden;
+    /* overflow: hidden; */
     width: 100%;
-    height: 100%; */
+    height: 100%;
 
-    z-index: -2;
+    /* z-index: -1; */
 
     opacity: 0;
-    transition: 1.5s opacity ease;
+    transition: 3s opacity ease;
 
     background-color: var(--main-2);
 }
 
-.webgl.active {
+.experience.active {
     opacity: 1;
 }

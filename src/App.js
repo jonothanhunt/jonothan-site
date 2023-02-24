@@ -1,22 +1,27 @@
+import { useRef } from 'react';
+
 import './App.css';
 import HeaderBar from './components/HeaderBar';
 import Introduction from './components/Introduction';
-import HeaderThree from './components/HeaderThree';
 import PageWrapper from './components/PageWrapper';
 import Thing from './components/Thing';
 import Things from './components/Things';
 import Footer from './components/Footer';
 
 import things from './data/things'
+import Experience from './components/Experience';
 
 
 function App()
 {
+  const appRoot = useRef(null)
 
   return (
-    <div className="App">
+    <div ref={appRoot} className="App">
 
-      <HeaderThree />
+      {/* <HeaderThree /> */}
+      <Experience
+        appRoot={appRoot} />
 
       <HeaderBar />
 
