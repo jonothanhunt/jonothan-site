@@ -1,4 +1,5 @@
 .padding-element {
   width: 100%;
   height: min(60vw, 50vh);
+  pointer-events: none
 }
