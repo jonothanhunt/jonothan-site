@@ -1,15 +1,5 @@
 const things = [
     {
-        tags: ["Article"],
-        image: "metaverse_article.webp",
-        title: "Building and understanding the metaversal landscape",
-        description: "A rundown of the metaversal landscape and how to get building in it.",
-        links: {
-            "Read on Medium": "https://medium.com/@jonothankh/building-and-understanding-the-metaversal-landscape-2b93a86a4277",
-        }
-
-    },
-    {
         tags: ["Social AR"],
         image: "tiktok_effect_house.webp",
         title: "TikTok Effect House gallery",
@@ -35,6 +25,16 @@ const things = [
         description: "A growing collection of accessible things that I use or have been told are great.",
         links: {
             "Visit site": "https://accessible.jonothan.dev",
+        }
+
+    },
+    {
+        tags: ["Article"],
+        image: "metaverse_article.webp",
+        title: "Building and understanding the metaversal landscape",
+        description: "A rundown of the metaversal landscape and how to get building in it.",
+        links: {
+            "Read on Medium": "https://medium.com/@jonothankh/building-and-understanding-the-metaversal-landscape-2b93a86a4277",
         }
 
     },
