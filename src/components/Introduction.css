@@ -1,9 +1,14 @@
 .introduction-section {
+
+    position: relative;
     max-width: 40rem;
 
     margin: 20px auto 40px auto;
 
     text-align: center;
+
+    pointer-events: none;
+
 }
 
 .introduction-title {
