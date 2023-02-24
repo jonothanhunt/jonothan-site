@@ -44,7 +44,7 @@ const HeaderBar = (props) =>
                     <li className="header-link-list-item" ><a href="mailto:hello@jonothankh.com" className="header-link header-link-text">hello@jonothan.dev</a></li>
                     <li className="header-link-list-item" ><a href="https://github.com/jonothanhunt" className="header-link header-link-text">GitHub</a></li>
                     <li className="header-link header-link-icon"><a href="mailto:hello@jonothan.dev"><img className="header-icon" src={require('../icons/email.svg').default} alt="" /></a></li>
-                    <li className="header-link header-link-icon"><a href="https://www.linkedin.com/in/jonothankh/"><img className="header-icon" src={require('../icons/github.svg').default} alt="" /></a></li>
+                    <li className="header-link header-link-icon"><a href="https://github.com/jonothanhunt"><img className="header-icon" src={require('../icons/github.svg').default} alt="" /></a></li>
                 </ul>
             </nav>
         </header>
