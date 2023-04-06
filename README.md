@@ -2,7 +2,7 @@
 
 ![Sreenshot of jonothan.dev](/jonothan_dev_screenshot.png)
 
-This is [my website](https:jonothan.dev), created with [React](https://react.dev/) and [React Three Fiber](https://github.com/pmndrs/react-three-fiber) (which is a React renderer for [three.js](https://threejs.org/)).
+This is [my website](https://jonothan.dev), created with [React](https://react.dev/) and [React Three Fiber](https://github.com/pmndrs/react-three-fiber) (which is a React renderer for [three.js](https://threejs.org/)).
 
 ## Setup
 
