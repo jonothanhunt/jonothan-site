@@ -6,7 +6,7 @@ This is [my website](https://jonothan.dev), created with [React](https://react.d
 
 ## Setup
 
-After cloning this repository, install packages and run:
+After cloning this repository, you can install packages and run the dev server:
 ```bash
 yarn
 yarn dev
