@@ -37,7 +37,6 @@ function Experience(props)
           {
             window.location.href.indexOf("#debug") > -1 && <Perf position={"top-left"} />
           }
-
           <TransformGroup />
 
         </Canvas>
@@ -84,13 +83,11 @@ function TransformGroup(props)
     <>
       <Background />
 
-      <Center onCentered={({ container, height, width }) => { container.scale.setScalar([(Math.min(viewport.width * 0.04, 1))]) }} bottom position={[0, height / 2 - 1.9, 0]} >
-        {/* <Center onCentered={({ container, height, width }) => { container.scale.setScalar([(Math.min(viewport.width * 0.04, 1))]) }} bottom position={[0, 7.4 - (1 / (viewport.width / viewport.height)), 0]} > */}
+      <Center onCentered={({ container }) => { container.scale.setScalar([(Math.min(width * 0.04, height * 0.06))]) }} bottom position={[0, (height / 2) - 1.5 - (1 / (width / height) * 0.3), 0]} >
         <group ref={transformGroup}>
           <Header />
           <Stickers />
           <Planes />
-
         </group>
       </Center>
     </>
