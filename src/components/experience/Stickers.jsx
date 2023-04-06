@@ -1,10 +1,14 @@
-import { Float, useTexture } from '@react-three/drei'
+import { Float, useTexture, useCursor } from '@react-three/drei'
+import { useState } from 'react'
 
 const Stickers = (props) =>
 {
     const metaSpark = useTexture('/images/meta_spark.png')
     const reactLogo = useTexture('/images/react_logo.png')
     const R3FLogo = useTexture('/images/r3f_logo.png')
+
+    const [hovered, setHovered] = useState()
+    useCursor(hovered, /*'pointer', 'auto'*/)
 
     const floatConfig = {
         rotationIntensity: 1, // XYZ rotation intensity, defaults to 1
@@ -14,7 +18,7 @@ const Stickers = (props) =>
     return (
         <group rotation={[Math.PI * - 0.25, 0, 0]} {...props}>
             <Float {...floatConfig}>
-                <mesh position={[-10, 6, -1]} rotation={[0, 0, .4]}>
+                <mesh position={[-10, 6, -1]} rotation={[0, 0, .4]} onClick={() => window.open("https://www.credly.com/badges/c9b7924f-60ad-461c-9614-39e0efc8530b/public_url", "_blank")} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
                     <planeGeometry args={[2.4, 2.4, 1, 1]} />
                     <meshBasicMaterial color={'#ffebfa'} map={metaSpark} alphaTest={0.5} transparent={false} />
                 </mesh>
