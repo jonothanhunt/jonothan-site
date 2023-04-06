@@ -1,4 +1,7 @@
-precision lowp float;
+precision mediump sampler2DArray;
+
+precision mediump float; 
+precision mediump int;   
 
 uniform float uTime;
 uniform float uScale;

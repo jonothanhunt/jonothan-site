@@ -9,6 +9,7 @@ import { Center } from '@react-three/drei'
 
 import { Perf } from 'r3f-perf'
 import Planes from './Planes'
+import Stickers from './Stickers'
 
 function Experience(props)
 {
@@ -83,10 +84,12 @@ function TransformGroup(props)
     <>
       <Background />
 
-      <Center onCentered={({ container, height, width }) => { container.scale.setScalar([(Math.min(viewport.width / width * 0.8, 1))]) }} bottom position={[0, 6, 0]} >
+      <Center onCentered={({ container, height, width }) => { container.scale.setScalar([(Math.min(viewport.width / width * 1, 1))]) }} bottom position={[0, 6, 0]} >
         <group ref={transformGroup}>
           <Header />
+          <Stickers />
           <Planes />
+
         </group>
       </Center>
     </>
