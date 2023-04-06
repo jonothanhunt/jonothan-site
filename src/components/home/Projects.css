@@ -1,0 +1,17 @@
+.projects-wrapper {
+    height: 100%;
+
+    padding: 20px;
+    margin: 20px 0 0 0;
+
+    overflow-y: scroll;
+    border-radius: 20px 20px 0;
+}
+
+.project-cards-wrapper {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+}
