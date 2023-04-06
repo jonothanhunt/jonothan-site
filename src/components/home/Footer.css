@@ -1,0 +1,9 @@
+footer {
+    text-align: center;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.copyright-notice {
+    color: var(--primary-color);
+}
