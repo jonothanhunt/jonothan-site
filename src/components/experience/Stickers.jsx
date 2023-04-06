@@ -16,21 +16,21 @@ const Stickers = (props) =>
             <Float {...floatConfig}>
                 <mesh position={[-10, 6, -1]} rotation={[0, 0, .4]}>
                     <planeGeometry args={[2.4, 2.4, 1, 1]} />
-                    <meshBasicMaterial map={metaSpark} alphaTest={0.5} transparent={false} />
+                    <meshBasicMaterial color={'#ffebfa'} map={metaSpark} alphaTest={0.5} transparent={false} />
                 </mesh>
             </Float>
 
             <Float {...floatConfig}>
                 <mesh position={[6, -3, -1]} rotation={[0, 0, .4]}>
                     <planeGeometry args={[2.4, 2.4, 1, 1]} />
-                    <meshBasicMaterial map={reactLogo} alphaTest={0.5} transparent={false} />
+                    <meshBasicMaterial color={'#ffebfa'} map={reactLogo} alphaTest={0.5} transparent={false} />
                 </mesh>
             </Float>
 
             <Float {...floatConfig}>
                 <mesh position={[10, -2, 0]} rotation={[0, 0, .7]}>
                     <planeGeometry args={[4, 4, 1, 1]} />
-                    <meshBasicMaterial map={R3FLogo} alphaTest={0.5} transparent={false} />
+                    <meshBasicMaterial color={'#ffebfa'} map={R3FLogo} alphaTest={0.5} transparent={false} />
                 </mesh>
             </Float>
         </group>
