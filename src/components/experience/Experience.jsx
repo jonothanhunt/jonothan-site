@@ -84,7 +84,7 @@ function TransformGroup(props)
     <>
       <Background />
 
-      <Center onCentered={({ container, height, width }) => { container.scale.setScalar([(Math.min(viewport.width / width * 1, 1))]) }} bottom position={[0, 6, 0]} >
+      <Center onCentered={({ container, height, width }) => { container.scale.setScalar([(Math.min(viewport.width / width * 1, 1))]) }} bottom position={[0, 7.4 - (1 / (viewport.width / viewport.height)), 0]} >
         <group ref={transformGroup}>
           <Header />
           <Stickers />
