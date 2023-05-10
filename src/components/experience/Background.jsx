@@ -21,7 +21,7 @@ function Background(props)
                 value: 1,
             },
             uResolution: {
-                value: new Vector2(size.width, size.height)
+                value: new Vector2(size.height, size.height)
             },
             uOffset: {
                 value: 0
