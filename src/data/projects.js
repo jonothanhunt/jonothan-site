@@ -3,20 +3,19 @@ const projects = [
         tags: ["Social AR"],
         image: "tiktok_effect_house.webp",
         title: "TikTok Effect House gallery",
-        description: "Views of videos using my AR effects on TikTok have reached over 1 billion!",
+        description: "My AR effects on TikTok have reached over 1 billion views!",
         links: {
-            "See my effects on TikTok": "https://www.tiktok.com/@jonothankh"
+            "My TikTok": "https://www.tiktok.com/@jonothankh"
         }
     },
     {
-        tags: ["Site"],
-        image: "playground.webp",
-        title: "Playground",
-        description: "My 3D playground built in Three.js and R3F.",
+        tags: ["Electronics", "Raspberry Pi"],
+        image: "inky_draw.webp",
+        title: "Inky Draw",
+        description: "A fun drawing web app that syncs with an InkyPhat via a Python Flask API.",
         links: {
-            "Visit site": "https://playground.jonothan.dev",
+            "InkyPhat on Github": "https://github.com/jonothanhunt/inky-draw/tree/main"
         }
-
     },
     {
         tags: ["Site"],
@@ -24,9 +23,18 @@ const projects = [
         title: "Accessible Things",
         description: "A growing collection of accessible things that I use or have been told are great.",
         links: {
-            "Visit site": "https://accessible.jonothan.dev",
+            "Visit Accessible Things": "https://accessible.jonothan.dev",
         }
 
+    },
+    {
+        tags: ["Site"],
+        image: "playground.webp",
+        title: "Playground",
+        description: "My 3D playground built in Three.js and R3F.",
+        links: {
+            "Visit playground": "https://playground.jonothan.dev",
+        }
     },
     {
         tags: ["Article"],
@@ -36,7 +44,6 @@ const projects = [
         links: {
             "Read on Medium": "https://medium.com/@jonothankh/building-and-understanding-the-metaversal-landscape-2b93a86a4277",
         }
-
     },
     {
         tags: ["Social AR"],
