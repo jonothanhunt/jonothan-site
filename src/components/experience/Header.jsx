@@ -23,7 +23,7 @@ function Header(props)
                 value: 1,
             },
             uResolution: {
-                value: new Vector2(size.width, size.height)
+                value: new Vector2(size.height, size.height)
             }
         }),
         []
