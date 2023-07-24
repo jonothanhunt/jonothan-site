@@ -5,7 +5,7 @@ const projects = [
         title: "TikTok Effect House gallery",
         description: "My AR effects on TikTok have reached over 1 billion views!",
         links: {
-            "My TikTok": "https://www.tiktok.com/@jonothankh"
+            "My TikTok": "https://www.tiktok.com/@jonothanhunt"
         }
     },
     {
