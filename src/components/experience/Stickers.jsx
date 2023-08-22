@@ -40,7 +40,7 @@ const Stickers = (props) =>
             </Float>
 
             <Float {...floatConfig}>
-                <mesh position={[-3, 4, 0]} rotation={[0, 0, .7]}>
+                <mesh position={[-3, 4, 0]} rotation={[0, 0, .7]} onClick={() => window.open("https://www.tiktok.com/@jonothanhunt", "_blank")} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)} >
                     <planeGeometry args={[3, 3, 1, 1]} />
                     <meshBasicMaterial color={'#ffebfa'} map={EffectHouseLogo} alphaTest={0.5} transparent={false} />
                 </mesh>
