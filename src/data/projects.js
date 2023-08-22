@@ -1,5 +1,14 @@
 const projects = [
     {
+        tags: ["Live"],
+        image: "tiktok_live_supermarket_scan.webp",
+        title: "How I built the supermarket scan TikTok game",
+        description: "Live with Celine in the Effect House team.",
+        links: {
+            "Watch on YouTube": "https://youtu.be/6vYkZmNvDEg"
+        }
+    },
+    {
         tags: ["Social AR"],
         image: "tiktok_effect_house.webp",
         title: "TikTok Effect House gallery",
@@ -14,7 +23,7 @@ const projects = [
         title: "Inky Draw",
         description: "A fun drawing web app that syncs with an InkyPhat via a Python Flask API.",
         links: {
-            "InkyPhat on Github": "https://github.com/jonothanhunt/inky-draw/tree/main"
+            "Inky Draw on Github": "https://github.com/jonothanhunt/inky-draw/tree/main"
         }
     },
     {
@@ -78,9 +87,9 @@ const projects = [
         tags: ["Social AR"],
         image: "meta_spark_gallery.webp",
         title: "Meta Spark gallery",
-        description: "A selection of AR experiences I've made with Meta Spark.",
+        description: "AR experiences I've made with Meta Spark for Instagram.",
         links: {
-            "View gallery": "https://www.facebook.com/sparkarhub/portfolios/ig/jonothankh/"
+            "View on mobile": "https://www.instagram.com/jonothanhunt/"
         }
     }
 ]
