@@ -76,7 +76,8 @@ function TransformGroup(props)
     transformGroup.current.rotation.y = smoothedMouseX * 0.01
     transformGroup.current.rotation.z = - smoothedWindowScrollY * 0.0005
 
-    transformGroup.current.position.y = ((smoothedWindowScrollY * 0.02) * (viewport.height / viewport.width) * 2) + Math.min(5 - (width / 13), 5)
+    // transformGroup.current.position.y = ((smoothedWindowScrollY * 0.02) * (viewport.height / viewport.width) * 2) + Math.min(5 - (width / 13), 5)
+    transformGroup.current.position.y = (smoothedWindowScrollY * 0.02) + Math.max(((viewport.height / viewport.width) * 1.8), 2)
 
     // SCALE
     const scale = Math.min(width / 25, 1)
@@ -88,14 +89,11 @@ function TransformGroup(props)
   return (
     <>
       <Background />
-
-      {/* <Center onCentered={({ container }) => { container.scale.setScalar([(Math.min(width * 0.04, height * 0.06))]) }} bottom position={[0, (height / 2) - 1.5 - (1 / (width / height) * 0.3), 0]} > */}
       <group ref={transformGroup}>
         <Header />
         <Stickers />
         <Planes />
       </group>
-      {/* </Center> */}
     </>
   )
 
