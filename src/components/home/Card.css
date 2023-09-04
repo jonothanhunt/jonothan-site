@@ -89,7 +89,7 @@
 
 .card-link.individual-clickable {
     position: relative;
-    z-index: 2;
+    /* z-index: 2; */
 }
 
 .card-link.whole-card-clickable::after {
