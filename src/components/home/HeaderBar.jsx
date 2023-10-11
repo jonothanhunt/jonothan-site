@@ -21,7 +21,7 @@ const HeaderBar = (props) =>
             <h1 className="name" style={{ opacity: titleVisible ? '1.0' : '0.0' }} >Jonothan</h1>
             <nav>
                 <ul className="header-links">
-                    <li className="header-link-list-item" ><a href="hello@jonothan.dev" className="header-link header-link-text">hello@jonothan.dev</a></li>
+                    <li className="header-link-list-item" ><a href="mailto:hello@jonothan.dev" className="header-link header-link-text">hello@jonothan.dev</a></li>
                     <li className="header-link-list-item" ><a href="https://github.com/jonothanhunt" className="header-link header-link-text">GitHub</a></li>
                     <li className="header-link header-link-icon"><a href="mailto:hello@jonothan.dev"><MobileEmailIcon /></a></li>
                     <li className="header-link header-link-icon"><a href="https://github.com/jonothanhunt"><MobileGitHubIcon /></a></li>
