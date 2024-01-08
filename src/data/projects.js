@@ -29,6 +29,15 @@ const projects = [
         }
     },
     {
+        tags: ["Social AR"],
+        image: "duracell_tiktok_ar.webp",
+        title: "Duracell AR TikTok games",
+        description: "TikTok games featuring Duracell's famous bunny (and batteries) — now with over 2 million opens!",
+        links: {
+            "Duracell on TikTok": "https://www.tiktok.com/@duracellofficial"
+        }
+    },
+    {
         tags: ["Live"],
         image: "tiktok_live_supermarket_scan.webp",
         title: "How I built the supermarket scan TikTok game",
