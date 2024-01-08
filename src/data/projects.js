@@ -1,29 +1,40 @@
 const projects = [
     {
-        tags: ["Live"],
-        image: "tiktok_live_supermarket_scan.webp",
-        title: "How I built the supermarket scan TikTok game",
-        description: "Live with Celine in the Effect House team.",
-        links: {
-            "Watch on YouTube": "https://youtu.be/6vYkZmNvDEg"
-        }
-    },
-    {
         tags: ["Social AR"],
         image: "tiktok_effect_house.webp",
         title: "TikTok Effect House gallery",
-        description: "My AR effects on TikTok have reached over 1 billion views!",
+        description: "My AR effects on TikTok have reached over 5 billion views!",
         links: {
-            "My TikTok": "https://www.tiktok.com/@jonothanhunt"
+            "Visit my TikTok": "https://www.tiktok.com/@jonothanhunt"
+        }
+    },
+    {
+        tags: ["Campaign", "Site"],
+        image: "waiting_to_live.webp",
+        title: "'Waiting to Live' organ donation campaign",
+        description: "Listen to the stories of the children waiting and learn how to register.",
+        links: {
+            "Visit site": "https://waitingtolive.org/",
+            "Visit NHS Organ Donation": "https://www.organdonation.nhs.uk/",
+            "Watch ITV coverage on LinkedIn": "https://www.linkedin.com/posts/wunderman-thompson-uk_you-might-not-know-anything-is-wrong-with-activity-7133784274591215616-arGg",
         }
     },
     {
         tags: ["Electronics", "Raspberry Pi"],
         image: "inky_draw.webp",
         title: "Inky Draw",
-        description: "A fun drawing web app that syncs with an InkyPhat via a Python Flask API.",
+        description: "A fun drawing React app that syncs with an InkyPhat via a Python Flask API.",
         links: {
             "Inky Draw on Github": "https://github.com/jonothanhunt/inky-draw/tree/main"
+        }
+    },
+    {
+        tags: ["Live"],
+        image: "tiktok_live_supermarket_scan.webp",
+        title: "How I built the supermarket scan TikTok game",
+        description: "Live with Celine in the Effect House team.",
+        links: {
+            "Watch on YouTube": "https://youtu.be/6vYkZmNvDEg"
         }
     },
     {
