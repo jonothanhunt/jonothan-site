@@ -1,5 +1,3 @@
-import './Header.css'
-
 import { Center, Text3D } from "@react-three/drei";
 import React, { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -9,7 +7,7 @@ import fragmentShader from '../../shaders/overlay/fragment.glsl'
 
 import { Vector2 } from 'three'
 
-function Header(props)
+function Text(props)
 {
     const { size } = useThree()
 
@@ -80,4 +78,4 @@ function Header(props)
     );
 }
 
-export default Header
+export default Text

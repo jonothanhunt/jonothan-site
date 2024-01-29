@@ -1,10 +1,8 @@
-import './Home.css'
-
 import { useRef } from "react"
 
 import Experience from "../components/experience/Experience"
 import Projects from "../components/home/Projects"
-import HeaderBar from '../components/home/HeaderBar'
+import Header from '../components/home/Header'
 import Footer from '../components/home/Footer'
 
 function Home(props)
@@ -12,7 +10,7 @@ function Home(props)
     const appRoot = useRef(null)
     return (
         <div ref={appRoot} id="home">
-            <HeaderBar />
+            <Header />
             <Experience appRoot={appRoot} />
             <Projects />
             <Footer />
