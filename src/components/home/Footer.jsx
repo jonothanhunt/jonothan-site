@@ -1,11 +1,9 @@
-import './Footer.css'
-
 const Footer = (props) =>
 {
     return (
-        <footer>
-            <p className='footer-text'>© 2022 Jonothan Hunt</p>
-            <p className='footer-text'><a href='https://github.com/jonothanhunt/jonothan-site'>Source code on GitHub</a></p>
+        <footer className='text-center relative pb-[20px]'>
+            <p className='text-primary'>© 2022 Jonothan Hunt</p>
+            <p className='text-primary'><a className='underline' href='https://github.com/jonothanhunt/jonothan-site'>Source code on GitHub</a></p>
         </footer>
     )
 

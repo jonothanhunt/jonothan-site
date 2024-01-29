@@ -1,14 +1,11 @@
-import './Experience.css'
-
 import React, { useRef, useEffect, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 
 import Background from './Background'
-import Header from './Header'
-import { Center } from '@react-three/drei'
+import Text from './Text'
 
 import { Perf } from 'r3f-perf'
-import Planes from './Planes'
+import Bubbles from './Bubbles'
 import Stickers from './Stickers'
 
 function Experience(props)
@@ -17,7 +14,7 @@ function Experience(props)
 
   return (
 
-    <div ref={experienceRef} className="experience">
+    <div ref={experienceRef} className="fixed top-0 left-0 outline-none w-full h-screen -z-10">
 
       <Suspense>
         <Canvas
@@ -31,7 +28,7 @@ function Experience(props)
 
           resize={{ scroll: true, debounce: { scroll: 50, resize: 0 } }}
 
-          onCreated={() => { experienceRef.current.classList.add('in') }}
+          // onCreated={() => { experienceRef.current.classList.add('in') }}
         >
           {/* debug if /#debug in URL */}
           {
@@ -89,9 +86,9 @@ function TransformGroup(props)
     <>
       <Background />
       <group ref={transformGroup}>
-        <Header />
+        <Text />
         <Stickers />
-        <Planes />
+        <Bubbles />
       </group>
     </>
   )
