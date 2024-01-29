@@ -7,7 +7,7 @@ import fragmentShader from '../../shaders/bubble_3/fragment.glsl'
 
 import { Object3D, sRGBEncoding } from 'three'
 
-const Planes = (props) =>
+const Bubbles = (props) =>
 {
     const { size } = useThree();
 
@@ -77,4 +77,4 @@ const Planes = (props) =>
     )
 }
 
-export default Planes
+export default Bubbles
