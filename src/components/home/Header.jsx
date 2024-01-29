@@ -20,10 +20,10 @@ const Header = (props) =>
             <h1 className="inline-block mx-[0] my-[20px] font-bold text-[1.4rem] uppercase tracking-[.2rem] opacity-0 [transition:0.4s_all_ease]" style={{ opacity: titleVisible ? '1.0' : '0.0' }} >Jonothan</h1>
             <nav>
                 <ul className="inline-block list-none m-0 pl-0 pr-0 py-[5px] flex gap-4">
-                    <li className="hidden md:inline" ><a href="mailto:hello@jonothan.dev" className="text-lg underline decoration-primary decoration-1 hover:decoration-2 underline-offset-8">hello@jonothan.dev</a></li>
+                    <li className="hidden md:inline" ><a href="mailto:hey@jonothan.dev" className="text-lg underline decoration-primary decoration-1 hover:decoration-2 underline-offset-8">hey@jonothan.dev</a></li>
                     <li className="hidden md:inline" ><a href="https://github.com/jonothanhunt" className="text-lg underline decoration-primary decoration-1 hover:decoration-2 underline-offset-8">GitHub</a></li>
 
-                    <li className="md:hidden w-[2rem] padding-0 text-lg text-primary "><a href="mailto:hello@jonothan.dev"><MobileEmailIcon /></a></li>
+                    <li className="md:hidden w-[2rem] padding-0 text-lg text-primary "><a href="mailto:hey@jonothan.dev"><MobileEmailIcon /></a></li>
                     <li className="md:hidden w-[2rem] padding-0 text-lg text-primary"><a href="https://github.com/jonothanhunt"><MobileGitHubIcon /></a></li>
                 </ul>
             </nav>
@@ -34,7 +34,7 @@ const Header = (props) =>
 function MobileEmailIcon()
 {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" alt="hello@jonothan.dev" viewBox="0 0 24 24"><path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" alt="hey@jonothan.dev" viewBox="0 0 24 24"><path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" /></svg>
     )
 }
 
