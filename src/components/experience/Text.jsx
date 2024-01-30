@@ -12,6 +12,7 @@ function Text(props)
     const { size } = useThree()
 
     const mesh = useRef();
+    const creativeTechnologistText = useRef();
     const uniforms = useMemo(
         () => ({
             uTime: {
@@ -22,6 +23,9 @@ function Text(props)
             },
             uResolution: {
                 value: new Vector2(size.height, size.height)
+            },
+            uOpacity: {
+                value: 0.0,
             }
         }),
         []
@@ -31,6 +35,9 @@ function Text(props)
     {
         const { clock } = state;
         mesh.current.material.uniforms.uTime.value = clock.getElapsedTime();
+        mesh.current.material.uniforms.uOpacity.value = props.groupVisibilityProgress.current;
+        creativeTechnologistText.current.material.opacity = props.groupVisibilityProgress.current;
+        // console.log(props.textVisibilityProgress.current)
     });
 
     return (
@@ -58,19 +65,21 @@ function Text(props)
                             fragmentShader={fragmentShader}
                             vertexShader={vertexShader}
                             uniforms={uniforms}
+                            // transparent
                         />
                         {/* <meshBasicMaterial wireframe/> */}
                     </Text3D>
                 </Center>
-                <Center position={[.6, -3, 0]}>
+                <Center position={[.6, -4, 0]}>
                     <Text3D
+                        ref={creativeTechnologistText}
                         rotation={[0, 0, .4]}
                         height={0}
                         size={.5}
                         font="/fonts/atkinson.json"
                     >
                         {`Creative developer`}
-                        <meshBasicMaterial />
+                        <meshBasicMaterial transparent opacity={0}/>
                     </Text3D>
                 </Center>
             </group>
