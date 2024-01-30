@@ -69,7 +69,7 @@ function Make(props) {
                 </div>
             </div>
             <div className="h-[240px] relative mt-4 w-full min-w-80 rounded-xl overflow-hidden bg-primary/50 flex p-6">
-                <div className="absolute top-0 left-0 w-2/3 h-full gradient-mask-r-50 bg-[url('images/effects.jpeg')] bg-[0%] bg-contain bg-repeat opacity-50" />
+                <img src="./images/effects.jpeg" className="absolute top-0 left-0 w-2/3 h-full gradient-mask-r-50 object-cover opacity-50" />
                 <div className="ml-auto my-auto z-10 text-right">
                     <p className="text-white text-xl">
                         Let's make something!
