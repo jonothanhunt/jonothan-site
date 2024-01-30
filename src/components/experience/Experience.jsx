@@ -16,7 +16,7 @@ const Experience = memo(function Experience({ textVisible }) {
     useEffect(() => {
         setTimeout(() => {
             setCanvasLoaded(true);
-        }, 1000);
+        }, 100);
     }, []);
 
     return (

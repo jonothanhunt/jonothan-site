@@ -30,15 +30,14 @@ function Background(props)
         []
     );
 
-    let smoothedWindowScrollY = 0;
+    // let smoothedWindowScrollY = 0;
     useFrame((state) =>
     {
         const { clock } = state;
         mesh.current.material.uniforms.uTime.value = clock.getElapsedTime();
-
-        const windowScrollY = window.scrollY
-        smoothedWindowScrollY = lerp(smoothedWindowScrollY, windowScrollY, 0.1)
-        mesh.current.material.uniforms.uOffset.value = smoothedWindowScrollY * 0.001
+        // const windowScrollY = window.scrollY
+        // smoothedWindowScrollY = lerp(smoothedWindowScrollY, windowScrollY, 0.1)
+        // mesh.current.material.uniforms.uOffset.value = smoothedWindowScrollY * 0.001
     });
 
     return (
