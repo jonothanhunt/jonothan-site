@@ -6,7 +6,7 @@ function Make(props) {
     const [copied, setCopied] = useState(false)
 
     return (
-        <section className="mt-4 max-w-screen-xl mx-auto h-full p-5 overflow-y-scroll rounded-3xl">
+        <section className="mt-4 max-w-screen-xl mx-auto h-full p-5 overflow-y-scroll overflow-x-hidden rounded-3xl">
             <div className="flex flex-wrap gap-4">
                 <div className="relative flex-1 min-w-96 rounded-xl flex p-6 bg-primary/50">
                     <p className="m-auto max-w-72">
