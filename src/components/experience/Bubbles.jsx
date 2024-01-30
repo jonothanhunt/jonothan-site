@@ -20,6 +20,9 @@ const Bubbles = (props) =>
             uTexture: {
                 value: null
             },
+            uScale: {
+                value: 0.0
+            },
             uSize: {
                 value: size.width / 10,
             },
@@ -48,16 +51,20 @@ const Bubbles = (props) =>
     }, [])
 
     const mainRenderTarget = useFBO({ width: size.width / 4, height: size.height / 4, encoding: sRGBEncoding, stencilBuffer: false });
+    
     useFrame((state) =>
     {
+        // console.log(props.groupVisibilityProgress.current)
         instancedBubblesRef.current.visible = false;
-
+        
         const { gl, scene, camera } = state;
         gl.setRenderTarget(mainRenderTarget);
         gl.render(scene, camera);
         instancedBubblesRef.current.material.uniforms.uTexture.value = mainRenderTarget.texture
+        instancedBubblesRef.current.material.uniforms.uScale.value = props.groupVisibilityProgress.current;
 
         instancedBubblesRef.current.visible = true;
+        instancedBubblesRef.current.material.needsUpdate = true;
         gl.setRenderTarget(null);
     })
 
@@ -71,6 +78,7 @@ const Bubbles = (props) =>
                     uniforms={uniforms}
                     depthTest={false}
                     writeTest={false}
+                    // transparent
                 />
             </instancedMesh>
         </group>

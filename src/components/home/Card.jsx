@@ -1,7 +1,7 @@
 const Card = (props) =>
 {
     return (
-        <div className="min-w-[450px] relative flex-1 p-[20px] rounded-2xl bg-white/40 transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-primary hover:outline-offset-4">
+        <div className="min-w-[350px] relative flex-1 p-[20px] rounded-xl bg-white/40 transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-primary hover:outline-offset-4">
             <div className="mb-[20px] flex gap-4">
                 {props.tags.length > 0 && props.tags.map((tag, index) => (
                     <div key={"tag_" + index} className="inline-block px-4 py-2 rounded-lg bg-white/20 text-primary">{tag}</div>
