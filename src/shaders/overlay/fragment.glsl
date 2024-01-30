@@ -6,6 +6,7 @@ precision mediump int;
 
 uniform float uTime;
 uniform float uScale;
+uniform float uOpacity;
 uniform vec2 uResolution;
 
 varying vec2 vUv;
@@ -101,8 +102,8 @@ void main()
 
     vec3 wavesMixed = mix(colour1, colour2, strength);
 
-    vec3 top = mix(wavesMixed, vec3(1.0), clamp((vPosition.z * vPosition.z * 0.5) , 0.0, 1.0));
+    vec3 top = mix(wavesMixed, mix(wavesMixed, vec3(1.0), uOpacity), clamp((vPosition.z * vPosition.z * 0.5) , 0.0, 1.0));
 
     gl_FragColor = vec4(top, 1.0), vec4(0.0), vec4(1.1);
-    // gl_FragColor = vec4(mixed, 1.0);
+    // gl_FragColor = vec4(1.0, 1.0, 1.0, uOpacity);
 }

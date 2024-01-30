@@ -5,7 +5,7 @@ precision highp float;
 precision mediump int;   
 
 uniform sampler2D uTexture;
-// uniform float uCameraAspect;
+uniform float uScale;
 
 varying vec2 vUv;
 varying vec4 vTexCoords;
@@ -17,7 +17,8 @@ void main()
 
 
     float dist = length(uv - vec2(0.5));
-    if(dist>0.5) discard;
+    float maxDist = 0.5;
+    if(dist > maxDist) discard;
     float r = 0.49;
 
     vec2 uv_display = positionalUv + vec2(0.0,0.1);
@@ -26,12 +27,13 @@ void main()
 
     vec4 colour_x = texture2D(uTexture, uv_display + powered);
     vec4 colour_y = texture2D(uTexture, uv_display + powered * 1.2);
-    vec4 colour_z = texture2D(uTexture, uv_display + powered * 1.2);
+    vec4 colour_z = texture2D(uTexture, uv_display + powered * 1.4);
     
     // vec4 cc = texture2D(uTexture, uv_display + powered);
 
     // vec3 mixed = mix(cc.xyz, vec3(1.0), pow(dist, 2.0));
     vec3 mixed = mix(vec3(colour_x.x, colour_y.y, colour_z.z), vec3(1.0), pow(dist, 2.0));
 
-    gl_FragColor = vec4(mixed, 1.0);
+    //gl_FragColor = vec4(mixed, 1.0);
+    gl_FragColor = vec4(uScale, uScale, uScale, uScale);
 }
