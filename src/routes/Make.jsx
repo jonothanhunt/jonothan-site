@@ -9,7 +9,7 @@ function Make(props) {
         <section className="mt-4 max-w-screen-xl mx-auto h-full p-5 overflow-y-scroll overflow-x-hidden rounded-3xl">
             <div className="flex flex-wrap gap-4">
                 <div className="relative flex-1 min-w-80 rounded-xl flex px-6 py-14 bg-primary/50">
-                    <p className="m-auto max-w-72">
+                    <p className="m-auto max-w-72 text-center">
                         <span className="bg-gradient-to-br from-sky-50 to-pink-200 drop-shadow-2xl bg-clip-text text-transparent text-8xl block font-bold">
                             5B+
                         </span>
@@ -35,7 +35,7 @@ function Make(props) {
                     />
                 </div>
                 <div className="relative flex-1 min-w-80 rounded-xl bg-primary/50 flex p-6">
-                    <p className="mx-auto max-w-60 py-10 text-secondary text-2xl my-auto">
+                    <p className="mx-auto max-w-60 py-10 text-secondary text-2xl my-auto text-center">
                         I'm a <span className="font-bold">TikTok</span> Effect
                         House Ambassador &{" "}
                         <span className="font-bold">Meta</span> Spark certified
@@ -51,19 +51,19 @@ function Make(props) {
                         alt=""
                     />
                 </div>
-                <div className="relative flex-1 min-w-80 rounded-xl bg-primary/50 flex p-6">
-                    <p className="m-auto max-w-80">
+                <div className="relative flex-1 min-w-80 rounded-xl bg-primary/50 flex px-6 py-10">
+                    <p className="m-auto max-w-80 text-center">
                         <span className="bg-gradient-to-br from-sky-50 to-pink-200 drop-shadow-2xl bg-clip-text text-transparent text-8xl block font-bold">
                             300M
                         </span>
-                        <span className="text-secondary text-xl md:text-2xl">
-                            <span className="font-bold">effect opens</span> in
-                            social AR
+                        <span className="inline-block text-secondary text-xl md:text-2xl max-w-56">
+                            <span className="inline-block font-bold whitespace-nowrap">effect opens</span> <span className="inline-block whitespace-nowrap">in
+                            social AR</span>
                         </span>
                     </p>
                     <img
                         src="./images/pointing.png"
-                        className="absolute w-24 md:w-32 -rotate-[20deg] bottom-10 -right-7 drop-shadow-xl"
+                        className="absolute w-28  -rotate-[15deg] bottom-8 -right-7 drop-shadow-xl"
                         alt=""
                     />
                 </div>
