@@ -8,7 +8,7 @@ function Make(props) {
     return (
         <section className="mt-4 max-w-screen-xl mx-auto h-full p-5 overflow-y-scroll overflow-x-hidden rounded-3xl">
             <div className="flex flex-wrap gap-4">
-                <div className="relative flex-1 min-w-96 rounded-xl flex p-6 bg-primary/50">
+                <div className="relative flex-1 min-w-80 rounded-xl flex px-6 py-14 bg-primary/50">
                     <p className="m-auto max-w-72">
                         <span className="bg-gradient-to-br from-sky-50 to-pink-200 drop-shadow-2xl bg-clip-text text-transparent text-8xl block font-bold">
                             5B+
@@ -34,8 +34,8 @@ function Make(props) {
                         alt=""
                     />
                 </div>
-                <div className="relative flex-1 min-w-96 rounded-xl bg-primary/50 flex p-6">
-                    <p className="mx-auto max-w-80 py-10 text-secondary text-3xl my-auto">
+                <div className="relative flex-1 min-w-80 rounded-xl bg-primary/50 flex p-6">
+                    <p className="mx-auto max-w-60 py-10 text-secondary text-2xl my-auto">
                         I'm a <span className="font-bold">TikTok</span> Effect
                         House Ambassador &{" "}
                         <span className="font-bold">Meta</span> Spark certified
@@ -51,24 +51,24 @@ function Make(props) {
                         alt=""
                     />
                 </div>
-                <div className="relative flex-1 min-w-96 rounded-xl bg-primary/50 flex p-6">
+                <div className="relative flex-1 min-w-80 rounded-xl bg-primary/50 flex p-6">
                     <p className="m-auto max-w-80">
                         <span className="bg-gradient-to-br from-sky-50 to-pink-200 drop-shadow-2xl bg-clip-text text-transparent text-8xl block font-bold">
                             300M
                         </span>
-                        <span className="text-secondary text-2xl">
+                        <span className="text-secondary text-xl md:text-2xl">
                             <span className="font-bold">effect opens</span> in
                             social AR
                         </span>
                     </p>
                     <img
                         src="./images/pointing.png"
-                        className="absolute w-32 -rotate-[20deg] bottom-10 -right-7 drop-shadow-xl"
+                        className="absolute w-24 md:w-32 -rotate-[20deg] bottom-10 -right-7 drop-shadow-xl"
                         alt=""
                     />
                 </div>
             </div>
-            <div className="h-[240px] relative mt-4 w-full min-w-96 rounded-xl overflow-hidden bg-primary/50 flex p-6">
+            <div className="h-[240px] relative mt-4 w-full min-w-80 rounded-xl overflow-hidden bg-primary/50 flex p-6">
                 <div className="absolute top-0 left-0 w-2/3 h-full gradient-mask-r-50 bg-[url('images/effects.jpeg')] bg-[0%] bg-contain bg-repeat opacity-50" />
                 <div className="ml-auto my-auto z-10 text-right">
                     <p className="text-white text-xl">
