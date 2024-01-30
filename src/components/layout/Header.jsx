@@ -51,7 +51,7 @@ const Header = (titleVisible) => {
                                         className={`inline-block h-3 rounded-full animate-pulse transition-all ${
                                             location.pathname == "/"
                                                 ? "bg-secondary mr-2 w-3"
-                                                : "bg-transparent -mr-3 w-0"
+                                                : "bg-transparent mr-0 w-0"
                                         }     `}
                                     />
                                     <span>Latest</span>
