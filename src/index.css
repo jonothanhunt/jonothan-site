@@ -6,7 +6,7 @@ html,
 body,
 #root {
   font-family: 'Atkinson Hyperlegible', sans-serif;
-  overscroll-behavior: none;
+  /* overscroll-behavior: none; */
 }
 
 body {
