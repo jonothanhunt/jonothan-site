@@ -44,7 +44,8 @@ const Experience = memo(function Experience({ textVisible }) {
                     {window.location.href.indexOf("#debug") > -1 && (
                         <Perf position={"top-left"} />
                     )}
-                    {/* <TransformGroup textVisible={textVisible} /> */}
+
+                    {/* CURRENTLY ONLY ACTIVE ELEMENT */}
                     <Background />
                 </Canvas>
             </Suspense>
