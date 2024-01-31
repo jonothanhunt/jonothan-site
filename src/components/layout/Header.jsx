@@ -1,16 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 
+import { SparklesIcon } from "@heroicons/react/24/solid";
+
 const Header = (titleVisible) => {
     return (
-        <header className="min-w-[350px] max-w-screen-xl flex flex-wrap justify-between items-center top-[20px] xl:mx-auto left-[20px] right-[20px] sticky z-10">
-            <nav
-                className="mx-[20px] p-4 pt-3 md:pt-4 w-full rounded-[10px] bg-[rgba(255,_182,_254,_0)] [transition:0.4s_background-color_ease]"
-                style={{
-                    backgroundColor: `rgba(255, 182, 254, ${
-                        titleVisible ? "1.0" : "0.0"
-                    })`,
-                }}
-            >
+        <header className="min-w-[350px] max-w-screen-xl flex flex-wrap justify-between items-center top-[20px] xl:mx-auto left-[20px] right-[20px] sticky z-20">
+            <nav className="mx-[20px] p-4 pt-3 md:pt-4 w-full rounded-[10px] bg-[rgba(255,_182,_254,_0.8)] backdrop-blur-2xl [transition:0.4s_background-color_ease]">
                 <ul
                     className="
                     w-full grid grid-cols-auto grid-rows-2
@@ -38,15 +33,19 @@ const Header = (titleVisible) => {
                     
                     "
                     >
-                        <ul className="flex gap-4">
-                            <li
-                                className={`flex-1 text-center px-4 py-2 rounded-lg text-lg whitespace-nowrap transition-all ${
-                                    location.pathname == "/"
-                                        ? "bg-primary/70 text-secondary font-bold"
-                                        : "bg-secondary/70 text-primary"
-                                }     `}
-                            >
-                                <Link to={"/"}>
+                        <ul className="flex gap-4 h-full">
+                            <li className={`flex-1 text-center my-auto flex`}>
+                                <Link
+                                    to={"/"}
+                                    className={`px-4 py-2 w-full rounded-lg text-lg whitespace-nowrap transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-primary hover:outline-offset-4 focus-visible:outline-primary focus-visible:outline-offset-4
+                                    ${
+                                        location.pathname == "/"
+                                            ? "bg-primary/70 text-secondary font-bold"
+                                            : "bg-secondary/70 text-primary"
+                                    }     
+                                    `}
+                                    aria-label="Navigate to my latest work"
+                                >
                                     <div
                                         className={`inline-block h-3 rounded-full animate-pulse transition-all ${
                                             location.pathname == "/"
@@ -57,14 +56,29 @@ const Header = (titleVisible) => {
                                     <span>Latest</span>
                                 </Link>
                             </li>
-                            <li
-                                className={`flex-1 text-center px-4 py-2 rounded-lg text-lg whitespace-nowrap transition-all ${
-                                    location.pathname == "/make"
-                                        ? "bg-primary/70 text-secondary font-bold"
-                                        : "bg-secondary/70 text-primary"
-                                }     `}
-                            >
-                                <Link to={"/make"}>AR effects</Link>
+                            <li className={`flex-1 text-center my-auto flex`}>
+                                <Link
+                                    to={"/make"}
+                                    className={`relative px-4 py-2 w-full rounded-lg text-lg whitespace-nowrap transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-primary hover:outline-offset-4  focus-visible:outline-primary focus-visible:outline-offset-4
+                                    ${
+                                        location.pathname == "/make"
+                                            ? "bg-primary/70 text-secondary font-bold"
+                                            : "bg-secondary/70 text-primary"
+                                    }     
+                                    `}
+                                    aria-label="Navigate to AR Effects"
+                                >
+                                    <SparklesIcon
+                                        className={`inline-block text-secondary mb-1 transition-all
+                                    ${
+                                        location.pathname == "/make"
+                                            ? "h-5 w-5 mr-2"
+                                            : "h-0 w-0 mr-0"
+                                    }
+                                    `}
+                                    />
+                                    <span>AR effects</span>
+                                </Link>
                             </li>
                         </ul>
                     </li>
@@ -80,13 +94,17 @@ const Header = (titleVisible) => {
                                 <a
                                     href="mailto:hey@jonothan.dev"
                                     className="text-lg underline decoration-primary decoration-1 hover:decoration-2 underline-offset-8"
+                                    aria-label="Email me at hey@jonothan.dev"
                                 >
                                     hey@jonothan.dev
                                 </a>
                             </li>
 
                             <li className="min-[450px]:hidden w-[2rem] padding-0 text-lg text-primary ">
-                                <a href="mailto:hey@jonothan.dev">
+                                <a
+                                    href="mailto:hey@jonothan.dev"
+                                    aria-label="Email me at hey@jonothan.dev"
+                                >
                                     <MobileEmailIcon />
                                 </a>
                             </li>

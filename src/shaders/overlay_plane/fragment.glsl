@@ -95,10 +95,10 @@ void main()
     vec3 scaledWorldposition = vec3(1.0 - gl_FragCoord.x / uResolution.x, gl_FragCoord.y / uResolution.y - uOffset, 0);
     vec3 displacedPosition = scaledWorldposition + cnoise(vec3(scaledWorldposition * 0.2));
 
-    float strength = cnoise(vec3(displacedPosition.xy * 6.0, displacedPosition.z + uTime * 0.4));
+    float strength = cnoise(vec3(displacedPosition.xy * 3.0, displacedPosition.z + uTime * 0.4));
 
-    vec3 colour1 = mix(vec3(1.0, 0.0, 1.0), vec3(0.2, 0.4, 1.0), scaledWorldposition.x * 0.5);
-    vec3 colour2 = mix(vec3(1.0, .7, 1.0), vec3(0.8, .9, 1.0), -scaledWorldposition.y * 0.5);
+    vec3 colour1 = mix(vec3(1.0, 0.0, 1.0), vec3(0.2, 0.4, 1.0), 1.5 - gl_FragCoord.x / uResolution.x);
+    vec3 colour2 = mix(vec3(1.0, .7, 1.0), vec3(0.8, .9, 1.0), -1.5 - gl_FragCoord.x / uResolution.x);
 
     vec3 wavesMixed = mix(colour1, colour2, strength);
 
