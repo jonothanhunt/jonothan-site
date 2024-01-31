@@ -1,13 +1,13 @@
 const projects = [
-    {
-        tags: ["Social AR"],
-        image: "tiktok_effect_house.webp",
-        title: "TikTok Effect House gallery",
-        description: "My AR effects on TikTok have reached over 5 billion views!",
-        links: {
-            "Visit my TikTok": "https://www.tiktok.com/@jonothanhunt"
-        }
-    },
+    // {
+    //     tags: ["Social AR"],
+    //     image: "tiktok_effect_house.webp",
+    //     title: "TikTok Effect House gallery",
+    //     description: "My AR effects on TikTok have reached over 5 billion views!",
+    //     links: {
+    //         "Visit my TikTok": "https://www.tiktok.com/@jonothanhunt"
+    //     }
+    // },
     {
         tags: ["Campaign", "Site"],
         image: "waiting_to_live.webp",
