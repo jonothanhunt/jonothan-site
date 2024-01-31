@@ -15,5 +15,8 @@ export default {
     },
   },
   plugins: [require("tailwind-gradient-mask-image")],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 }
 
