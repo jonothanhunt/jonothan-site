@@ -5,7 +5,7 @@ import { SparklesIcon } from "@heroicons/react/24/solid";
 const Header = (titleVisible) => {
     return (
         <header className="min-w-[350px] max-w-screen-xl flex flex-wrap justify-between items-center top-[20px] xl:mx-auto left-[20px] right-[20px] sticky z-20">
-            <nav className="mx-[20px] p-4 pt-3 md:pt-4 w-full rounded-[10px] bg-[rgba(255,_182,_254,_0.8)] backdrop-blur-2xl [transition:0.4s_background-color_ease]">
+            <nav className="mx-[20px] px-4 py-4 md:px-6 md:py-4 pt-3 md:pt-4 w-full rounded-[10px] bg-[rgba(255,_182,_254,_0.8)] backdrop-blur-2xl [transition:0.4s_background-color_ease]">
                 <ul
                     className="
                     w-full grid grid-cols-auto grid-rows-2
@@ -93,7 +93,7 @@ const Header = (titleVisible) => {
                             <li className="hidden min-[450px]:inline">
                                 <a
                                     href="mailto:hey@jonothan.dev"
-                                    className="text-lg underline decoration-primary decoration-1 hover:decoration-2 underline-offset-8"
+                                    className="text-lg py-4 text-primary underline decoration-primary decoration-1 hover:decoration-2 underline-offset-8"
                                     aria-label="Email me at hey@jonothan.dev"
                                 >
                                     hey@jonothan.dev

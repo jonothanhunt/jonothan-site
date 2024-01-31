@@ -18,7 +18,7 @@ const Card = (props) =>
 
             <div>
                 {Object.keys(props.links).length > 0 && Object.keys(props.links).map((link, index) => (
-                    <a key={"link_" + index} className={`text-primary inline-block mt-1 mr-4 mb-1 ml-0 py-2 px-0 font-bold underline underline-offset-4 decoration-1 hover:decoration-2 decoration-primary  ${index === 0 ? "after:absolute after:top-0 after:right-0 after:bottom-0 after:left-0 after:content-[''] after:overflow-hidden" : "relative"}`} href={props.links[link]}>{link}</a>
+                    <a key={"link_" + index} className={`text-primary inline-block mt-1 mr-4 mb-1 ml-0 py-2 px-0 font-bold underline underline-offset-4 decoration-1 hover:decoration-2  ${index === 0 ? "after:absolute after:top-0 after:right-0 after:bottom-0 after:left-0 after:content-[''] after:overflow-hidden" : "relative"}`} href={props.links[link]}>{link}</a>
                 ))}
             </div>
 

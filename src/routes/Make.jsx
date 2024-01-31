@@ -10,19 +10,19 @@ function Make(props) {
         {
             fileName: "nail_it.mp4",
             effectName: "nail it",
-            link: 'https://vm.tiktok.com/ZGehmFCmy/'
+            link: "https://vm.tiktok.com/ZGehmFCmy/",
         },
 
         {
             fileName: "supermarket_checkout.mp4",
             effectName: "supermarket checkout",
-            link: 'https://vm.tiktok.com/ZGehmMqnp/'
+            link: "https://vm.tiktok.com/ZGehmMqnp/",
         },
 
         {
             fileName: "horse_staring_contest.mp4",
             effectName: "horse staring contest",
-            link: 'https://vm.tiktok.com/ZGehmFUBe/'
+            link: "https://vm.tiktok.com/ZGehmFUBe/",
         },
     ];
 
@@ -99,12 +99,14 @@ function Make(props) {
                     className="absolute top-0 left-0 w-2/3 h-full gradient-mask-r-50 object-cover opacity-50"
                 />
                 <div className="ml-auto my-auto z-10 text-right">
-                    <p className="text-white text-xl">Let's make something!</p>
+                    <p className="text-white text-xl">
+                        Let's make something fun!
+                    </p>
                     <div className="h-4" />
                     <div className="flex gap-1">
                         <a
                             href="mailto:hey@jonothan.dev"
-                            className="inline-block bg-white/80 text-xl px-4 py-3 rounded-l-lg transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-white hover:outline-offset-4 focus-visible:outline-white focus-visible:outline-offset-4"
+                            className="inline-block text-primary bg-white/80 text-xl px-4 py-3 rounded-l-lg transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-white hover:outline-offset-4 focus-visible:outline-white focus-visible:outline-offset-4"
                             aria-label="Email me at hey@jonothan.dev"
                         >
                             hey@jonothan.dev
@@ -131,48 +133,53 @@ function Make(props) {
                     </div>
                 </div>
             </div>
-            <div className="relative mt-4 w-full min-w-80 rounded-xl overflow-hidden bg-primary/50 flex p-6 gap-4 flex-nowrap overflow-x-scroll">
-                {videos.map((video, index) => (
-                    <div
-                        key={"video_" + index}
-                        className="relative min-w-80 w-80 aspect-[9/16] bg-black rounded-lg overflow-hidden"
-                    >
-                        <video
-                            controls
-                            className="object-cover w-full h-full"
-                            src={`./videos/${video.fileName}`}
-                            title={`video of someone using the effect I made called: ${video.effectName}`}
-                        />
-                        <a
-                            className="absolute top-2 left-2 py-2 px-4 text-lg rounded-lg bg-primary/80 text-secondary"
-                            href={video.link}
-                            aria-label={`View the ${video.effectName} effect on TikTok`}
+            <div className="mt-4 w-full min-w-80 rounded-xl bg-primary/50">
+                {/* <p className="ml-6 text-lg text-white">I make interactive effects and games that people want to play and share</p> */}
+                <div className="relative flex p-6 gap-4 flex-nowrap overflow-x-scroll overflow-hidden">
+                    {videos.map((video, index) => (
+                        <div
+                            key={"video_" + index}
+                            className="relative min-w-80 w-80 aspect-[9/16] bg-black rounded-lg overflow-hidden"
                         >
-                            {video.effectName}
-                        </a>
-                    </div>
-                ))}
+                            <video
+                                controls
+                                className="object-cover w-full h-full"
+                                src={`./videos/${video.fileName}`}
+                                title={`video of someone using the effect I made called: ${video.effectName}`}
+                            />
+                            <a
+                                className="absolute top-2 left-2 py-2 px-4 text-lg rounded-lg bg-primary/80 text-secondary"
+                                href={video.link}
+                                aria-label={`View the ${video.effectName} effect on TikTok`}
+                            >
+                                {video.effectName}
+                            </a>
+                        </div>
+                    ))}
 
-                <div
-                    key="see more"
-                    className="relative p-4 min-w-80 w-80 aspect-[9/16] bg-gradient-to-r from-black/20 to-transparent to-90% rounded-lg overflow-hidden flex"
-                >
-                    <div className="my-auto flex flex-col gap-4">
-                        <h4 className="text-lg text-secondary">See more:</h4>
-                        <a
-                            href="https://www.tiktok.com/@jonothanhunt"
-                            className="block text-primary px-5 w-fit py-3 rounded-lg bg-white/80 transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-white hover:outline-offset-4  focus-visible:outline-white focus-visible:outline-offset-4"
-                            aria-label="Go to my TikTok"
-                        >
-                            @jonothanhunt on TikTok
-                        </a>
-                        <a
-                            href="https://www.instagram.com/jonothanhunt"
-                            className="block text-primary px-5 w-fit py-3 rounded-lg bg-white/80 transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-white hover:outline-offset-4  focus-visible:outline-white focus-visible:outline-offset-4"
-                            aria-label="Go to my Instagram"
-                        >
-                            @jonothanhunt on Instagram
-                        </a>
+                    <div
+                        key="see more"
+                        className="relative p-4 min-w-80 w-80 aspect-[9/16] bg-gradient-to-r from-black/20 to-transparent to-90% rounded-lg overflow-hidden flex"
+                    >
+                        <div className="my-auto flex flex-col gap-4">
+                            <h4 className="text-lg text-secondary">
+                                See more:
+                            </h4>
+                            <a
+                                href="https://www.tiktok.com/@jonothanhunt"
+                                className="block text-primary px-5 w-fit py-3 rounded-lg bg-white/80 transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-white hover:outline-offset-4  focus-visible:outline-white focus-visible:outline-offset-4"
+                                aria-label="Go to my TikTok"
+                            >
+                                @jonothanhunt on TikTok
+                            </a>
+                            <a
+                                href="https://www.instagram.com/jonothanhunt"
+                                className="block text-primary px-5 w-fit py-3 rounded-lg bg-white/80 transition-all outline outline-2 outline-transparent outline-offset-0 hover:outline-white hover:outline-offset-4  focus-visible:outline-white focus-visible:outline-offset-4"
+                                aria-label="Go to my Instagram"
+                            >
+                                @jonothanhunt on Instagram
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
