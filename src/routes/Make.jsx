@@ -139,7 +139,7 @@ function Make(props) {
                     {videos.map((video, index) => (
                         <div
                             key={"video_" + index}
-                            className="relative min-w-80 w-80 aspect-[9/16] bg-black rounded-lg overflow-hidden"
+                            className="relative md:min-w-80 min-w-64 max-w-3/4 w-80 aspect-[9/16] bg-black rounded-lg overflow-hidden"
                         >
                             <video
                                 controls
@@ -159,7 +159,7 @@ function Make(props) {
 
                     <div
                         key="see more"
-                        className="relative p-4 min-w-80 w-80 aspect-[9/16] bg-gradient-to-r from-black/20 to-transparent to-90% rounded-lg overflow-hidden flex"
+                        className="relative p-4 md:min-w-80 min-w-64 max-w-3/4 w-3/4 md:w-80 aspect-[9/16] bg-gradient-to-r from-black/20 to-transparent to-90% rounded-lg overflow-hidden flex"
                     >
                         <div className="my-auto flex flex-col gap-4">
                             <h4 className="text-lg text-secondary">
