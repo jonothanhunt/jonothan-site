@@ -48,6 +48,8 @@ function Background(props)
                     fragmentShader={fragmentShader}
                     vertexShader={vertexShader}
                     uniforms={uniforms}
+                    depthWrite={false}
+                    depthTest={false}
                 />
             </mesh>
         </group>
