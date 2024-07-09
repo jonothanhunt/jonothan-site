@@ -22,37 +22,18 @@ const Stickers = (props) =>
     const sticker3 = useRef()
     const sticker4 = useRef()
 
-    useFrame(()=> {
-        sticker1.current.scale.x = props.groupVisibilityProgress.current
-        sticker1.current.scale.y = props.groupVisibilityProgress.current
-        sticker1.current.scale.z = props.groupVisibilityProgress.current
-
-        sticker2.current.scale.x = props.groupVisibilityProgress.current
-        sticker2.current.scale.y = props.groupVisibilityProgress.current
-        sticker2.current.scale.z = props.groupVisibilityProgress.current
-
-        sticker3.current.scale.x = props.groupVisibilityProgress.current
-        sticker3.current.scale.y = props.groupVisibilityProgress.current
-        sticker3.current.scale.z = props.groupVisibilityProgress.current
-
-        sticker4.current.scale.x = props.groupVisibilityProgress.current
-        sticker4.current.scale.y = props.groupVisibilityProgress.current
-        sticker4.current.scale.z = props.groupVisibilityProgress.current
-
-    })
-
     return (
         <group rotation={[Math.PI * - 0.25, 0, 0]} {...props}>
             <Float {...floatConfig}>
-                <mesh ref={sticker1} position={[-10, 6, -1]} rotation={[0, 0, .4]} onClick={() => window.open("https://www.credly.com/badges/c9b7924f-60ad-461c-9614-39e0efc8530b/public_url", "_blank")} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
-                    <planeGeometry args={[3, 3, 1, 1]} />
+                <mesh ref={sticker1} position={[-10, 2, -1]} rotation={[0, 0, .4]} onClick={() => window.open("https://www.credly.com/badges/c9b7924f-60ad-461c-9614-39e0efc8530b/public_url", "_blank")} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
+                    <planeGeometry args={[4, 4, 1, 1]} />
                     <meshBasicMaterial color={'#ffebfa'} map={metaSpark} alphaTest={0.5} transparent={false} />
                 </mesh>
             </Float>
 
             <Float {...floatConfig}>
-                <mesh ref={sticker2} position={[6, -3, -1]} rotation={[0, 0, .4]}>
-                    <planeGeometry args={[3, 3, 1, 1]} />
+                <mesh ref={sticker2} position={[6, -8, 3]} rotation={[0, 0, .4]}>
+                    <planeGeometry args={[4, 4, 1, 1]} />
                     <meshBasicMaterial color={'#ffebfa'} map={reactLogo} alphaTest={0.5} transparent={false} />
                 </mesh>
             </Float>
@@ -65,8 +46,8 @@ const Stickers = (props) =>
             </Float>
 
             <Float {...floatConfig}>
-                <mesh ref={sticker4} position={[-3, 4, 0]} rotation={[0, 0, .7]} onClick={() => window.open("https://www.tiktok.com/@jonothanhunt", "_blank")} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)} >
-                    <planeGeometry args={[4, 4, 1, 1]} />
+                <mesh ref={sticker4} position={[-4, -10, 4]} rotation={[0, 0, .7]} onClick={() => window.open("https://www.tiktok.com/@jonothanhunt", "_blank")} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)} >
+                    <planeGeometry args={[6, 6, 1, 1]} />
                     <meshBasicMaterial color={'#ffebfa'} map={EffectHouseLogo} alphaTest={0.5} transparent={false} />
                 </mesh>
             </Float>

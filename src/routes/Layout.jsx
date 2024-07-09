@@ -4,12 +4,11 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 
 import { useState } from "react";
 
-import Experience from "../components/experience/Experience"
-import Header from '../components/layout/Header'
-import Footer from '../components/layout/Footer'
+import Experience from "../components/experience/Experience";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 
-function Layout({appRoot})
-{
+function Layout({ appRoot }) {
     const location = useLocation();
     const locationIsHome = ["/"].includes(location.pathname);
 
@@ -17,10 +16,8 @@ function Layout({appRoot})
 
     useLayoutEffect(() => {
         const onScroll = () => {
-            if(locationIsHome) {
-                setTitleVisibility(
-                    window.scrollY > window.innerHeight / 2.7 
-                );
+            if (locationIsHome) {
+                setTitleVisibility(window.scrollY > window.innerHeight / 2.7);
             }
         };
 
@@ -29,19 +26,21 @@ function Layout({appRoot})
     }, []);
 
     useEffect(() => {
-        if(!locationIsHome) {
-            setTitleVisibility(true)
+        if (!locationIsHome) {
+            setTitleVisibility(true);
         }
-    }, [locationIsHome])
-    
+    }, [locationIsHome]);
+
     return (
         <div id="home">
             <Header titleVisible={titleVisible} />
-            <Experience textVisible={locationIsHome} appRoot={appRoot} />
-                <Outlet />
+            {locationIsHome &&
+                <Experience textVisible={locationIsHome} appRoot={appRoot} />
+            }
+            <Outlet />
             <Footer />
         </div>
-    )
+    );
 }
 
-export default Layout
+export default Layout;
