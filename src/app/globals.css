@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.wavy {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: Calc(100% + 4em);
+    height: 100%;
+    --mask: radial-gradient(
+                0.73em at 50% calc(100% + 0.3em),
+                #0000 calc(99% - 0.3em),
+                #000 calc(101% - 0.3em) 99%,
+                #0000 101%
+            )
+            calc(50% - 1em) calc(50% - 0.4em + 0.5px) / 2em 0.8em repeat-x,
+        radial-gradient(
+                0.73em at 50% -0.3em,
+                #0000 calc(99% - 0.3em),
+                #000 calc(101% - 0.3em) 99%,
+                #0000 101%
+            )
+            50% calc(50% + 0.4em) / 2em 0.8em repeat-x;
+    -webkit-mask: var(--mask);
+    mask: var(--mask);
+}

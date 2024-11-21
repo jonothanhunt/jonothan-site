@@ -1,9 +1,11 @@
+"use client"
+
 import { useRef, useState } from "react";
 import { ClipboardIcon } from "@heroicons/react/24/outline";
 import { ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
-function Make(props) {
+function Make() {
     const [copied, setCopied] = useState(false);
 
     const videos = [
@@ -27,7 +29,7 @@ function Make(props) {
     ];
 
     return (
-        <section className="mt-4 max-w-screen-xl mx-auto h-full p-5 overflow-y-scroll overflow-x-hidden rounded-3xl">
+        <section className="mt-4 max-w-screen-xl mx-auto h-full p-5 overflow-x-hidden rounded-3xl">
             <div className="flex flex-wrap gap-4">
                 <div className="relative flex-1 min-w-80 rounded-xl flex px-6 py-14 bg-primary/50">
                     <p className="m-auto max-w-72 text-center">

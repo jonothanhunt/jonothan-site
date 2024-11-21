@@ -1,34 +1,36 @@
-# Jonothan.dev
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-![Sreenshot of jonothan.dev](/jonothan_dev_screenshot.png)
+## Getting Started
 
-This is [my website](https://jonothan.dev), created with [React](https://react.dev/) and [React Three Fiber](https://github.com/pmndrs/react-three-fiber) (which is a React renderer for [three.js](https://threejs.org/)).
+First, run the development server:
 
-## Setup
-
-After cloning this repository, you can install packages and run the dev server:
 ```bash
-yarn
+npm run dev
+# or
 yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## How it's put together
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Vite which is a fabulous dev server (with insanely fast [Hot Module Replacement](https://vitejs.dev/guide/features.html#hot-module-replacement)!).
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Recently switched from three.js to using React Three Fiber (R3F), which works really well with React (and can even [outperform](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction) three.js on its own!).
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Use of a bunch of very useful helpers and R3F abstractions from [Drei](https://github.com/pmndrs/drei).
+## Learn More
 
-Generally the interesting 3D stuff is in `src > components > experience` and any shaders are in `src > shaders`.
+To learn more about Next.js, take a look at the following resources:
 
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## On the to-do list
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-- Give experience clearer ARIA descriptions for screen readers and the like
-- Add comments to all the new code since adopting R3F
-- Optimise canvas and shader performance for mobile
-- Centralise heavy useFrame usage across components that use live values eg. mouse and scroll.
-- Change sampling and size of stickers to make them easier to read on smaller screens.
-- Change the way rotation is controlled in the scene (right now it's a bit per / element and it could be mostly one central component)
-- Probably a lot React optimisation generally!
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
