@@ -1,5 +1,0 @@
-zinc-800
-yellow-900
-yellow-700
-amber-400
-amber-200
