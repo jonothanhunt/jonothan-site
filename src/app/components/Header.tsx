@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-import { SparklesIcon } from "@heroicons/react/24/solid";
+import { SparklesIcon } from "@heroicons/react/24/outline";
 import { AtSymbolIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
