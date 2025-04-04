@@ -120,7 +120,7 @@ export default function HomePage() {
               far: 1000,
               // fov: 20,
               position: [-1.65, 1.6, 3.5],
-              rotation: [-0.4, -0.4, -0.1],
+              rotation: [-0.4, -0.408, -0.1],
             }}
           >
             <Suspense fallback="Loading">
