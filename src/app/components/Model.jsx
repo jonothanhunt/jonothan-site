@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useMemo, useEffect } from "react";
+import React, { useRef, useMemo, useEffect, useState } from "react";
 import { useFrame, extend, useThree, useLoader } from "@react-three/fiber";
 import {
   useGLTF,
@@ -8,12 +8,134 @@ import {
   Sky,
   Grid,
   Float,
+  useProgress,
 } from "@react-three/drei";
-// import glsl from "babel-plugin-glsl/macro";
 import * as THREE from "three";
-// import { useLightMode } from "../context/LightModeContext";
+// Create a global loading manager with more detailed tracking
+const loadingManager = new THREE.LoadingManager();
+
+// Track total items and loaded items
+let totalItems = 0;
+let loadedItems = 0;
+let progressCallback = null;
+
+// Configure the loading manager
+loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+  console.log(`Started loading: ${url}`);
+  totalItems = Math.max(totalItems, itemsTotal);
+};
+
+loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+  console.log(`Loading file: ${url} (${itemsLoaded}/${itemsTotal})`);
+  loadedItems = itemsLoaded;
+  totalItems = Math.max(totalItems, itemsTotal);
+
+  // Calculate more accurate progress percentage
+  const progressPercentage = (loadedItems / totalItems) * 100;
+
+  // Report progress if callback is set
+  if (progressCallback) {
+    progressCallback(progressPercentage);
+  }
+};
+
+loadingManager.onLoad = () => {
+  console.log("Loading complete!");
+  if (progressCallback) {
+    progressCallback(100);
+  }
+};
+
+loadingManager.onError = (url) => {
+  console.error(`Error loading: ${url}`);
+};
+
+// Function to set the progress callback
+function setProgressCallback(callback) {
+  progressCallback = callback;
+}
+
+// Preload function that uses Three.js loaders
+function preloadModelAssets(onProgress) {
+  // Set the progress callback
+  setProgressCallback(onProgress);
+
+  // Reset counters for a fresh loading session
+  totalItems = 0;
+  loadedItems = 0;
+
+  // Start loading the model with our custom manager
+  useGLTF.preload("/desk.glb", true, loadingManager);
+
+  // Define all texture paths
+  const texturePaths = [
+    "/images/outside_layer_background.png",
+    "/images/outside_layer_foreground.png",
+    "/images/effect_house.png",
+    "/images/react_logo.png",
+    "/images/nextjs_logo.png",
+    "/images/three_logo.png",
+    "/images/touchdesigner_logo.png",
+    "/images/blender_badge.png",
+  ];
+
+  // Preload all textures with THREE.js TextureLoader
+  const textureLoader = new THREE.TextureLoader(loadingManager);
+  texturePaths.forEach((path) => {
+    textureLoader.load(path);
+  });
+
+  // Return a promise that resolves when everything is loaded
+  return new Promise((resolve) => {
+    loadingManager.onLoad = () => {
+      console.log("All assets loaded!");
+      if (progressCallback) {
+        progressCallback(100);
+      }
+      resolve();
+    };
+  });
+}
 
 export function Model(props) {
+  // Get loading progress from drei's useProgress hook
+  const { progress, loaded, total } = useProgress();
+  const { onLoadingProgress, onLoadingComplete, ...otherProps } = props;
+
+  // Track if initial loading has started
+  const [loadingStarted, setLoadingStarted] = useState(false);
+
+  // Start loading immediately
+  useEffect(() => {
+    // This will only run on the client
+    if (!loadingStarted) {
+      setLoadingStarted(true);
+
+      // Report initial loading state
+      if (onLoadingProgress) {
+        onLoadingProgress(0);
+      }
+
+      // Preload assets
+      preloadModelAssets();
+    }
+  }, [loadingStarted, onLoadingProgress]);
+
+  // Report loading progress
+  useEffect(() => {
+    if (onLoadingProgress && loadingStarted) {
+      // Ensure progress starts from a low value and increases gradually
+      onLoadingProgress(progress);
+    }
+
+    // Report when loading is complete
+    if (progress === 100 && onLoadingComplete && loadingStarted) {
+      setTimeout(() => {
+        onLoadingComplete();
+      }, 500); // Small delay to ensure everything is ready
+    }
+  }, [progress, onLoadingProgress, onLoadingComplete, loadingStarted]);
+
   // const isLightMode = useLightMode();
   const sceneRef = useRef();
   const portalRefForeground = useRef();
@@ -42,6 +164,20 @@ export function Model(props) {
     followCamera: true,
     infiniteGrid: true,
   };
+
+  useEffect(() => {
+    // Report loading progress to parent component
+    if (onLoadingProgress) {
+      onLoadingProgress(progress);
+    }
+
+    // Report when loading is complete
+    if (progress === 100 && onLoadingComplete) {
+      setTimeout(() => {
+        onLoadingComplete();
+      }, 500); // Small delay to ensure everything is ready
+    }
+  }, [progress, onLoadingProgress, onLoadingComplete]);
 
   const GravityMaterial = shaderMaterial(
     {
@@ -310,7 +446,7 @@ export function Model(props) {
   );
 
   return (
-    <group ref={sceneRef} {...props} position={[0,0.17,0]} dispose={null}>
+    <group ref={sceneRef} {...props} position={[0, 0.17, 0]} dispose={null}>
       <group position={[0, -0.2, 0]}>
         <Grid {...grid} position={[0, -0.5, 0]} />
 
