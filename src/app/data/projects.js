@@ -28,9 +28,9 @@ const projects = [
     {
         tags: ["Social AR"],
         image: "tiktok_effect_house.webp",
-        title: "TikTok Effect House gallery",
+        title: "7 billion views on videos using AR effects I made on TikTok!",
         description:
-            "Videos made using effects I've made have reached over 5 billion views!",
+            "I make games and weird effects people use to make videos on TikTok!",
         links: {
             "Visit my TikTok": "https://www.tiktok.com/@jonothanhunt",
         },

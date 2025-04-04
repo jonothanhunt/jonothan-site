@@ -166,15 +166,7 @@ export default function HomePage() {
         </motion.div>
       </motion.div>
 
-      <div
-        className="scroll-smooth"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0) 5%, rgba(0,0,0,1) 20%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0) 5%, rgba(0,0,0,1) 20%)",
-        }}
-      >
+      <div className="scroll-smooth">
         <div className="h-screen" />
         <div id="about" className="max-w-3xl mx-auto px-8 flex flex-col">
           <h2 className={`${lastik.className} text-7xl`}>
@@ -212,7 +204,7 @@ export default function HomePage() {
               </Link>{" "}
               or{" "}
               <Link
-                href="#tiktok-effect-house-gallery"
+                href="#7-billion-views-on-videos-using-ar-effects-i-made-on-tiktok"
                 className="bg-orange-100 transition-all duration-150 outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 text-fuchsia-700 px-3 py-2 rounded-sm whitespace-nowrap"
               >
                 a series of viral TikTok games
@@ -231,10 +223,12 @@ export default function HomePage() {
             </p>
           </div>
           <div className="h-20" />
-          <h2 className={`${lastik.className} text-8xl`}>Work</h2>
+          <h2 id="work" className={`${lastik.className} text-8xl`}>
+            Work
+          </h2>
           <div className="h-10" />
         </div>
-        <div id="work" className="max-w-screen-xl mx-auto px-8 flex flex-col">
+        <div className="max-w-screen-xl mx-auto px-8 flex flex-col">
           <div className="w-full mt-4 mb-7 flex flex-wrap justify-center gap-8 mx-auto">
             {projects.map((project, index) => (
               <Card
@@ -249,6 +243,8 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      <footer className="h-30" />
 
       <div className="fixed top-0 left-0">
         <Header />
