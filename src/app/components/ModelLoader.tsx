@@ -62,7 +62,7 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-none"
+      className="fixed inset-0 -z-10 flex flex-col items-center justify-center pointer-events-none"
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
