@@ -56,6 +56,12 @@ export default function HomePage() {
     [1, 0.1]
   );
 
+  const blur = useTransform(
+    scrollY,
+    [windowHeight * 0.5, windowHeight],
+    ["blur(0px)", "blur(10px)"]
+  );
+
   // Set up event source and window height after component mounts
   useEffect(() => {
     if (scrollRef.current) {
@@ -99,13 +105,13 @@ export default function HomePage() {
         className="-z-10 fixed top-0 left-0 w-screen h-screen"
         style={{
           opacity,
+          filter: blur,
         }}
       >
         {eventSource && (
           <Canvas
             eventSource={eventSource}
             eventPrefix="client"
-            shadows
             dpr={[1, 1]}
             orthographic
             camera={{
@@ -196,8 +202,8 @@ export default function HomePage() {
           <h2 className={`${lastik.className} text-8xl`}>Work</h2>
           <div className="h-10" />
         </div>
-        <div id="work" className="max-w-screen-2xl mx-auto px-8 flex flex-col">
-          <div className="mt-4 mb-7 flex flex-wrap justify-center gap-8  mx-auto">
+        <div id="work" className="max-w-screen-xl mx-auto px-8 flex flex-col">
+          <div className="w-full mt-4 mb-7 flex flex-wrap justify-center gap-8  mx-auto">
             {projects.map((project, index) => (
               <Card
                 key={"project_" + index}

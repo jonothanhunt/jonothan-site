@@ -14,7 +14,7 @@ const Card = (props) => {
     return (
         <div
             id={slug}
-            className="scroll-mt-72 min-w-96 relative flex-1 p-[20px] rounded-lg bg-orange-100 transition-all outline-2 outline-transparent outline-offset-0  hover:outline-orange-100  hover:outline-offset-4"
+            className="scroll-mt-72 min-w-3/4 sm:min-w-72 relative flex-1 p-[20px] rounded-lg bg-orange-100 transition-all outline-2 outline-transparent outline-offset-0  hover:outline-orange-100  hover:outline-offset-4"
         >
             <div className="mb-[20px] flex gap-4">
                 {props.tags.length > 0 &&
