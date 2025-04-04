@@ -49,18 +49,17 @@ const Retro: React.FC<RetroProps> = ({
 };
 
 export default function HomePage() {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [eventSource, setEventSource] = useState<HTMLElement | null>(null);
   const [windowHeight, setWindowHeight] = useState(0);
+  const [eventSource, setEventSource] = useState<HTMLElement | null>(null);
 
   // Add loading state
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [modelLoaded, setModelLoaded] = useState(false);
 
-  // Get raw scroll value instead of progress
-  const { scrollY } = useScroll({ container: scrollRef });
+  // Use the document/window as the scroll container instead of a ref
+  const { scrollY } = useScroll();
 
   // Calculate opacity based on window height
   const opacity = useTransform(scrollY, [0, windowHeight * 0.5], [1, 0.1]);
@@ -87,12 +86,8 @@ export default function HomePage() {
     }, 100); // Small delay to ensure the loader is gone first
   };
 
-  // Set up event source and window height after component mounts
+  // Set up window height after component mounts
   useEffect(() => {
-    if (scrollRef.current) {
-      setEventSource(scrollRef.current);
-    }
-
     // Set initial window height
     setWindowHeight(window.innerHeight);
 
@@ -105,19 +100,18 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Handle hash-based navigation
   useEffect(() => {
-    if (!scrollRef.current) return;
+    // Only set the event source if we're in the browser
+    if (typeof document !== "undefined") {
+      setEventSource(document.documentElement);
+    }
 
     // Check if there's a hash in the URL
     if (window.location.hash === "#about") {
       const aboutSection = document.getElementById("about");
       if (aboutSection) {
         setTimeout(() => {
-          scrollRef.current?.scrollTo({
-            top: aboutSection.offsetTop,
-            behavior: "smooth",
-          });
+          aboutSection.scrollIntoView({ behavior: "smooth" });
         }, 100);
       }
     }
@@ -139,45 +133,41 @@ export default function HomePage() {
         }}
         transition={{ duration: 1.2, ease: "easeOut" }}
       >
-        {eventSource && (
-          <motion.div
-            style={{
-              opacity,
-              width: "100%",
-              height: "100%",
-              filter: blur,
+        <motion.div
+          style={{
+            opacity,
+            width: "100%",
+            height: "100%",
+            filter: blur,
+          }}
+        >
+          <Canvas
+            eventSource={eventSource || undefined}
+            eventPrefix="client"
+            dpr={[1, 1]}
+            orthographic
+            camera={{
+              zoom: 550,
+              near: 0.1,
+              far: 1000,
+              position: [-1.65, 1.6, 3.5],
+              rotation: [-0.4, -0.408, -0.1],
             }}
           >
-            <Canvas
-              eventSource={eventSource}
-              eventPrefix="client"
-              dpr={[1, 1]}
-              orthographic
-              camera={{
-                zoom: 550,
-                near: 0.1,
-                far: 1000,
-                position: [-1.65, 1.6, 3.5],
-                rotation: [-0.4, -0.408, -0.1],
-              }}
-            >
-              <Suspense fallback={null}>
-                <ambientLight intensity={0.1} />
-                <directionalLight position={[0, 10, 5]} intensity={3.2} />
-                <Retro
-                  onLoadingProgress={handleLoadingProgress}
-                  onLoadingComplete={handleLoadingComplete}
-                />
-              </Suspense>
-            </Canvas>
-          </motion.div>
-        )}
+            <Suspense fallback={null}>
+              <ambientLight intensity={0.1} />
+              <directionalLight position={[0, 10, 5]} intensity={3.2} />
+              <Retro
+                onLoadingProgress={handleLoadingProgress}
+                onLoadingComplete={handleLoadingComplete}
+              />
+            </Suspense>
+          </Canvas>
+        </motion.div>
       </motion.div>
 
-      <main
-        ref={scrollRef}
-        id="main-scroll-container"
-        className="main-scroll-container scroll-smooth fixed top-0 left-0 h-screen w-screen overflow-y-scroll"
+      <div
+        className="scroll-smooth"
         style={{
           maskImage:
             "linear-gradient(to bottom, rgba(0,0,0,0) 5%, rgba(0,0,0,1) 20%)",
@@ -245,7 +235,7 @@ export default function HomePage() {
           <div className="h-10" />
         </div>
         <div id="work" className="max-w-screen-xl mx-auto px-8 flex flex-col">
-          <div className="w-full mt-4 mb-7 flex flex-wrap justify-center gap-8  mx-auto">
+          <div className="w-full mt-4 mb-7 flex flex-wrap justify-center gap-8 mx-auto">
             {projects.map((project, index) => (
               <Card
                 key={"project_" + index}
@@ -258,10 +248,10 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </main>
+      </div>
 
-      <div className={`fixed top-0 left-0`}>
-        <Header scrollContainerRef={scrollRef} />
+      <div className="fixed top-0 left-0">
+        <Header />
       </div>
     </>
   );

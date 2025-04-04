@@ -142,7 +142,7 @@ const Header = ({ scrollContainerRef }: HeaderProps) => {
         <ul className="flex justify-between items-center gap-6 md:p-0">
           <li className="col-start-1 row-start-1">
             <h1
-              className={`text-2xl min-[1000px]:text-4xl tracking-tight flex relative ${lastik.className}`}
+              className={`text-4xl tracking-tight flex relative ${lastik.className} min-w-[40px] justify-center md:justify-start`}
             >
               <span className="">J</span>
               <span className="hidden min-[1000px]:inline">onothan.dev</span>
