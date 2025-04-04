@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-// import { usePathname, useRouter } from "next/navigation";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import localFont from "next/font/local";
@@ -12,16 +11,28 @@ import { RetroEffect } from "./RetroEffect";
 import Link from "next/link";
 import projects from "../data/projects";
 import Card from "./Card";
+import ModelLoader from "./ModelLoader";
 
 const lastik = localFont({
   src: "../fonts/Lastik.woff2",
   display: "swap",
 });
 
-const Retro = () => {
+interface RetroProps {
+  onLoadingProgress: (progress: number) => void;
+  onLoadingComplete: () => void;
+}
+
+const Retro: React.FC<RetroProps> = ({
+  onLoadingProgress,
+  onLoadingComplete,
+}) => {
   return (
     <>
-      <Model />
+      <Model
+        onLoadingProgress={onLoadingProgress}
+        onLoadingComplete={onLoadingComplete}
+      />
       <EffectComposer>
         <N8AO
           quality="performance"
@@ -29,7 +40,6 @@ const Retro = () => {
           distanceFalloff={0.4}
           intensity={2}
           screenSpaceRadius
-          // halfRes
           color={[0.6, 0.0, 0.8]}
         />
         <RetroEffect />
@@ -41,26 +51,41 @@ const Retro = () => {
 export default function HomePage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  // const pathname = usePathname();
-  // const router = useRouter();
   const [eventSource, setEventSource] = useState<HTMLElement | null>(null);
   const [windowHeight, setWindowHeight] = useState(0);
+
+  // Add loading state
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [modelLoaded, setModelLoaded] = useState(false);
 
   // Get raw scroll value instead of progress
   const { scrollY } = useScroll({ container: scrollRef });
 
   // Calculate opacity based on window height
-  const opacity = useTransform(
-    scrollY,
-    [0, windowHeight * 0.5], // Transition starts at 0 and ends at half window height
-    [1, 0.1]
-  );
+  const opacity = useTransform(scrollY, [0, windowHeight * 0.5], [1, 0.1]);
 
   const blur = useTransform(
     scrollY,
     [windowHeight * 0.5, windowHeight],
     ["blur(0px)", "blur(10px)"]
   );
+
+  // Handle loading progress
+  const handleLoadingProgress = (progress: number) => {
+    setLoadingProgress(progress);
+  };
+
+  // Handle loading complete
+  const handleLoadingComplete = () => {
+    // Hide the loader
+    setIsLoading(false);
+
+    // Set modelLoaded to true to trigger the animation
+    setTimeout(() => {
+      setModelLoaded(true);
+    }, 100); // Small delay to ensure the loader is gone first
+  };
 
   // Set up event source and window height after component mounts
   useEffect(() => {
@@ -100,37 +125,55 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Simple loading indicator */}
+      <AnimatePresence>
+        {isLoading && <ModelLoader progress={loadingProgress} />}
+      </AnimatePresence>
+
       <motion.div
         ref={canvasRef}
         className="-z-10 fixed top-0 left-0 w-screen h-screen"
-        style={{
-          opacity,
-          filter: blur,
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: modelLoaded ? 1 : 0,
         }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
       >
         {eventSource && (
-          <Canvas
-            eventSource={eventSource}
-            eventPrefix="client"
-            dpr={[1, 1]}
-            orthographic
-            camera={{
-              zoom: 550,
-              near: 0.1,
-              far: 1000,
-              // fov: 20,
-              position: [-1.65, 1.6, 3.5],
-              rotation: [-0.4, -0.408, -0.1],
+          <motion.div
+            style={{
+              opacity,
+              width: "100%",
+              height: "100%",
+              filter: blur,
             }}
           >
-            <Suspense fallback="Loading">
-              <ambientLight intensity={0.1} />
-              <directionalLight position={[0, 10, 5]} intensity={3.2} />
-              <Retro />
-            </Suspense>
-          </Canvas>
+            <Canvas
+              eventSource={eventSource}
+              eventPrefix="client"
+              dpr={[1, 1]}
+              orthographic
+              camera={{
+                zoom: 550,
+                near: 0.1,
+                far: 1000,
+                position: [-1.65, 1.6, 3.5],
+                rotation: [-0.4, -0.408, -0.1],
+              }}
+            >
+              <Suspense fallback={null}>
+                <ambientLight intensity={0.1} />
+                <directionalLight position={[0, 10, 5]} intensity={3.2} />
+                <Retro
+                  onLoadingProgress={handleLoadingProgress}
+                  onLoadingComplete={handleLoadingComplete}
+                />
+              </Suspense>
+            </Canvas>
+          </motion.div>
         )}
       </motion.div>
+
       <main
         ref={scrollRef}
         id="main-scroll-container"
@@ -196,7 +239,6 @@ export default function HomePage() {
               Lenses, TikTok effects) or anything else that pushes the
               boundaries of what is possible with technology!
             </p>
-            {/* <p className={`${lastik.className} text-3xl italic`}>Jonothan</p> */}
           </div>
           <div className="h-20" />
           <h2 className={`${lastik.className} text-8xl`}>Work</h2>
