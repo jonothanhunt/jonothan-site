@@ -2,53 +2,53 @@
 import React, { useRef, useMemo, useEffect } from "react";
 import { useFrame, extend, useThree, useLoader } from "@react-three/fiber";
 import {
-    useGLTF,
-    shaderMaterial,
-    MeshPortalMaterial,
-    Sky,
-    Grid,
-    Float,
+  useGLTF,
+  shaderMaterial,
+  MeshPortalMaterial,
+  Sky,
+  Grid,
+  Float,
 } from "@react-three/drei";
 // import glsl from "babel-plugin-glsl/macro";
 import * as THREE from "three";
 // import { useLightMode } from "../context/LightModeContext";
 
 export function Model(props) {
-    // const isLightMode = useLightMode();
-    const sceneRef = useRef();
-    const portalRefForeground = useRef();
-    const portalRefBackground = useRef();
-    const { nodes, materials } = useGLTF("/desk.glb");
-    const gravityRef = useRef();
-    const { mouse } = useThree();
-    const smoothMouseX = useRef(0);
-    const smoothMouseY = useRef(0);
-    const printerBedRef = useRef();
-    const printerArmRef = useRef();
-    const printerHeadRef = useRef();
-    const screenRef = useRef();
+  // const isLightMode = useLightMode();
+  const sceneRef = useRef();
+  const portalRefForeground = useRef();
+  const portalRefBackground = useRef();
+  const { nodes, materials } = useGLTF("/desk.glb");
+  const gravityRef = useRef();
+  const { mouse } = useThree();
+  const smoothMouseX = useRef(0);
+  const smoothMouseY = useRef(0);
+  const printerBedRef = useRef();
+  const printerArmRef = useRef();
+  const printerHeadRef = useRef();
+  const screenRef = useRef();
 
-    const startTime = useMemo(() => Date.now(), []);
+  const startTime = useMemo(() => Date.now(), []);
 
-    const grid = {
-        cellSize: 0.5,
-        cellThickness: 1.2,
-        cellColor: "#6f6f6f",
-        sectionSize: 1,
-        sectionThickness: 1.2,
-        sectionColor: "#9d4b4b",
-        fadeDistance: 50,
-        fadeStrength: 1,
-        followCamera: true,
-        infiniteGrid: true,
-    };
+  const grid = {
+    cellSize: 0.5,
+    cellThickness: 1.2,
+    cellColor: "#6f6f6f",
+    sectionSize: 1,
+    sectionThickness: 1.2,
+    sectionColor: "#9d4b4b",
+    fadeDistance: 50,
+    fadeStrength: 1,
+    followCamera: true,
+    infiniteGrid: true,
+  };
 
-    const GravityMaterial = shaderMaterial(
-        {
-            uTime: 0,
-            uColour: new THREE.Color("#aaaaff"),
-        },
-        `
+  const GravityMaterial = shaderMaterial(
+    {
+      uTime: 0,
+      uColour: new THREE.Color("#aaaaff"),
+    },
+    `
         varying float vZ;
     
         void main() {
@@ -56,7 +56,7 @@ export function Model(props) {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
-        `
+    `
         precision lowp float;
         uniform float uTime;
         uniform vec3 uColour;
@@ -73,15 +73,15 @@ export function Model(props) {
             gl_FragColor = vec4(uColour, pattern);
         }
       `
-    );
-    extend({ GravityMaterial });
+  );
+  extend({ GravityMaterial });
 
-    const ScreenMaterial = shaderMaterial(
-        {
-            uTime: 0,
-            uIntensity: 0.1,
-        },
-        `
+  const ScreenMaterial = shaderMaterial(
+    {
+      uTime: 0,
+      uIntensity: 0.1,
+    },
+    `
         precision lowp float;
     
         varying vec2 vUv;
@@ -92,7 +92,7 @@ export function Model(props) {
         }
     
         `,
-        `
+    `
         uniform float uIntensity;
         uniform float uTime;
     
@@ -196,439 +196,414 @@ export function Model(props) {
       }
     
         `
-    );
-    extend({ ScreenMaterial });
+  );
+  extend({ ScreenMaterial });
 
-    const getColorForTimeOfDay = (timeInSeconds) => {
-        // Time-based transition
-        const dayDuration = 60 * 60; // Assume 1 hour for a full cycle (for demonstration)
-        const timeInDay = timeInSeconds % dayDuration;
-        const progress = timeInDay / dayDuration; // 0 to 1
+  const getColorForTimeOfDay = (timeInSeconds) => {
+    // Time-based transition
+    const dayDuration = 60 * 60; // Assume 1 hour for a full cycle (for demonstration)
+    const timeInDay = timeInSeconds % dayDuration;
+    const progress = timeInDay / dayDuration; // 0 to 1
 
-        const colorStart = new THREE.Color(1.0, 1.0, 1.0); // white
-        const colorEnd = new THREE.Color(0.2, 0.0, 0.5); // dark purple
+    const colorStart = new THREE.Color(1.0, 1.0, 1.0); // white
+    const colorEnd = new THREE.Color(0.2, 0.0, 0.5); // dark purple
 
-        return colorStart.lerp(colorEnd, progress);
-    };
+    return colorStart.lerp(colorEnd, progress);
+  };
 
-    const { viewport } = useThree();
+  const { viewport } = useThree();
 
-    const baseScale = 2;
+  const baseScale = 2;
 
-    useFrame((state, delta) => {
-        const time = (Date.now() - startTime) / 1000;
+  useFrame((state, delta) => {
+    const time = (Date.now() - startTime) / 1000;
 
-        // GRAVITY
-        if (gravityRef.current) {
-            gravityRef.current.uTime = time; // Increment uTime smoothly
-        }
+    // GRAVITY
+    if (gravityRef.current) {
+      gravityRef.current.uTime = time; // Increment uTime smoothly
+    }
 
-        // SCREEN
-        if (screenRef.current) {
-            screenRef.current.uTime = time; // Increment uTime smoothly
-        }
+    // SCREEN
+    if (screenRef.current) {
+      screenRef.current.uTime = time; // Increment uTime smoothly
+    }
 
-        // BACKGROUND
-        const color = getColorForTimeOfDay(time);
-        if (portalRefBackground.current) {
-            portalRefBackground.current.material.color.set(color);
-            portalRefBackground.current.material.needsUpdate = true;
-        }
-        if (portalRefForeground.current) {
-            portalRefForeground.current.material.color.set(color);
-            portalRefForeground.current.material.needsUpdate = true;
-        }
+    // BACKGROUND
+    const color = getColorForTimeOfDay(time);
+    if (portalRefBackground.current) {
+      portalRefBackground.current.material.color.set(color);
+      portalRefBackground.current.material.needsUpdate = true;
+    }
+    if (portalRefForeground.current) {
+      portalRefForeground.current.material.color.set(color);
+      portalRefForeground.current.material.needsUpdate = true;
+    }
 
-        // MOUSE MOVEMENT + SCALING
-        if (sceneRef.current) {
-            smoothMouseX.current = THREE.MathUtils.lerp(
-                smoothMouseX.current,
-                mouse.x * 0.1,
-                0.08
-            );
-            smoothMouseY.current = THREE.MathUtils.lerp(
-                smoothMouseY.current,
-                -mouse.y * 0.05,
-                0.08
-            );
-            sceneRef.current.rotation.y = smoothMouseX.current;
-            sceneRef.current.rotation.x = smoothMouseY.current;
+    // MOUSE MOVEMENT + SCALING
+    if (sceneRef.current) {
+      smoothMouseX.current = THREE.MathUtils.lerp(
+        smoothMouseX.current,
+        mouse.x * 0.1,
+        0.08
+      );
+      smoothMouseY.current = THREE.MathUtils.lerp(
+        smoothMouseY.current,
+        -mouse.y * 0.05,
+        0.08
+      );
+      sceneRef.current.rotation.y = smoothMouseX.current;
+      sceneRef.current.rotation.x = smoothMouseY.current;
 
-            const responsiveScale =
-                Math.min(viewport.width / 4, 0.5) * baseScale;
+      const responsiveScale = Math.min(viewport.width / 4, 0.5) * baseScale;
 
-            sceneRef.current.scale.set(
-                responsiveScale,
-                responsiveScale,
-                responsiveScale
-            );
-        }
-        // // 3D PRINTER
-        if (printerBedRef.current) {
-            printerBedRef.current.position.z = Math.sin(time) * 0.1;
-        }
-        if (printerArmRef.current) {
-            printerArmRef.current.position.y = 0.05 + Math.sin(time) * 0.08;
-        }
-        if (printerHeadRef.current) {
-            printerHeadRef.current.position.x =
-                0.025 + Math.sin(time * 2) * 0.08;
-        }
-    });
+      sceneRef.current.scale.set(
+        responsiveScale,
+        responsiveScale,
+        responsiveScale
+      );
+    }
+    // // 3D PRINTER
+    if (printerBedRef.current) {
+      printerBedRef.current.position.z = Math.sin(time) * 0.1;
+    }
+    if (printerArmRef.current) {
+      printerArmRef.current.position.y = 0.05 + Math.sin(time) * 0.08;
+    }
+    if (printerHeadRef.current) {
+      printerHeadRef.current.position.x = 0.025 + Math.sin(time * 2) * 0.08;
+    }
+  });
 
-    const outsideLayerBackgroundTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/outside_layer_background.png"
-    );
+  const outsideLayerBackgroundTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/outside_layer_background.png"
+  );
 
-    const outsideLayerForgroundTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/outside_layer_foreground.png"
-    );
+  const outsideLayerForgroundTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/outside_layer_foreground.png"
+  );
 
-    const effectHouseStickerTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/effect_house.png"
-    );
-    const reactStickerTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/react_logo.png"
-    );
-    const nextjsStickerTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/nextjs_logo.png"
-    );
-    const threeStickerTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/three_logo.png"
-    );
-    const touchDesignerStickerTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/touchdesigner_logo.png"
-    );
-    const blenderHouseStickerTexture = useLoader(
-        THREE.TextureLoader,
-        "/images/blender_badge.png"
-    );
+  const effectHouseStickerTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/effect_house.png"
+  );
+  const reactStickerTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/react_logo.png"
+  );
+  const nextjsStickerTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/nextjs_logo.png"
+  );
+  const threeStickerTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/three_logo.png"
+  );
+  const touchDesignerStickerTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/touchdesigner_logo.png"
+  );
+  const blenderHouseStickerTexture = useLoader(
+    THREE.TextureLoader,
+    "/images/blender_badge.png"
+  );
 
-    return (
-        <group ref={sceneRef} {...props} dispose={null}>
-            <Grid {...grid} position={[0, -0.5, 0]} />
+  return (
+    <group ref={sceneRef} {...props} position={[0,0.17,0]} dispose={null}>
+      <group position={[0, -0.2, 0]}>
+        <Grid {...grid} position={[0, -0.5, 0]} />
 
-            <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
-                <mesh
-                    position={[1.1, -0.3, -0.9]}
-                    rotation={[-Math.PI / 3, -0.2, -0.5]}
-                >
-                    <planeGeometry args={[0.25, 0.25]} />
-                    <meshBasicMaterial
-                        transparent
-                        map={blenderHouseStickerTexture}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-            </Float>
+        <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
+          <mesh
+            position={[1.1, -0.3, -0.9]}
+            rotation={[-Math.PI / 3, -0.2, -0.5]}
+          >
+            <planeGeometry args={[0.25, 0.25]} />
+            <meshBasicMaterial
+              transparent
+              map={blenderHouseStickerTexture}
+              alphaTest={0.5}
+            />
+          </mesh>
+        </Float>
 
-            <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
-                <mesh
-                    position={[1, -0.3, 0]}
-                    rotation={[-Math.PI / 3, -0.2, 0]}
-                >
-                    <planeGeometry args={[0.3, 0.3]} />
-                    <meshBasicMaterial
-                        transparent
-                        map={effectHouseStickerTexture}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-            </Float>
+        <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
+          <mesh position={[1, -0.3, 0]} rotation={[-Math.PI / 3, -0.2, 0]}>
+            <planeGeometry args={[0.3, 0.3]} />
+            <meshBasicMaterial
+              transparent
+              map={effectHouseStickerTexture}
+              alphaTest={0.5}
+            />
+          </mesh>
+        </Float>
 
-            <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
-                <mesh
-                    position={[0.3, -0.3, 0.5]}
-                    rotation={[-Math.PI / 3, -0.2, 0.8]}
-                >
-                    <planeGeometry args={[0.26, 0.26]} />
-                    <meshBasicMaterial
-                        transparent
-                        map={touchDesignerStickerTexture}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-            </Float>
+        <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
+          <mesh
+            position={[0.3, -0.3, 0.5]}
+            rotation={[-Math.PI / 3, -0.2, 0.8]}
+          >
+            <planeGeometry args={[0.26, 0.26]} />
+            <meshBasicMaterial
+              transparent
+              map={touchDesignerStickerTexture}
+              alphaTest={0.5}
+            />
+          </mesh>
+        </Float>
 
-            <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
-                <mesh
-                    position={[-0.6, -0.3, 0.5]}
-                    rotation={[-Math.PI / 2.2, 0, 0]}
-                >
-                    <planeGeometry args={[0.3, 0.3]} />
-                    <meshBasicMaterial
-                        transparent
-                        map={reactStickerTexture}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-            </Float>
+        <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
+          <mesh position={[-0.6, -0.3, 0.5]} rotation={[-Math.PI / 2.2, 0, 0]}>
+            <planeGeometry args={[0.3, 0.3]} />
+            <meshBasicMaterial
+              transparent
+              map={reactStickerTexture}
+              alphaTest={0.5}
+            />
+          </mesh>
+        </Float>
 
-            <Float speed={1} rotationIntensity={1} floatIntensity={0.4}>
-                <mesh
-                    position={[-1.2, -0.3, -0.1]}
-                    rotation={[-Math.PI / 2.2, 0, 0]}
-                >
-                    <planeGeometry args={[0.3, 0.3]} />
-                    <meshBasicMaterial
-                        transparent
-                        map={nextjsStickerTexture}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-            </Float>
+        <Float speed={1} rotationIntensity={1} floatIntensity={0.4}>
+          <mesh position={[-1.2, -0.3, -0.1]} rotation={[-Math.PI / 2.2, 0, 0]}>
+            <planeGeometry args={[0.3, 0.3]} />
+            <meshBasicMaterial
+              transparent
+              map={nextjsStickerTexture}
+              alphaTest={0.5}
+            />
+          </mesh>
+        </Float>
 
-            <Float speed={1} rotationIntensity={1} floatIntensity={0.4}>
-                <mesh
-                    position={[-0.6, -0.3, -0.8]}
-                    rotation={[-Math.PI / 2.2, 0, 0]}
-                >
-                    <planeGeometry args={[0.3, 0.3]} />
-                    <meshBasicMaterial
-                        transparent
-                        map={threeStickerTexture}
-                        alphaTest={0.5}
-                    />
-                </mesh>
-            </Float>
+        <Float speed={1} rotationIntensity={1} floatIntensity={0.4}>
+          <mesh position={[-0.6, -0.3, -0.8]} rotation={[-Math.PI / 2.2, 0, 0]}>
+            <planeGeometry args={[0.3, 0.3]} />
+            <meshBasicMaterial
+              transparent
+              map={threeStickerTexture}
+              alphaTest={0.5}
+            />
+          </mesh>
+        </Float>
 
-            <mesh name="table" geometry={nodes.table.geometry}>
-                <meshStandardMaterial color="#f06947" />
-            </mesh>
+        <mesh name="table" geometry={nodes.table.geometry}>
+          <meshStandardMaterial color="#f06947" />
+        </mesh>
 
-            <mesh name="gravity_field" geometry={nodes.gravity_field.geometry}>
-                <gravityMaterial
-                    transparent
-                    depthWrite={false}
-                    alphaTest={0.5}
-                    side={THREE.DoubleSide}
-                    ref={gravityRef}
+        <mesh name="gravity_field" geometry={nodes.gravity_field.geometry}>
+          <gravityMaterial
+            transparent
+            depthWrite={false}
+            alphaTest={0.5}
+            side={THREE.DoubleSide}
+            ref={gravityRef}
+          />
+        </mesh>
+        <mesh
+          name="window"
+          geometry={nodes.window.geometry}
+          material={materials.window}
+          position={[0, -0.15, 0]}
+        >
+          <MeshPortalMaterial>
+            <group rotation={[0, -0.25, 0]} position={[0, 0.3, 0]}>
+              <mesh position={[0, -0.5, -2.5]} ref={portalRefBackground}>
+                <planeGeometry args={[2, 1.2, 32, 32]} />
+                {/* the colour to fade from white to dark purple depending on time of the day */}
+                <meshBasicMaterial
+                  map={outsideLayerBackgroundTexture}
+                  alphaTest={0.2}
                 />
-            </mesh>
+              </mesh>
+              <mesh position={[0, -0.15, -1.5]} ref={portalRefForeground}>
+                <planeGeometry args={[1.5, 1, 32, 32]} />
+                {/* the colour to fade from white to dark purple depending on time of the day */}
+                <meshBasicMaterial
+                  map={outsideLayerForgroundTexture}
+                  alphaTest={0.5}
+                />
+              </mesh>
+            </group>
+            <Sky />
+          </MeshPortalMaterial>
+        </mesh>
+        <group
+          name="laptop"
+          position={[0.2, 0.043, -0.116]}
+          rotation={[0.434, -0.16, 0.074]}
+        >
+          <group name="laptop_body" position={[0, 0.01, 0]}>
             <mesh
-                name="window"
-                geometry={nodes.window.geometry}
-                material={materials.window}
-                position={[0, -0.15, 0]}
-            >
-                <MeshPortalMaterial >
-                    <group rotation={[0, -.25, 0]} position={[0, .3, 0]}>
-                        <mesh position={[0, -.5, -2.5]} ref={portalRefBackground}>
-                            <planeGeometry args={[2, 1.2, 32, 32]} />
-                            {/* the colour to fade from white to dark purple depending on time of the day */}
-                            <meshBasicMaterial
-                                map={outsideLayerBackgroundTexture}
-                                alphaTest={0.2}
-                            />
-                        </mesh>
-                        <mesh position={[0, -.15, -1.5]} ref={portalRefForeground}>
-                            <planeGeometry args={[1.5, 1, 32, 32]} />
-                            {/* the colour to fade from white to dark purple depending on time of the day */}
-                            <meshBasicMaterial
-                                map={outsideLayerForgroundTexture}
-                                alphaTest={0.5}
-                            />
-                        </mesh>
-                    </group>
-                    <Sky />
-                </MeshPortalMaterial>
+              name="Cube005"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005.geometry}
+              material={materials.computer}
+            />
+            <mesh
+              name="Cube005_1"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_1.geometry}
+              material={materials.keys}
+            />
+            <mesh
+              name="Cube005_2"
+              castShadow
+              receiveShadow
+              geometry={nodes.Cube005_2.geometry}
+              material={materials.trackpad}
+            />
+          </group>
+          <group>
+            <mesh
+              name="screen"
+              castShadow
+              receiveShadow
+              geometry={nodes.screen.geometry}
+              material={materials.computer}
+              position={[0, 0.01, 0.002]}
+            />
+            <mesh position={[-0.002, 0.11, -0.155]} rotation={[-0.5, 0, 0]}>
+              <planeGeometry args={[0.29, 0.21, 32, 32]} />
+              <screenMaterial ref={screenRef} />
             </mesh>
-            <group
-                name="laptop"
-                position={[0.2, 0.043, -0.116]}
-                rotation={[0.434, -0.16, 0.074]}
-            >
-                <group name="laptop_body" position={[0, 0.01, 0]}>
-                    <mesh
-                        name="Cube005"
-                        castShadow
-                        receiveShadow
-                        geometry={nodes.Cube005.geometry}
-                        material={materials.computer}
-                    />
-                    <mesh
-                        name="Cube005_1"
-                        castShadow
-                        receiveShadow
-                        geometry={nodes.Cube005_1.geometry}
-                        material={materials.keys}
-                    />
-                    <mesh
-                        name="Cube005_2"
-                        castShadow
-                        receiveShadow
-                        geometry={nodes.Cube005_2.geometry}
-                        material={materials.trackpad}
-                    />
-                </group>
-                <group>
-                    <mesh
-                        name="screen"
-                        castShadow
-                        receiveShadow
-                        geometry={nodes.screen.geometry}
-                        material={materials.computer}
-                        position={[0, 0.01, 0.002]}
-                    />
-                    <mesh
-                        position={[-0.002, 0.11, -0.155]}
-                        rotation={[-0.5, 0, 0]}
-                    >
-                        <planeGeometry args={[0.29, 0.21, 32, 32]} />
-                        <screenMaterial ref={screenRef} />
-                    </mesh>
-                </group>
-            </group>
-            <group
-                name="keyboard_2"
-                position={[0.182, 0.02, 0.179]}
-                rotation={[0.032, -0.147, 0.005]}
-            >
-                <mesh
-                    name="Tastatur_Tastatur_Untergrund_0"
-                    geometry={nodes.Tastatur_Tastatur_Untergrund_0.geometry}
-                    material={materials.body}
-                />
-                <mesh
-                    name="Tastatur_Tastatur_Untergrund_0_1"
-                    geometry={nodes.Tastatur_Tastatur_Untergrund_0_1.geometry}
-                    material={materials["keys_1.001"]}
-                />
-                <mesh
-                    name="Tastatur_Tastatur_Untergrund_0_2"
-                    geometry={nodes.Tastatur_Tastatur_Untergrund_0_2.geometry}
-                    material={materials.keys_2}
-                />
-                <mesh
-                    name="Tastatur_Tastatur_Untergrund_0_3"
-                    geometry={nodes.Tastatur_Tastatur_Untergrund_0_3.geometry}
-                    material={materials.keys_3}
-                />
-            </group>
-            <group
-                name="mouse"
-                position={[0.532, 0.013, 0.207]}
-                rotation={[0, -0.165, 0]}
-            >
-                <mesh
-                    name="Object_0003"
-                    geometry={nodes.Object_0003.geometry}
-                    material={materials.mouse_body}
-                />
-                <mesh
-                    name="Object_0003_1"
-                    geometry={nodes.Object_0003_1.geometry}
-                    material={materials.wheel}
-                />
-            </group>
-            <group
-                name="printer"
-                position={[-0.344, 0, 0]}
-                rotation={[0, 0.223, 0]}
-            >
-                {/* ARM */}
-                <group position={[0, 0.1, 0]} ref={printerArmRef}>
-                    <mesh
-                        name="Object_0010"
-                        geometry={nodes.Object_0010.geometry}
-                        material={materials["printer-arm"]}
-                    />
-                    <mesh
-                        name="Object_0010_1"
-                        geometry={nodes.Object_0010_1.geometry}
-                        material={materials["printer-bars"]}
-                    />
-                    <mesh
-                        position={[0, 0, 0]}
-                        ref={printerHeadRef}
-                        name="head"
-                        geometry={nodes.head.geometry}
-                        material={materials["printer-head"]}
-                    />
-                </group>
-                <mesh
-                    name="Object_0008"
-                    geometry={nodes.Object_0008.geometry}
-                    material={materials["printer-body"]}
-                />
-                <mesh
-                    name="Object_0008_1"
-                    geometry={nodes.Object_0008_1.geometry}
-                    material={materials["printer-screen"]}
-                />
-                <mesh
-                    name="Object_0008_2"
-                    geometry={nodes.Object_0008_2.geometry}
-                    material={materials["printer-bars"]}
-                />
-                <group ref={printerBedRef}>
-                    <mesh
-                        name="Object_0012_1"
-                        geometry={nodes.Object_0012_1.geometry}
-                        material={materials["printer-table"]}
-                    />
-                    <mesh
-                        name="Object_0012"
-                        geometry={nodes.Object_0012.geometry}
-                        material={materials["printer-body"]}
-                    />
-                </group>
-            </group>
-            <group
-                name="pi"
-                position={[0.479, 0.002, 0.033]}
-                rotation={[0, 0.337, 0]}
-            >
-                <mesh
-                    name="Raspberry_Pi_5_Reference_Model_V11"
-                    geometry={nodes.Raspberry_Pi_5_Reference_Model_V11.geometry}
-                    material={materials["pi-base"]}
-                />
-                <mesh
-                    name="Raspberry_Pi_5_Reference_Model_V11_1"
-                    geometry={
-                        nodes.Raspberry_Pi_5_Reference_Model_V11_1.geometry
-                    }
-                    material={materials["pi-silver"]}
-                />
-                <mesh
-                    name="Raspberry_Pi_5_Reference_Model_V11_2"
-                    geometry={
-                        nodes.Raspberry_Pi_5_Reference_Model_V11_2.geometry
-                    }
-                    material={materials["pi-dark"]}
-                />
-                <mesh
-                    name="Raspberry_Pi_5_Reference_Model_V11_3"
-                    geometry={
-                        nodes.Raspberry_Pi_5_Reference_Model_V11_3.geometry
-                    }
-                    material={materials["pi-light"]}
-                />
-                <mesh
-                    name="Raspberry_Pi_5_Reference_Model_V11_4"
-                    geometry={
-                        nodes.Raspberry_Pi_5_Reference_Model_V11_4.geometry
-                    }
-                    material={materials["pi-mid"]}
-                />
-                <mesh
-                    name="Raspberry_Pi_5_Reference_Model_V11_5"
-                    geometry={
-                        nodes.Raspberry_Pi_5_Reference_Model_V11_5.geometry
-                    }
-                    material={materials["pi-yellow"]}
-                />
-            </group>
+          </group>
         </group>
-    );
+        <group
+          name="keyboard_2"
+          position={[0.182, 0.02, 0.179]}
+          rotation={[0.032, -0.147, 0.005]}
+        >
+          <mesh
+            name="Tastatur_Tastatur_Untergrund_0"
+            geometry={nodes.Tastatur_Tastatur_Untergrund_0.geometry}
+            material={materials.body}
+          />
+          <mesh
+            name="Tastatur_Tastatur_Untergrund_0_1"
+            geometry={nodes.Tastatur_Tastatur_Untergrund_0_1.geometry}
+            material={materials["keys_1.001"]}
+          />
+          <mesh
+            name="Tastatur_Tastatur_Untergrund_0_2"
+            geometry={nodes.Tastatur_Tastatur_Untergrund_0_2.geometry}
+            material={materials.keys_2}
+          />
+          <mesh
+            name="Tastatur_Tastatur_Untergrund_0_3"
+            geometry={nodes.Tastatur_Tastatur_Untergrund_0_3.geometry}
+            material={materials.keys_3}
+          />
+        </group>
+        <group
+          name="mouse"
+          position={[0.532, 0.013, 0.207]}
+          rotation={[0, -0.165, 0]}
+        >
+          <mesh
+            name="Object_0003"
+            geometry={nodes.Object_0003.geometry}
+            material={materials.mouse_body}
+          />
+          <mesh
+            name="Object_0003_1"
+            geometry={nodes.Object_0003_1.geometry}
+            material={materials.wheel}
+          />
+        </group>
+        <group
+          name="printer"
+          position={[-0.344, 0, 0]}
+          rotation={[0, 0.223, 0]}
+        >
+          {/* ARM */}
+          <group position={[0, 0.1, 0]} ref={printerArmRef}>
+            <mesh
+              name="Object_0010"
+              geometry={nodes.Object_0010.geometry}
+              material={materials["printer-arm"]}
+            />
+            <mesh
+              name="Object_0010_1"
+              geometry={nodes.Object_0010_1.geometry}
+              material={materials["printer-bars"]}
+            />
+            <mesh
+              position={[0, 0, 0]}
+              ref={printerHeadRef}
+              name="head"
+              geometry={nodes.head.geometry}
+              material={materials["printer-head"]}
+            />
+          </group>
+          <mesh
+            name="Object_0008"
+            geometry={nodes.Object_0008.geometry}
+            material={materials["printer-body"]}
+          />
+          <mesh
+            name="Object_0008_1"
+            geometry={nodes.Object_0008_1.geometry}
+            material={materials["printer-screen"]}
+          />
+          <mesh
+            name="Object_0008_2"
+            geometry={nodes.Object_0008_2.geometry}
+            material={materials["printer-bars"]}
+          />
+          <group ref={printerBedRef}>
+            <mesh
+              name="Object_0012_1"
+              geometry={nodes.Object_0012_1.geometry}
+              material={materials["printer-table"]}
+            />
+            <mesh
+              name="Object_0012"
+              geometry={nodes.Object_0012.geometry}
+              material={materials["printer-body"]}
+            />
+          </group>
+        </group>
+        <group
+          name="pi"
+          position={[0.479, 0.002, 0.033]}
+          rotation={[0, 0.337, 0]}
+        >
+          <mesh
+            name="Raspberry_Pi_5_Reference_Model_V11"
+            geometry={nodes.Raspberry_Pi_5_Reference_Model_V11.geometry}
+            material={materials["pi-base"]}
+          />
+          <mesh
+            name="Raspberry_Pi_5_Reference_Model_V11_1"
+            geometry={nodes.Raspberry_Pi_5_Reference_Model_V11_1.geometry}
+            material={materials["pi-silver"]}
+          />
+          <mesh
+            name="Raspberry_Pi_5_Reference_Model_V11_2"
+            geometry={nodes.Raspberry_Pi_5_Reference_Model_V11_2.geometry}
+            material={materials["pi-dark"]}
+          />
+          <mesh
+            name="Raspberry_Pi_5_Reference_Model_V11_3"
+            geometry={nodes.Raspberry_Pi_5_Reference_Model_V11_3.geometry}
+            material={materials["pi-light"]}
+          />
+          <mesh
+            name="Raspberry_Pi_5_Reference_Model_V11_4"
+            geometry={nodes.Raspberry_Pi_5_Reference_Model_V11_4.geometry}
+            material={materials["pi-mid"]}
+          />
+          <mesh
+            name="Raspberry_Pi_5_Reference_Model_V11_5"
+            geometry={nodes.Raspberry_Pi_5_Reference_Model_V11_5.geometry}
+            material={materials["pi-yellow"]}
+          />
+        </group>
+      </group>
+    </group>
+  );
 }
 
 useGLTF.preload("/desk.glb");
