@@ -1,27 +1,37 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-.wavy {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: Calc(100% + 4em);
-    height: 100%;
-    --mask: radial-gradient(
-                0.73em at 50% calc(100% + 0.3em),
-                #0000 calc(99% - 0.3em),
-                #000 calc(101% - 0.3em) 99%,
-                #0000 101%
-            )
-            calc(50% - 1em) calc(50% - 0.4em + 0.5px) / 2em 0.8em repeat-x,
-        radial-gradient(
-                0.73em at 50% -0.3em,
-                #0000 calc(99% - 0.3em),
-                #000 calc(101% - 0.3em) 99%,
-                #0000 101%
-            )
-            50% calc(50% + 0.4em) / 2em 0.8em repeat-x;
-    -webkit-mask: var(--mask);
-    mask: var(--mask);
+:root {
+    --foreground: #ffedd4;
+    /* --background: #461901; */
+    /* --background: #016630; */
+    --background: #ae20a3;
+    /* --background: #016630; */
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
+body {
+    /* background: var(--background); */
+    /* pink to blue background gradient */
+    background: linear-gradient(100deg, #731f96, #ad452b);
+    background-size: 100% 100%;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    overflow: clip;
+
+    overscroll-behavior: none;
+
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
 }
