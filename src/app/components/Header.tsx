@@ -1,5 +1,5 @@
 "use client";
-import { useState, RefObject, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { SparklesIcon } from "@heroicons/react/24/solid";
@@ -16,11 +16,7 @@ const lastik = localFont({
   display: "swap",
 });
 
-interface HeaderProps {
-  scrollContainerRef?: RefObject<HTMLElement | HTMLDivElement | null>;
-}
-
-const Header = ({ scrollContainerRef }: HeaderProps) => {
+const Header = () => {
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState("/");
   const [userScrolling, setUserScrolling] = useState(false);
@@ -38,13 +34,14 @@ const Header = ({ scrollContainerRef }: HeaderProps) => {
         if (aboutSection && workSection) {
           const aboutRect = aboutSection.getBoundingClientRect();
           const workRect = workSection.getBoundingClientRect();
+          const offset = 100; // Match the offset used in navigation
 
-          if (workRect.top <= 300 && workRect.bottom >= 100) {
+          if (workRect.top <= offset && workRect.bottom >= offset) {
             setActiveSection("/work");
             if (userScrolling && window.location.hash !== "#work") {
               window.history.replaceState(null, "", "/#work");
             }
-          } else if (aboutRect.top <= 300 && aboutRect.bottom >= 100) {
+          } else if (aboutRect.top <= offset && aboutRect.bottom >= offset) {
             setActiveSection("/about");
             if (userScrolling && window.location.hash !== "#about") {
               window.history.replaceState(null, "", "/#about");
@@ -61,20 +58,20 @@ const Header = ({ scrollContainerRef }: HeaderProps) => {
       }, 100);
     };
 
+    // Set initial active section based on URL hash
     if (window.location.hash === "#about") {
       setActiveSection("/about");
     } else if (window.location.hash === "#work") {
       setActiveSection("/work");
     }
 
-    const scrollContainer = scrollContainerRef?.current || window;
-    scrollContainer.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      scrollContainer.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       clearTimeout(scrollTimeout);
     };
-  }, [scrollContainerRef, userScrolling]);
+  }, [userScrolling]);
 
   const navigateToHome = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -82,14 +79,7 @@ const Header = ({ scrollContainerRef }: HeaderProps) => {
     setActiveSection("/");
     window.history.pushState(null, "", "/");
 
-    if (scrollContainerRef?.current) {
-      const container = scrollContainerRef.current;
-      if ("scrollTo" in container) {
-        container.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const navigateToAbout = (e: React.MouseEvent) => {
@@ -100,17 +90,12 @@ const Header = ({ scrollContainerRef }: HeaderProps) => {
 
     const aboutSection = document.getElementById("about");
     if (aboutSection) {
-      if (scrollContainerRef?.current) {
-        const container = scrollContainerRef.current;
-        if ("scrollTo" in container) {
-          container.scrollTo({
-            top: aboutSection.offsetTop - 300,
-            behavior: "smooth",
-          });
-        }
-      } else {
-        aboutSection.scrollIntoView({ behavior: "smooth" });
-      }
+      const offsetTop =
+        aboutSection.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -122,22 +107,27 @@ const Header = ({ scrollContainerRef }: HeaderProps) => {
 
     const workSection = document.getElementById("work");
     if (workSection) {
-      if (scrollContainerRef?.current) {
-        const container = scrollContainerRef.current;
-        if ("scrollTo" in container) {
-          container.scrollTo({
-            top: workSection.offsetTop - 300,
-            behavior: "smooth",
-          });
-        }
-      } else {
-        workSection.scrollIntoView({ behavior: "smooth" });
-      }
+      const offsetTop =
+        workSection.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: "smooth",
+      });
     }
   };
 
   return (
     <header className="w-screen flex flex-wrap justify-between items-center sticky z-20">
+      <div
+        className="fixed top-0 left-0 w-full h-screen pointer-events-none -z-10"
+        style={{
+          background: "linear-gradient(100deg, #731f96, #ad452b)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,1) 30px, rgba(0,0,0,0) 200px)",
+          maskImage:
+            "linear-gradient(to bottom, rgba(0,0,0,1) 30px, rgba(0,0,0,0) 200px)",
+        }}
+      />
       <nav className="w-full p-4">
         <ul className="flex justify-between items-center gap-6 md:p-0">
           <li className="col-start-1 row-start-1">
