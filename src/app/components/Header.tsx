@@ -128,6 +128,28 @@ const Header = () => {
             "linear-gradient(to bottom, rgba(0,0,0,1) 30px, rgba(0,0,0,0) 200px)",
         }}
       />
+      <div className="fixed top-0 left-0 w-full h-28 pointer-events-none -z-10">
+        {Array.from({ length: 15 }).map((_, i) => {
+          // Calculate blur from max to 0
+          const blurMax = 15;
+          const blurAmount = blurMax - (i / 15) * blurMax;
+
+          return (
+            <div key={i} className="relative h-2 w-full">
+              <div
+                className="absolute -top-2 left-2 h-6 w-full"
+                style={{
+                  backdropFilter: `blur(${blurAmount.toFixed(0)}px)`,
+                  WebkitMaskImage:
+                    "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 33%, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 100%)",
+                  maskImage:
+                    "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 33%, rgba(0,0,0,1) 66%, rgba(0,0,0,0) 100%)",
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
       <nav className="w-full p-4">
         <ul className="flex justify-between items-center gap-6 md:p-0">
           <li className="col-start-1 row-start-1">
