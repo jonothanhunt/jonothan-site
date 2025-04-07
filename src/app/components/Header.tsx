@@ -123,9 +123,9 @@ const Header = () => {
         style={{
           background: "linear-gradient(100deg, #731f96, #ad452b)",
           WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,1) 30px, rgba(0,0,0,0) 200px)",
+            "linear-gradient(to bottom, rgba(0,0,0,1) 20px, rgba(0,0,0,0) 200px)",
           maskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,1) 30px, rgba(0,0,0,0) 200px)",
+            "linear-gradient(to bottom, rgba(0,0,0,1) 20px, rgba(0,0,0,0) 200px)",
         }}
       />
       <div className="fixed top-0 left-0 w-full h-28 pointer-events-none -z-10">
@@ -137,7 +137,7 @@ const Header = () => {
           return (
             <div key={i} className="relative h-2 w-full">
               <div
-                className="absolute -top-2 left-2 h-6 w-full"
+                className="absolute -top-2 left-0 h-6 w-full"
                 style={{
                   backdropFilter: `blur(${blurAmount.toFixed(0)}px)`,
                   WebkitMaskImage:
