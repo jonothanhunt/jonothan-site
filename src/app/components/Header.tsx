@@ -32,16 +32,21 @@ const Header = () => {
         const workSection = document.getElementById("work");
 
         if (aboutSection && workSection) {
-          const aboutRect = aboutSection.getBoundingClientRect();
-          const workRect = workSection.getBoundingClientRect();
-          const offset = 100; // Match the offset used in navigation
+          const scrollY = window.scrollY;
+          const offset = 100; // match whatever you're using for nav spacing
+          const workTop = workSection.offsetTop - offset;
+          const aboutTop = aboutSection.offsetTop - offset;
 
-          if (workRect.top <= offset && workRect.bottom >= offset) {
+          // Assuming you may add more below `#work`, so we treat it as the last
+          const workIsActive = scrollY >= workTop;
+          const aboutIsActive = scrollY >= aboutTop && scrollY < workTop;
+
+          if (workIsActive) {
             setActiveSection("/work");
             if (userScrolling && window.location.hash !== "#work") {
               window.history.replaceState(null, "", "/#work");
             }
-          } else if (aboutRect.top <= offset && aboutRect.bottom >= offset) {
+          } else if (aboutIsActive) {
             setActiveSection("/about");
             if (userScrolling && window.location.hash !== "#about") {
               window.history.replaceState(null, "", "/#about");
