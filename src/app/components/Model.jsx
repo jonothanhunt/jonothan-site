@@ -5,12 +5,11 @@ import {
   useGLTF,
   shaderMaterial,
   MeshPortalMaterial,
-  Sky,
-  Grid,
   Float,
   useProgress,
 } from "@react-three/drei";
 import * as THREE from "three";
+import { Floor } from "./Floor";
 // Create a global loading manager with more detailed tracking
 const loadingManager = new THREE.LoadingManager();
 
@@ -69,8 +68,6 @@ function preloadModelAssets(onProgress) {
 
   // Define all texture paths
   const texturePaths = [
-    "/images/outside_layer_background.png",
-    "/images/outside_layer_foreground.png",
     "/images/effect_house.png",
     "/images/react_logo.png",
     "/images/nextjs_logo.png",
@@ -448,7 +445,8 @@ export function Model(props) {
   return (
     <group ref={sceneRef} {...props} position={[0, 0.17, 0]} dispose={null}>
       <group position={[0, -0.2, 0]}>
-        <Grid {...grid} position={[0, -0.5, 0]} />
+        {/* <Grid {...grid} position={[0, -0.5, 0]} /> */}
+        <Floor position={[0, -0.9, -1.0]} />
 
         <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
           <mesh
@@ -523,7 +521,7 @@ export function Model(props) {
         </Float>
 
         <mesh name="table" geometry={nodes.table.geometry}>
-          <meshStandardMaterial color="#f06947" />
+          <meshStandardMaterial color="#ad452b" />
         </mesh>
 
         <mesh name="gravity_field" geometry={nodes.gravity_field.geometry}>
@@ -542,25 +540,224 @@ export function Model(props) {
           position={[0, -0.15, 0]}
         >
           <MeshPortalMaterial>
-            <group rotation={[0, -0.25, 0]} position={[0, 0.3, 0]}>
-              <mesh position={[0, -0.5, -2.5]} ref={portalRefBackground}>
-                <planeGeometry args={[2, 1.2, 32, 32]} />
-                {/* the colour to fade from white to dark purple depending on time of the day */}
-                <meshBasicMaterial
-                  map={outsideLayerBackgroundTexture}
-                  alphaTest={0.2}
+            <group rotation={[0, -0.1, 0]} position={[0.5, -0.1, 0]}>
+              {/* Sky plane for gradient background */}
+              <mesh position={[-0.05, -0.1, -2]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[5, 5]} />
+                <shaderMaterial
+                  attach="material"
+                  args={[
+                    {
+                      vertexShader: `
+                          varying vec2 vUv;
+                          void main() {
+                            vUv = uv;
+            
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                          }
+                        `,
+                      fragmentShader: `
+                      precision lowp float;
+                          varying vec2 vUv;
+
+                          void main() {
+                            float circle = distance(vUv, vec2(0.5, 0.5));
+                            float steppedCircle = step(circle, 0.01);
+                            float smoothSteppedCircle = 1.0 - smoothstep(circle, 0.0,0.01);
+
+                            vec3 gradient = mix(vec3(0.0,0.0,0.3), vec3(1.0,0.0,1.0), (sin(vUv.y * 20.0) + 1.0) * 0.5);
+
+                            gl_FragColor = vec4(mix(gradient, vec3(1.0,1.0,0.0), mix(steppedCircle, smoothSteppedCircle, 0.5)), 1.0);
+                          }
+                        `,
+                    },
+                  ]}
                 />
               </mesh>
-              <mesh position={[0, -0.15, -1.5]} ref={portalRefForeground}>
-                <planeGeometry args={[1.5, 1, 32, 32]} />
-                {/* the colour to fade from white to dark purple depending on time of the day */}
-                <meshBasicMaterial
-                  map={outsideLayerForgroundTexture}
-                  alphaTest={0.5}
+              {/* mountains */}
+              <mesh position={[0, 0, -1.8]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[3, 2]} />
+                <shaderMaterial
+                  transparent
+                  attach="material"
+                  args={[
+                    {
+                      vertexShader: `
+                          varying vec2 vUv;
+                          void main() {
+                            vUv = uv;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                          }
+                        `,
+                      fragmentShader: `
+                      precision lowp float;
+                          varying vec2 vUv;
+
+                          void main() {
+                            float diagonalGradient = abs((0.0 - mod((vUv.x + 1.0) * 15.0, 2.0)) + 1.0) + ((vUv.y * 25.0) - 12.0 + (sin(vUv.x * 13.0) * 0.2));
+                            float stepped = step(diagonalGradient, 1.0);
+
+                            float circle = distance(vUv, vec2(0.5, 0.5));
+                            float lerpedCircle = smoothstep(0.0, 0.2, circle);
+                            vec3 colours = mix(vec3(0.4,0.0,0.4), vec3(0.05,0.02,0.05), lerpedCircle) * 0.8;
+
+                    
+                            gl_FragColor = vec4(colours, stepped);
+                          }
+                        `,
+                    },
+                  ]}
+                />
+              </mesh>
+              {/* mountains */}
+              <mesh position={[0, 0.08, -1.6]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[3, 2]} />
+                <shaderMaterial
+                  transparent
+                  attach="material"
+                  args={[
+                    {
+                      vertexShader: `
+                          varying vec2 vUv;
+                          void main() {
+                            vUv = uv;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                          }
+                        `,
+                      fragmentShader: `
+                      precision lowp float;
+                          varying vec2 vUv;
+
+                          void main() {
+                            float diagonalGradient = abs((0.0 - mod((vUv.x + 1.0) * 11.0, 2.0)) + 1.0) + ((vUv.y * 25.0) - 12.0 + (sin(vUv.x * 5.0) * 0.2));
+                            float stepped = step(diagonalGradient, 1.0);
+
+                            float circle = distance(vUv, vec2(0.5, 0.5));
+                            float lerpedCircle = smoothstep(0.0, 0.2, circle);
+                            vec3 colours = mix(vec3(0.4,0.0,0.4), vec3(0.05,0.02,0.05), lerpedCircle) * 0.6;
+
+                    
+                            gl_FragColor = vec4(colours, stepped);
+                          }
+                        `,
+                    },
+                  ]}
+                />
+              </mesh>
+              {/* mountains */}
+              <mesh position={[0, 0.14, -1.3]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[3, 2]} />
+                <shaderMaterial
+                  transparent
+                  attach="material"
+                  args={[
+                    {
+                      vertexShader: `
+                          varying vec2 vUv;
+                          void main() {
+                            vUv = uv;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                          }
+                        `,
+                      fragmentShader: `
+                      precision lowp float;
+                          varying vec2 vUv;
+
+                          void main() {
+                            float diagonalGradient = abs((0.0 - mod((vUv.x + 0.2) * 6.0, 2.0)) + 1.0) + ((vUv.y * 25.0) - 12.0 + (sin(vUv.x * 10.0) * 0.2));
+                            float stepped = step(diagonalGradient, 1.0);
+
+                            float circle = distance(vUv, vec2(0.5, 0.5));
+                            float lerpedCircle = smoothstep(0.0, 0.2, circle);
+                            vec3 colours = mix(vec3(0.4,0.0,0.4), vec3(0.05,0.02,0.05), lerpedCircle) * 0.4;
+
+                    
+                            gl_FragColor = vec4(colours, stepped);
+                          }
+                        `,
+                    },
+                  ]}
+                />
+              </mesh>
+              {/* trees */}
+              <mesh position={[0, 0.08, -1.2]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[3, 2]} />
+                <shaderMaterial
+                  transparent
+                  attach="material"
+                  args={[
+                    {
+                      vertexShader: `
+                          varying vec2 vUv;
+                          void main() {
+                            vUv = uv;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                          }
+                        `,
+                      fragmentShader: `
+                      precision lowp float;
+                          varying vec2 vUv;
+
+                          void main() {
+                            float diagonalGradient = abs((0.0 - mod((vUv.x + 0.2) * 150.0, 2.0)) + 1.0) + ((vUv.y * 25.0) - 13.0 + (sin(vUv.x * 140.0) * 0.2));
+                            float stepped = step(diagonalGradient, 1.0);
+
+                            float circle = distance(vUv, vec2(0.5, 0.5));
+                            float lerpedCircle = smoothstep(0.0, 0.2, circle);
+                            vec3 colours = mix(vec3(0.4,0.0,0.4), vec3(0.05,0.02,0.05), lerpedCircle) * 0.2;
+
+                    
+                            gl_FragColor = vec4(colours, stepped);
+                          }
+                        `,
+                    },
+                  ]}
+                />
+              </mesh>
+              {/* trees */}
+              <mesh position={[0, 0.08, -1.1]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[3, 2]} />
+                <shaderMaterial
+                  transparent
+                  attach="material"
+                  args={[
+                    {
+                      vertexShader: `
+                      precision lowp float;
+                          varying vec2 vUv;
+                          void main() {
+                            vUv = uv;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                          }
+                        `,
+                      fragmentShader: `
+                          varying vec2 vUv;
+
+                          void main() {
+                            float diagonalGradient = abs((0.0 - mod((vUv.x + 0.2) * 112.0, 2.0)) + 1.0) + ((vUv.y * 25.0) - 13.0 + (sin(vUv.x * 140.0) * 0.2));
+                            float stepped = step(diagonalGradient, 1.0);
+
+                            float circle = distance(vUv, vec2(0.5, 0.5));
+                            float lerpedCircle = smoothstep(0.0, 0.2, circle);
+                            vec3 colours = mix(vec3(0.4,0.0,0.4), vec3(0.05,0.02,0.05), lerpedCircle) * 0.1;
+
+                    
+                            gl_FragColor = vec4(colours, stepped);
+                          }
+                        `,
+                    },
+                  ]}
                 />
               </mesh>
             </group>
-            <Sky />
+
+            {/* Lighting for warm soft light */}
+            <ambientLight intensity={0.5} />
+            <directionalLight
+              position={[1, 2, 3]}
+              intensity={1}
+              color="#ffeebb"
+            />
           </MeshPortalMaterial>
         </mesh>
         <group

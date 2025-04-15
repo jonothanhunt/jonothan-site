@@ -4,10 +4,13 @@ import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import localFont from "next/font/local";
-import Header from "./Header";
+// import Header from "./Header";
 import Model from "./Model";
-import { EffectComposer, N8AO } from "@react-three/postprocessing";
-import { RetroEffect } from "./RetroEffect";
+import {
+  EffectComposer,
+  N8AO,
+} from "@react-three/postprocessing";
+// import { RetroEffect } from "./RetroEffect";
 import Link from "next/link";
 import projects from "../data/projects";
 import Card from "./Card";
@@ -38,11 +41,14 @@ const Retro: React.FC<RetroProps> = ({
           quality="performance"
           aoRadius={100}
           distanceFalloff={0.4}
-          intensity={2}
+          intensity={4}
           screenSpaceRadius
           color={[0.6, 0.0, 0.8]}
         />
-        <RetroEffect />
+        {/* <ChromaticAberration
+          offset={[0.001, 0.00002]} // color offset
+        /> */}
+        {/* <RetroEffect /> */}
       </EffectComposer>
     </>
   );
@@ -144,7 +150,7 @@ export default function HomePage() {
           <Canvas
             eventSource={eventSource || undefined}
             eventPrefix="client"
-            dpr={[1, 1]}
+            dpr={[1.0, 1.0]}
             orthographic
             camera={{
               zoom: 550,
@@ -245,10 +251,6 @@ export default function HomePage() {
       </div>
 
       <footer className="h-30" />
-
-      <div className="fixed top-0 left-0">
-        <Header />
-      </div>
     </>
   );
 }
