@@ -1,7 +1,5 @@
 "use client";
 import { useState, useLayoutEffect, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from 'next/navigation';
 import { SparklesIcon } from "@heroicons/react/24/outline";
 import { AtSymbolIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
@@ -19,13 +17,11 @@ const lastik = localFont({
 type Section = "home" | "about" | "work" | "blog";
 
 const Header = () => {
-  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState<Section | undefined>(
     undefined
   );
   const [lastPushedSection, setLastPushedSection] = useState<Section | undefined>(undefined);
-  const [, setUserScrolling] = useState(false);
   const [isSubdomain, setIsSubdomain] = useState(false);
   const [mainDomain, setMainDomain] = useState("");
   const [blogDomain, setBlogDomain] = useState("");
@@ -127,93 +123,45 @@ const Header = () => {
 
         setActiveSection(newSection);
         
-        // Only push to router if the section has changed
+        // Only update URL if the section has changed
         if (newSection !== lastPushedSection) {
           setLastPushedSection(newSection);
           const path = newSection === "home" ? "/" : `/#${newSection}`;
-          router.push(path, { scroll: false });
+          window.history.pushState(null, '', path);
         }
       }
     }, 100); // Debounce for 100ms
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isSubdomain, router, lastPushedSection]);
+  }, [isSubdomain, lastPushedSection]);
 
-  const navigateToHome = (e: React.MouseEvent) => {
+  // Handle smooth scrolling navigation
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string, section: Section) => {
     if (isSubdomain) {
-      // If on subdomain, navigate to main domain
-      window.location.href = mainDomain;
+      // If on subdomain, navigate to main domain with hash
+      window.location.href = targetId === "" ? mainDomain : `${mainDomain}/${targetId}`;
       e.preventDefault();
       return;
     }
 
     e.preventDefault();
-    setUserScrolling(false);
-    setActiveSection("home");
-    router.push("/", { scroll: false });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    setActiveSection(section);
+    setLastPushedSection(section);
 
-  const navigateToAbout = (e: React.MouseEvent) => {
-    if (isSubdomain) {
-      // If on subdomain, navigate to main domain with #about
-      window.location.href = `${mainDomain}/#about`;
-      e.preventDefault();
+    if (targetId === "") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.history.pushState(null, '', "/");
       return;
     }
 
-    e.preventDefault();
-    setUserScrolling(false);
-    setActiveSection("about");
-    router.push("/#about", { scroll: false });
-
-    const aboutSection = document.getElementById("about");
-    if (aboutSection) {
-      const offsetTop =
-        aboutSection.getBoundingClientRect().top + window.pageYOffset - 100;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
-      });
+    const targetSection = document.getElementById(targetId);
+    if (targetSection) {
+      const offsetTop = targetSection.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({ top: offsetTop, behavior: "smooth" });
+      window.history.pushState(null, '', `/#${targetId}`);
     }
   };
-
-  const navigateToWorkSection = (e: React.MouseEvent) => {
-    if (isSubdomain) {
-      // If on subdomain, navigate to main domain with #work
-      window.location.href = `${mainDomain}/#work`;
-      e.preventDefault();
-      return;
-    }
-
-    e.preventDefault();
-    setUserScrolling(false);
-    setActiveSection("work");
-    router.push("/#work", { scroll: false });
-
-    const workSection = document.getElementById("work");
-    if (workSection) {
-      const offsetTop =
-        workSection.getBoundingClientRect().top + window.pageYOffset - 100;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // const navigateToBlog = (e: React.MouseEvent) => {
-  //   if (currentSubdomain === "blog") {
-  //     // Already on blog, just prevent default and return
-  //     e.preventDefault();
-  //     return;
-  //   }
-
-  //   // Navigate to blog subdomain
-  //   window.location.href = blogDomain;
-  //   e.preventDefault();
-  // };
 
   // Helper function to determine button styling based on section
   const getButtonStyles = (section: Section) => {
@@ -292,10 +240,9 @@ const Header = () => {
             {/* Navigation menu */}
             <ul className="flex gap-0 md:gap-3 h-full">
               <li className="flex-1 text-center flex">
-                <Link
+                <a
                   href={isSubdomain ? mainDomain : "/"}
-                  scroll={false}
-                  onClick={navigateToHome}
+                  onClick={(e) => handleSmoothScroll(e, "", "home")}
                   className={`${
                     lastik.className
                   } h-10 font-bold text-sm md:text-base italic px-6 md:px-3 py-2 w-full rounded-l-lg md:rounded-r-lg whitespace-nowrap transition-all outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 flex items-center justify-center ${getButtonStyles(
@@ -309,13 +256,12 @@ const Header = () => {
                     )}`}
                   />
                   <span>Home</span>
-                </Link>
+                </a>
               </li>
               <li className="flex-1 text-center flex">
-                <Link
+                <a
                   href={isSubdomain ? `${mainDomain}/#about` : "/#about"}
-                  scroll={false}
-                  onClick={navigateToAbout}
+                  onClick={(e) => handleSmoothScroll(e, "about", "about")}
                   className={`${
                     lastik.className
                   } h-10 font-bold text-sm md:text-base italic relative px-6 md:px-3 py-2 w-full rounded-none md:rounded-lg whitespace-nowrap transition-all outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 flex items-center justify-center ${getButtonStyles(
@@ -329,13 +275,12 @@ const Header = () => {
                     )}`}
                   />
                   <span>About</span>
-                </Link>
+                </a>
               </li>
               <li className="flex-1 text-center flex">
-                <Link
+                <a
                   href={isSubdomain ? `${mainDomain}/#work` : "/#work"}
-                  scroll={false}
-                  onClick={navigateToWorkSection}
+                  onClick={(e) => handleSmoothScroll(e, "work", "work")}
                   className={`${
                     lastik.className
                   } h-10 font-bold text-sm md:text-base italic relative px-6 md:px-3 py-2 w-full rounded-r-lg md:rounded-l-lg whitespace-nowrap transition-all outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 flex items-center justify-center ${getButtonStyles(
@@ -349,27 +294,8 @@ const Header = () => {
                     )}`}
                   />
                   <span>Work</span>
-                </Link>
+                </a>
               </li>
-              {/* <li className="flex-1 text-center flex">
-                <Link
-                  href={blogDomain || "https://blog.jonothan.dev"}
-                  onClick={navigateToBlog}
-                  className={`${
-                    lastik.className
-                  } h-10 font-bold text-sm md:text-base italic relative px-6 md:px-3 py-2 w-full rounded-r-lg md:rounded-l-lg whitespace-nowrap transition-all outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 flex items-center justify-center ${getButtonStyles(
-                    "blog"
-                  )}`}
-                  aria-label="Go to my blog"
-                >
-                  <PencilIcon
-                    className={`text-fuchsia-700 transition-all ${getIconStyles(
-                      "blog"
-                    )}`}
-                  />
-                  <span>Blog</span>
-                </Link>
-              </li> */}
             </ul>
           </li>
           <li className="col-start-2 row-start-1 min-[600px]:ml-auto md:col-start-3 md:my-auto">
