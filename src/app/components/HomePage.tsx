@@ -9,7 +9,6 @@ import {
 EffectComposer,
 N8AO,
 } from "@react-three/postprocessing";
-import Link from "next/link";
 import projects from "../data/projects";
 import Card from "./Card";
 import ModelLoader from "./ModelLoader";
@@ -153,6 +152,18 @@ useEffect(() => {
   return () => window.removeEventListener('popstate', handlePopState);
 }, []);
 
+// Handle smooth scrolling without full navigation
+const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+  e.preventDefault();
+  const sectionId = hash.substring(1);
+  const section = document.getElementById(sectionId);
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth" });
+    // Update URL without full navigation
+    window.history.pushState(null, '', hash);
+  }
+};
+
 // Memoize the Canvas component to prevent unnecessary re-renders
 const canvasElement = useMemo(() => (
   <Canvas
@@ -224,33 +235,37 @@ return (
           </p>
           <p className="leading-[250%] md:leading-[240%]">
             It could be an{" "}
-            <Link
+            <a
               href="#hsbc-vault"
+              onClick={(e) => handleSmoothScroll(e, '#hsbc-vault')}
               className="bg-orange-100 transition-all duration-150 outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 text-fuchsia-700 px-3 py-2 rounded-sm whitespace-nowrap"
             >
               interactive vault in Waterloo station
-            </Link>{" "}
+            </a>{" "}
             , <br /> an{" "}
-            <Link
+            <a
               href="#waiting-to-live-organ-donation-campaign"
+              onClick={(e) => handleSmoothScroll(e, '#waiting-to-live-organ-donation-campaign')}
               className="bg-orange-100 transition-all duration-150 outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 text-fuchsia-700 px-3 py-2 rounded-sm whitespace-nowrap"
             >
               NHS site to encourage organ donation
-            </Link>{" "}
+            </a>{" "}
             , or an{" "}
-            <Link
+            <a
               href="#magpie-mentorship-app"
+              onClick={(e) => handleSmoothScroll(e, '#magpie-mentorship-app')}
               className="bg-orange-100 transition-all duration-150 outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 text-fuchsia-700 px-3 py-2 rounded-sm whitespace-nowrap"
             >
               award winning mentorship app
-            </Link>{" "}
+            </a>{" "}
             or{" "}
-            <Link
+            <a
               href="#7-billion-views-on-videos-using-ar-effects-i-made-on-tiktok"
+              onClick={(e) => handleSmoothScroll(e, '#7-billion-views-on-videos-using-ar-effects-i-made-on-tiktok')}
               className="bg-orange-100 transition-all duration-150 outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 text-fuchsia-700 px-3 py-2 rounded-sm whitespace-nowrap"
             >
               a series of viral TikTok games
-            </Link>{" "}
+            </a>{" "}
             .
           </p>
           <p>
