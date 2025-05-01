@@ -16,13 +16,9 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
   const startTime = useRef(Date.now());
   const [shouldRender, setShouldRender] = useState(!hasCompletedLoading);
 
-  // Constants for artificial loading
-  const ARTIFICIAL_DURATION = 8000; // 8 seconds
-  const ARTIFICIAL_MAX = 66; // Go up to 66% artificially
-
   // Handle artificial loading progress - start immediately
   useEffect(() => {
-    if (!shouldRender) return;
+    if (!shouldRender || hasCompletedLoading) return;
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime.current;
@@ -31,7 +27,6 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
         ARTIFICIAL_MAX
       );
 
-      // If real progress exceeds artificial or we've reached the artificial max, switch to real progress
       if (
         progress > artificialProgress ||
         artificialProgress >= ARTIFICIAL_MAX
@@ -48,13 +43,11 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
 
   // Handle real progress after artificial phase
   useEffect(() => {
-    if (artificialLoading || !shouldRender) return;
+    if (artificialLoading || !shouldRender || hasCompletedLoading) return;
 
     const interval = setInterval(() => {
       setSmoothProgress((current) => {
-        // Move toward target progress
         if (current < progress) {
-          // Accelerate as we get closer to 100%
           const increment = (progress - current) * 0.1;
           return Math.min(current + Math.max(0.5, increment), progress);
         }
@@ -62,20 +55,22 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
       });
     }, 16);
 
-    // If we reach 100%, mark loading as complete globally
     if (progress >= 100) {
       hasCompletedLoading = true;
-      // Use setTimeout to avoid state updates during render
       setTimeout(() => {
         setShouldRender(false);
-      }, 500); // Give a little time for exit animation
+      }, 500);
     }
 
     return () => clearInterval(interval);
   }, [artificialLoading, progress, shouldRender]);
 
-  // Don't render anything if we shouldn't
-  if (!shouldRender) {
+  // Constants for artificial loading
+  const ARTIFICIAL_DURATION = 8000;
+  const ARTIFICIAL_MAX = 66;
+
+  // If we've already completed loading or shouldn't render, return null
+  if (!shouldRender || hasCompletedLoading) {
     return null;
   }
 
