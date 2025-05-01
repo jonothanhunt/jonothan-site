@@ -4,7 +4,6 @@ export function middleware(req) {
   const url = req.nextUrl;
   const hostname = req.headers.get('host');
   const subdomain = hostname.split('.')[0];
-  const isLocalhost = hostname.includes('localhost') || hostname.includes('lvh.me');
 
   // Skip middleware for static files and API routes
   if (
@@ -14,30 +13,10 @@ export function middleware(req) {
     return NextResponse.next();
   }
 
-  // Handle /about and /work routes - but only in production
-  if (!isLocalhost) {
-    if (url.pathname === '/about') {
-      return NextResponse.redirect(new URL('/#about', req.url), { status: 308 });
-    }
-
-    if (url.pathname === '/work') {
-      return NextResponse.redirect(new URL('/#work', req.url), { status: 308 });
-    }
-  }
-
-  // Get the pathname
-  const path = url.pathname === '/' ? '' : url.pathname;
-
-  // Route requests based on subdomains
+  // Only handle subdomain routing
   if (subdomain === 'blog') {
     const newUrl = new URL(url);
-    newUrl.pathname = `/blog${path}`;
-    return NextResponse.rewrite(newUrl);
-  }
-
-  if (subdomain === 'app') {
-    const newUrl = new URL(url);
-    newUrl.pathname = `/app${path}`;
+    newUrl.pathname = `/blog${url.pathname}`;
     return NextResponse.rewrite(newUrl);
   }
 
@@ -48,8 +27,6 @@ export function middleware(req) {
 export const config = {
   matcher: [
     // Exclude static files, api routes, and other special Next.js paths
-    '/((?!_next/|_vercel|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-    '/about',
-    '/work'
+    '/((?!_next/|_vercel|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ],
 };
