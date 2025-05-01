@@ -24,11 +24,25 @@ const Header = () => {
   const [activeSection, setActiveSection] = useState<Section | undefined>(
     undefined
   );
+  const [lastPushedSection, setLastPushedSection] = useState<Section | undefined>(undefined);
   const [, setUserScrolling] = useState(false);
   const [isSubdomain, setIsSubdomain] = useState(false);
   const [mainDomain, setMainDomain] = useState("");
   const [blogDomain, setBlogDomain] = useState("");
   const [currentSubdomain, setCurrentSubdomain] = useState("");
+
+  // Add debounce function with proper typing
+  const debounce = <T extends (...args: never[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void => {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: Parameters<T>) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
 
   useLayoutEffect(() => {
     const host = window.location.host; // This includes port if present
@@ -91,7 +105,7 @@ const Header = () => {
   useEffect(() => {
     if (isSubdomain) return; // Don't apply scroll behavior on subdomains
 
-    const handleScroll = () => {
+    const handleScroll = debounce(() => {
       const scrollY = window.scrollY;
       const offset = 100;
 
@@ -102,22 +116,29 @@ const Header = () => {
         const aboutTop = aboutSection.offsetTop - offset;
         const workTop = workSection.offsetTop - offset;
 
+        let newSection: Section;
         if (scrollY >= workTop) {
-          setActiveSection("work");
-          router.push("/#work", { scroll: false });
+          newSection = "work";
         } else if (scrollY >= aboutTop) {
-          setActiveSection("about");
-          router.push("/#about", { scroll: false });
+          newSection = "about";
         } else {
-          setActiveSection("home");
-          router.push("/", { scroll: false });
+          newSection = "home";
+        }
+
+        setActiveSection(newSection);
+        
+        // Only push to router if the section has changed
+        if (newSection !== lastPushedSection) {
+          setLastPushedSection(newSection);
+          const path = newSection === "home" ? "/" : `/#${newSection}`;
+          router.push(path, { scroll: false });
         }
       }
-    };
+    }, 100); // Debounce for 100ms
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isSubdomain, router]);
+  }, [isSubdomain, router, lastPushedSection]);
 
   const navigateToHome = (e: React.MouseEvent) => {
     if (isSubdomain) {
@@ -273,6 +294,7 @@ const Header = () => {
               <li className="flex-1 text-center flex">
                 <Link
                   href={isSubdomain ? mainDomain : "/"}
+                  scroll={false}
                   onClick={navigateToHome}
                   className={`${
                     lastik.className
@@ -292,6 +314,7 @@ const Header = () => {
               <li className="flex-1 text-center flex">
                 <Link
                   href={isSubdomain ? `${mainDomain}/#about` : "/#about"}
+                  scroll={false}
                   onClick={navigateToAbout}
                   className={`${
                     lastik.className
@@ -311,6 +334,7 @@ const Header = () => {
               <li className="flex-1 text-center flex">
                 <Link
                   href={isSubdomain ? `${mainDomain}/#work` : "/#work"}
+                  scroll={false}
                   onClick={navigateToWorkSection}
                   className={`${
                     lastik.className
