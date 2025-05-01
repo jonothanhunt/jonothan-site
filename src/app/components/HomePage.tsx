@@ -66,7 +66,6 @@ export default function HomePage() {
 
   // Calculate opacity based on window height
   const opacity = useTransform(scrollY, [0, windowHeight * 0.5], [1, 0.05]);
-
   // const blur = useTransform(
   //   scrollY,
   //   [windowHeight * 0.5, windowHeight],
