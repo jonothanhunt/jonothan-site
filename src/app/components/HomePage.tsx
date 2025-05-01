@@ -1,20 +1,17 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import localFont from "next/font/local";
-// import Header from "./Header";
+import Header from "./Header"; // Make sure to import your updated Header
 import Model from "./Model";
-import {
-  EffectComposer,
-  N8AO,
-} from "@react-three/postprocessing";
-// import { RetroEffect } from "./RetroEffect";
+import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import Link from "next/link";
 import projects from "../data/projects";
 import Card from "./Card";
 import ModelLoader from "./ModelLoader";
+// import { RetroEffect } from "./RetroEffect";
 
 const lastik = localFont({
   src: "../fonts/Lastik.woff2",
@@ -45,10 +42,7 @@ const Retro: React.FC<RetroProps> = ({
           screenSpaceRadius
           color={[0.6, 0.0, 0.8]}
         />
-        {/* <ChromaticAberration
-          offset={[0.001, 0.00002]} // color offset
-        /> */}
-        {/* <RetroEffect /> */}
+        {/* <RetroEffect/> */}
       </EffectComposer>
     </>
   );
@@ -64,17 +58,20 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [modelLoaded, setModelLoaded] = useState(false);
 
+  // Track if this is the initial load
+  const [, setIsInitialLoad] = useState(true);
+
   // Use the document/window as the scroll container instead of a ref
   const { scrollY } = useScroll();
 
   // Calculate opacity based on window height
-  const opacity = useTransform(scrollY, [0, windowHeight * 0.5], [1, 0.1]);
+  const opacity = useTransform(scrollY, [0, windowHeight * 0.5], [1, 0.05]);
 
-  const blur = useTransform(
-    scrollY,
-    [windowHeight * 0.5, windowHeight],
-    ["blur(0px)", "blur(10px)"]
-  );
+  // const blur = useTransform(
+  //   scrollY,
+  //   [windowHeight * 0.5, windowHeight],
+  //   ["blur(0px)", "blur(10px)"]
+  // );
 
   // Handle loading progress
   const handleLoadingProgress = (progress: number) => {
@@ -89,6 +86,7 @@ export default function HomePage() {
     // Set modelLoaded to true to trigger the animation
     setTimeout(() => {
       setModelLoaded(true);
+      setIsInitialLoad(false); // Mark initial load as complete
     }, 100); // Small delay to ensure the loader is gone first
   };
 
@@ -112,19 +110,53 @@ export default function HomePage() {
       setEventSource(document.documentElement);
     }
 
-    // Check if there's a hash in the URL
-    if (window.location.hash === "#about") {
-      const aboutSection = document.getElementById("about");
-      if (aboutSection) {
+    // Check if there's a hash in the URL on initial load
+    if (window.location.hash) {
+      const sectionId = window.location.hash.substring(1); // Remove the # character
+      const section = document.getElementById(sectionId);
+      if (section) {
         setTimeout(() => {
-          aboutSection.scrollIntoView({ behavior: "smooth" });
+          section.scrollIntoView({ behavior: "smooth" });
         }, 100);
       }
     }
   }, []);
 
+  // Memoize the Canvas component to prevent unnecessary re-renders
+  const canvasElement = useMemo(
+    () => (
+      <Canvas
+        eventSource={eventSource || undefined}
+        eventPrefix="client"
+        dpr={[0.5, 0.5]}
+        gl={{ antialias: false }}
+        orthographic
+        camera={{
+          zoom: 550,
+          near: 0.1,
+          far: 1000,
+          position: [-1.65, 1.6, 3.5],
+          rotation: [-0.4, -0.408, -0.1],
+        }}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.1} />
+          <directionalLight position={[0, 10, 5]} intensity={3.2} />
+          <Retro
+            onLoadingProgress={handleLoadingProgress}
+            onLoadingComplete={handleLoadingComplete}
+          />
+        </Suspense>
+      </Canvas>
+    ),
+    [eventSource]
+  ); // Only recreate when eventSource changes
+
   return (
     <>
+      {/* Add the Header component */}
+      <Header />
+
       {/* Simple loading indicator */}
       <AnimatePresence>
         {isLoading && <ModelLoader progress={loadingProgress} />}
@@ -144,31 +176,11 @@ export default function HomePage() {
             opacity,
             width: "100%",
             height: "100%",
-            filter: blur,
+            // filter: blur,
           }}
         >
-          <Canvas
-            eventSource={eventSource || undefined}
-            eventPrefix="client"
-            dpr={[1.0, 1.0]}
-            orthographic
-            camera={{
-              zoom: 550,
-              near: 0.1,
-              far: 1000,
-              position: [-1.65, 1.6, 3.5],
-              rotation: [-0.4, -0.408, -0.1],
-            }}
-          >
-            <Suspense fallback={null}>
-              <ambientLight intensity={0.1} />
-              <directionalLight position={[0, 10, 5]} intensity={3.2} />
-              <Retro
-                onLoadingProgress={handleLoadingProgress}
-                onLoadingComplete={handleLoadingComplete}
-              />
-            </Suspense>
-          </Canvas>
+          {/* Use the memoized canvas element */}
+          {canvasElement}
         </motion.div>
       </motion.div>
 
@@ -238,7 +250,7 @@ export default function HomePage() {
           <div className="w-full mt-4 mb-7 flex flex-wrap justify-center gap-8 mx-auto">
             {projects.map((project, index) => (
               <Card
-                key={"project_" + index}
+                key={`project_${index}`}
                 tags={project.tags}
                 image={project.image}
                 title={project.title}

@@ -1,6 +1,5 @@
-import { useRef, useEffect, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Vector2 } from "three";
+import { useRef, useMemo } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 // Shader code
@@ -13,7 +12,7 @@ void main() {
 `;
 
 const fragmentShader = `
-precision mediump float;
+precision lowp float;
 
 uniform vec2 uMouse;
 uniform float uTime;
@@ -67,28 +66,17 @@ export function Floor({
 }) {
   const meshRef = useRef();
   const materialRef = useRef();
-  const mouse = useRef(new Vector2());
+  const { mouse, camera } = useThree();
 
   // Memoize the uniforms to prevent unnecessary re-renders
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0.0 },
-      uMouse: { value: new Vector2(0.5, 0.5) },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uGridSize: { value: 100.0 },
     }),
     []
   );
-
-  // Handle mouse movement
-  useEffect(() => {
-    const updateMouse = (event) => {
-      mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    };
-
-    window.addEventListener("mousemove", updateMouse);
-    return () => window.removeEventListener("mousemove", updateMouse);
-  }, []);
 
   // Update the shader uniforms on each frame
   useFrame((state) => {
@@ -97,9 +85,9 @@ export function Floor({
     // Update uTime
     uniforms.uTime.value = state.clock.elapsedTime;
 
-    // Raycast to get UV of the intersection point
+    // Raycast to get UV of the intersection point, if any
     const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse.current, state.camera);
+    raycaster.setFromCamera(mouse, camera);
     const intersection = raycaster.intersectObject(meshRef.current);
 
     if (intersection.length > 0) {
