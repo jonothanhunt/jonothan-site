@@ -1,24 +1,29 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "motion/react";
 
 interface ModelLoaderProps {
   progress: number;
 }
 
+// Use a module-level variable to track if we've completed loading
+let hasCompletedLoading = false;
+
 export default function ModelLoader({ progress }: ModelLoaderProps) {
-  // Add smoothed progress state
+  // Always declare all hooks at the top level
   const [smoothProgress, setSmoothProgress] = useState(1); // Start at 1% immediately
-  // Track if we're in artificial loading mode
   const [artificialLoading, setArtificialLoading] = useState(true);
+  const startTime = useRef(Date.now());
+  const [shouldRender, setShouldRender] = useState(!hasCompletedLoading);
 
   // Constants for artificial loading
   const ARTIFICIAL_DURATION = 8000; // 8 seconds
   const ARTIFICIAL_MAX = 66; // Go up to 66% artificially
-  const startTime = React.useRef(Date.now());
 
   // Handle artificial loading progress - start immediately
   useEffect(() => {
+    if (!shouldRender) return;
+
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime.current;
       const artificialProgress = Math.min(
@@ -39,11 +44,11 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
     }, 16);
 
     return () => clearInterval(interval);
-  }, [progress]);
+  }, [progress, shouldRender]);
 
   // Handle real progress after artificial phase
   useEffect(() => {
-    if (artificialLoading) return;
+    if (artificialLoading || !shouldRender) return;
 
     const interval = setInterval(() => {
       setSmoothProgress((current) => {
@@ -57,8 +62,22 @@ export default function ModelLoader({ progress }: ModelLoaderProps) {
       });
     }, 16);
 
+    // If we reach 100%, mark loading as complete globally
+    if (progress >= 100) {
+      hasCompletedLoading = true;
+      // Use setTimeout to avoid state updates during render
+      setTimeout(() => {
+        setShouldRender(false);
+      }, 500); // Give a little time for exit animation
+    }
+
     return () => clearInterval(interval);
-  }, [artificialLoading, progress]);
+  }, [artificialLoading, progress, shouldRender]);
+
+  // Don't render anything if we shouldn't
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <motion.div
