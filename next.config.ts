@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
   experimental: {
     allowedDevOrigins: ["http://blog.lvh.me", "http://lvh.me"],
+    scrollRestoration: false,
   },
   //   domains: ["jonothan.dev", "blog.jonothan.dev"],
   //   async rewrites() {
@@ -97,4 +101,4 @@ const nextConfig: NextConfig = {
   //   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

@@ -13,6 +13,15 @@ if (
   return NextResponse.next();
 }
 
+// Handle /about and /work routes
+if (url.pathname === '/about') {
+  return NextResponse.redirect(new URL('/#about', req.url));
+}
+
+if (url.pathname === '/work') {
+  return NextResponse.redirect(new URL('/#work', req.url));
+}
+
 // Get the pathname
 const path = url.pathname === '/' ? '' : url.pathname;
 
@@ -36,6 +45,8 @@ return NextResponse.next();
 export const config = {
 matcher: [
   // Exclude static files, api routes, and other special Next.js paths
-  '/((?!_next/|_vercel|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
+  '/((?!_next/|_vercel|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  '/about',
+  '/work'
 ],
 };
