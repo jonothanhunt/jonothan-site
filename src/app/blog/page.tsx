@@ -7,13 +7,15 @@ const lastik = localFont({
 
 export default function Blog() {
   return (
-    <main className="">
-      <div className="h-36" />
-      <div className="w-full p-4 flex flex-col items-center">
-        <h1 className={`${lastik.className} text-8xl text-orange-100 tracking-tighter`}>
-          Blog
+    <main className="min-h-screen">
+      {/* <div className="h-36" /> */}
+      <div className="w-full h-[50vh] p-4 flex flex-col items-center justify-center bg-[linear-gradient(to_right,#FFFFFF20_1px,transparent_1px),linear-gradient(to_top,#FFFFFF20_1px,transparent_1px)] bg-[size:20px_20px] bg-[position:0_100%]">
+        <h1
+          className={`${lastik.className} text-8xl text-orange-100 tracking-tighter`}
+        >
+          Random stuff
         </h1>
-        <p>where I write cool stuff.</p>
+        <p className="text-lg">(the blog)</p>
       </div>
     </main>
   );
