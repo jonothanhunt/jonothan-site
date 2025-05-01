@@ -138,10 +138,8 @@ const Header = () => {
 
   // Handle smooth scrolling navigation
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string, section: Section) => {
-    if (isSubdomain) {
-      // If on subdomain, navigate to main domain with hash
-      window.location.href = targetId === "" ? mainDomain : `${mainDomain}/${targetId}`;
-      e.preventDefault();
+    // If we're not on the main page, let the normal navigation happen
+    if (window.location.pathname !== '/') {
       return;
     }
 
@@ -149,17 +147,13 @@ const Header = () => {
     setActiveSection(section);
     setLastPushedSection(section);
 
-    if (targetId === "") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      window.history.pushState(null, '', "/");
-      return;
-    }
-
-    const targetSection = document.getElementById(targetId);
-    if (targetSection) {
-      const offsetTop = targetSection.getBoundingClientRect().top + window.pageYOffset - 100;
-      window.scrollTo({ top: offsetTop, behavior: "smooth" });
-      window.history.pushState(null, '', `/#${targetId}`);
+    // Update URL and let browser handle scrolling
+    if (targetId) {
+      window.history.pushState(null, '', `#${targetId}`);
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.history.pushState(null, '', '/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
