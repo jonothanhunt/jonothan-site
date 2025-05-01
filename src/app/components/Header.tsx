@@ -223,7 +223,7 @@ const Header = () => {
   }, [currentSubdomain, mainDomain, blogDomain]);
 
   return (
-    <header className="w-screen flex flex-wrap justify-between items-center sticky z-20">
+    <header className="w-screen flex flex-wrap justify-between items-center sticky top-0 z-20">
       {/* Header background and styling remains the same */}
       <div
         className="fixed top-0 left-0 w-full h-screen pointer-events-none -z-10"
