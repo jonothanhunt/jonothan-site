@@ -1,7 +1,7 @@
 "use client";
 import { useState, useLayoutEffect, useEffect } from "react";
 import Link from "next/link";
-// import { PencilIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { useRouter } from 'next/navigation';
 import { SparklesIcon } from "@heroicons/react/24/outline";
 import { AtSymbolIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
@@ -19,6 +19,7 @@ const lastik = localFont({
 type Section = "home" | "about" | "work" | "blog";
 
 const Header = () => {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState<Section | undefined>(
     undefined
@@ -103,20 +104,20 @@ const Header = () => {
 
         if (scrollY >= workTop) {
           setActiveSection("work");
-          window.history.replaceState(null, "", "/#work");
+          router.push("/#work", { scroll: false });
         } else if (scrollY >= aboutTop) {
           setActiveSection("about");
-          window.history.replaceState(null, "", "/#about");
+          router.push("/#about", { scroll: false });
         } else {
           setActiveSection("home");
-          window.history.replaceState(null, "", "/");
+          router.push("/", { scroll: false });
         }
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isSubdomain]);
+  }, [isSubdomain, router]);
 
   const navigateToHome = (e: React.MouseEvent) => {
     if (isSubdomain) {
@@ -129,7 +130,7 @@ const Header = () => {
     e.preventDefault();
     setUserScrolling(false);
     setActiveSection("home");
-    window.history.pushState(null, "", "/");
+    router.push("/", { scroll: false });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -144,7 +145,7 @@ const Header = () => {
     e.preventDefault();
     setUserScrolling(false);
     setActiveSection("about");
-    window.history.pushState(null, "", "/#about");
+    router.push("/#about", { scroll: false });
 
     const aboutSection = document.getElementById("about");
     if (aboutSection) {
@@ -168,7 +169,7 @@ const Header = () => {
     e.preventDefault();
     setUserScrolling(false);
     setActiveSection("work");
-    window.history.pushState(null, "", "/#work");
+    router.push("/#work", { scroll: false });
 
     const workSection = document.getElementById("work");
     if (workSection) {
