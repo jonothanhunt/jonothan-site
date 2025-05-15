@@ -13,7 +13,7 @@ import Link from "next/link";
 
 // GSAP imports
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react"; // New import
+import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 
@@ -31,81 +31,63 @@ export default function Home() {
   const supermarketRef = useRef(null);
   const magpieRef = useRef(null);
 
-  // Refs for text elements
-  const headingRef1 = useRef(null);
-  const headingRef2 = useRef(null);
-  const paragraphRef = useRef(null);
+  // Ref for the text container to prevent FOUC
+  const textContainerRef = useRef(null);
 
   // Main container ref for scoping animations
   const mainRef = useRef(null);
 
   useGSAP(
     () => {
-      // Text animations with SplitText
-      const splitHeading1 = new SplitText(headingRef1.current, {
+      // First set the container to be visible with GSAP
+      gsap.set(textContainerRef.current, { autoAlpha: 1 });
+
+      // Text animations with SplitText using the cleaner onSplit approach
+      SplitText.create("#heading1", {
+        type: "words, chars",
+        onSplit(self) {
+          gsap.from(self.words, {
+            duration: 0.7,
+            y: 50,
+            opacity: 0,
+            rotation: "random(-30, 30)",
+            filter: "blur(4px)",
+            stagger: 0.15,
+            ease: "back",
+            delay: 0.2,
+          });
+        },
+      });
+
+      SplitText.create("#heading2", {
+        type: "words, chars",
+        onSplit(self) {
+          gsap.from(self.words, {
+            duration: 0.7,
+            y: 50,
+            opacity: 0,
+            rotation: "random(-30, 30)",
+            filter: "blur(4px)",
+            stagger: 0.15,
+            ease: "back",
+            delay: 0.8,
+          });
+        },
+      });
+
+      SplitText.create("#paragraph", {
         type: "words",
-      });
-      const splitHeading2 = new SplitText(headingRef2.current, {
-        type: "words",
-      });
-      const splitParagraph = new SplitText(paragraphRef.current, {
-        type: "words",
-      });
-
-      // Set initial state for split words
-      gsap.set(splitHeading1.words, {
-        y: 50,
-        opacity: 0,
-        rotation: "random(-30, 30)",
-        filter: "blur(4px)",
-      });
-
-      gsap.set(splitHeading2.words, {
-        y: 50,
-        opacity: 0,
-        rotation: "random(-30, 30)",
-        filter: "blur(4px)",
-      });
-
-      gsap.set(splitParagraph.words, {
-        y: 30,
-        opacity: 0,
-        filter: "blur(2px)",
-      });
-
-      // Animate heading 1
-      gsap.to(splitHeading1.words, {
-        y: 0,
-        opacity: 1,
-        rotation: 0,
-        filter: "blur(0px)",
-        duration: 0.7,
-        ease: "back",
-        stagger: 0.15,
-        delay: 0.2,
-      });
-
-      // Animate heading 2
-      gsap.to(splitHeading2.words, {
-        y: 0,
-        opacity: 1,
-        rotation: 0,
-        filter: "blur(0px)",
-        duration: 0.7,
-        ease: "back",
-        stagger: 0.15,
-        delay: 0.8,
-      });
-
-      // Animate paragraph
-      gsap.to(splitParagraph.words, {
-        y: 0,
-        opacity: 1,
-        filter: "blur(0px)",
-        duration: 0.5,
-        ease: "power2.out",
-        stagger: 0.03,
-        delay: 1.5,
+        onSplit(self) {
+          gsap.from(self.words, {
+            duration: 0.5,
+            y: 30,
+            opacity: 0,
+            filter: "blur(2px)",
+            stagger: 0.03,
+            ease: "power2.out",
+            delay: 1.5,
+          });
+        },
       });
 
       // Set initial state for scroll elements
@@ -144,7 +126,7 @@ export default function Home() {
       });
     },
     { scope: mainRef }
-  ); // Scope to the main container
+  );
 
   return (
     <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
@@ -156,21 +138,24 @@ export default function Home() {
           id="about"
           className="relative min-h-[calc(100vh-180px)] w-full flex flex-col items-center py-20 justify-center"
         >
-          <div className="max-w-xl mx-4 flex flex-col gap-4">
+          <div
+            ref={textContainerRef}
+            className="max-w-xl mx-4 flex flex-col gap-4 invisible"
+          >
             <h2
-              ref={headingRef1}
+              id="heading1"
               className="font-[family-name:var(--font-lastik)] text-7xl"
             >
               Hey, I&apos;m
             </h2>
             <h2
-              ref={headingRef2}
+              id="heading2"
               className="font-[family-name:var(--font-lastik)] text-7xl"
             >
               Jonothan.
             </h2>
             <p
-              ref={paragraphRef}
+              id="paragraph"
               className="text-2xl font-[family-name:var(--font-hyperlegible)] text-pretty"
             >
               I&apos;m a creative developer creating innovative experiences for
@@ -205,14 +190,14 @@ export default function Home() {
                 <div className={`flex gap-1 text-xl h-full`}>
                   <a
                     href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center font-[family-name:var(--font-lastik)] text-purple-950 bg-orange-100 text-base px-3 py-2 rounded-l-lg transition-all outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4 hover:z-10"
+                    className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer  "
                     aria-label="Email me at hey@jonothan.dev"
                   >
                     hey@jonothan.dev
                   </a>
                   <button
                     aria-label="Copy my email"
-                    className="inline-flex items-center justify-center bg-orange-100 px-3 py-2 rounded-r-lg transition-all outline-2 outline-transparent outline-offset-0 hover:outline-orange-100 hover:outline-offset-4 focus-visible:outline-orange-100 focus-visible:outline-offset-4"
+                    className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer  "
                     onClick={() => {
                       navigator.clipboard.writeText("hey@jonothan.dev");
                       setCopied(true);
