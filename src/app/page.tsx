@@ -1,6 +1,6 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState, useEffect, useRef } from "react";
+import { Suspense, useRef, useState } from "react";
 import Model from "./components/Model";
 import SplashCursor from "./components/SplashCursor";
 import {
@@ -10,14 +10,15 @@ import {
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import Image from "next/image";
 import Link from "next/link";
+
+// GSAP imports
 import gsap from "gsap";
+import { useGSAP } from "@gsap/react"; // New import
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 
 // Register the plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, SplitText);
-}
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
@@ -35,26 +36,11 @@ export default function Home() {
   const headingRef2 = useRef(null);
   const paragraphRef = useRef(null);
 
-  useEffect(() => {
-    // Set initial state immediately
-    const elements = [
-      canvasRef.current,
-      campaignRef.current,
-      hsbcRef.current,
-      tiktokRef.current,
-      supermarketRef.current,
-      magpieRef.current,
-    ].filter(Boolean);
+  // Main container ref for scoping animations
+  const mainRef = useRef(null);
 
-    // Batch set the initial state
-    gsap.set(elements, {
-      y: 50,
-      opacity: 0,
-      filter: "blur(4px)",
-    });
-
-    // Create a GSAP context for better management
-    const ctx = gsap.context(() => {
+  useGSAP(
+    () => {
       // Text animations with SplitText
       const splitHeading1 = new SplitText(headingRef1.current, {
         type: "words",
@@ -66,12 +52,33 @@ export default function Home() {
         type: "words",
       });
 
-      // Animate heading 1
-      gsap.from(splitHeading1.words, {
+      // Set initial state for split words
+      gsap.set(splitHeading1.words, {
         y: 50,
         opacity: 0,
         rotation: "random(-30, 30)",
         filter: "blur(4px)",
+      });
+
+      gsap.set(splitHeading2.words, {
+        y: 50,
+        opacity: 0,
+        rotation: "random(-30, 30)",
+        filter: "blur(4px)",
+      });
+
+      gsap.set(splitParagraph.words, {
+        y: 30,
+        opacity: 0,
+        filter: "blur(2px)",
+      });
+
+      // Animate heading 1
+      gsap.to(splitHeading1.words, {
+        y: 0,
+        opacity: 1,
+        rotation: 0,
+        filter: "blur(0px)",
         duration: 0.7,
         ease: "back",
         stagger: 0.15,
@@ -79,11 +86,11 @@ export default function Home() {
       });
 
       // Animate heading 2
-      gsap.from(splitHeading2.words, {
-        y: 50,
-        opacity: 0,
-        rotation: "random(-30, 30)",
-        filter: "blur(4px)",
+      gsap.to(splitHeading2.words, {
+        y: 0,
+        opacity: 1,
+        rotation: 0,
+        filter: "blur(0px)",
         duration: 0.7,
         ease: "back",
         stagger: 0.15,
@@ -91,14 +98,30 @@ export default function Home() {
       });
 
       // Animate paragraph
-      gsap.from(splitParagraph.words, {
-        y: 30,
-        opacity: 0,
-        filter: "blur(2px)",
+      gsap.to(splitParagraph.words, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
         duration: 0.5,
         ease: "power2.out",
         stagger: 0.03,
         delay: 1.5,
+      });
+
+      // Set initial state for scroll elements
+      const elements = [
+        canvasRef.current,
+        campaignRef.current,
+        hsbcRef.current,
+        tiktokRef.current,
+        supermarketRef.current,
+        magpieRef.current,
+      ].filter(Boolean);
+
+      gsap.set(elements, {
+        y: 50,
+        opacity: 0,
+        filter: "blur(4px)",
       });
 
       // Create animations for each element
@@ -119,19 +142,15 @@ export default function Home() {
           },
         });
       });
-    });
-
-    // Clean up
-    return () => {
-      ctx.revert(); // This will clean up all GSAP animations and SplitText instances
-    };
-  }, []);
+    },
+    { scope: mainRef }
+  ); // Scope to the main container
 
   return (
     <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
       <div className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"></div>
       <SplashCursor />
-      <main>
+      <main ref={mainRef}>
         {/* About section */}
         <section
           id="about"
