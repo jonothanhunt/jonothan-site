@@ -1397,9 +1397,9 @@ export default function SplashCursor({
 
     function generateColor(): ColorRGB {
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
-      c.r *= 0.1;
+      c.r *= 0.04;
       c.g *= 0.001;
-      c.b *= 0.1;
+      c.b *= 0.04;
       return c;
     }
 
