@@ -152,7 +152,7 @@ export default function Header() {
                 : "top-12 opacity-0 pointer-events-none"
             }`}
           >
-            <div className="flex gap-1 text-xl drop-shadow-xl drop-shadow-purple-200/50 rounded-lg overflow-hidden">
+            <div className="flex gap-1 text-xl drop-shadow-xl drop-shadow-purple-200/50 rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
               <a
                 href="mailto:hey@jonothan.dev"
                 className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer  "
