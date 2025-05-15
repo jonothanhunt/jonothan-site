@@ -37,3 +37,12 @@ html::before {
   );
   opacity: 0.1;
 }
+
+.gsap-text-hidden {
+  opacity: 0;
+}
+
+.gsap-element-hidden {
+  opacity: 0;
+  transform: translateY(50px);
+}
