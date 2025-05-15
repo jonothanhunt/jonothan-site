@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 
 export default function Header() {
   const [copied, setCopied] = useState(false);
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState("about");
   const [showContactPopup, setShowContactPopup] = useState(false);
 
   // Handle scroll to update active section
