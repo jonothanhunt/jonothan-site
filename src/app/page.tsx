@@ -168,7 +168,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="work" className="px-4 scroll-mt-20" aria-labelledby="work-heading">
+        <section
+          id="work"
+          className="px-4 scroll-mt-20"
+          aria-labelledby="work-heading"
+        >
           <h2 id="work-heading" className="sr-only">
             My Work
           </h2>
@@ -238,27 +242,33 @@ export default function Home() {
               {/* Canvas */}
               <div
                 ref={canvasRef}
-                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-purple-50 rounded-4xl overflow-clip"
-                aria-label="3D model visualization"
+                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip"
+                aria-label="Desk scene in 3D!"
                 role="img"
               >
                 <Canvas
-                  eventPrefix="client"
+                  // eventPrefix="client"
                   dpr={[1, 1]}
                   orthographic
                   camera={{
-                    zoom: 300,
+                    zoom: 350,
                     near: 0.1,
                     far: 1000,
                     position: [-1.65, 1.6, 3.5],
                     rotation: [-0.42, -0.4, -0.1],
                   }}
+                  gl={{
+                    alpha: true,
+                    antialias: true,
+                    premultipliedAlpha: false,
+                  }}
+                  style={{ background: "transparent" }}
                   aria-hidden="true"
                 >
                   <Suspense fallback={null}>
                     <ambientLight intensity={0.1} />
                     <directionalLight position={[0, 10, 5]} intensity={3.2} />
-                    <Model />
+                    <Model canvasRef={canvasRef} />
                     <EffectComposer>
                       <N8AO
                         quality="performance"
@@ -453,7 +463,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="blog" className="h-lvh scroll-mt-20" aria-labelledby="blog-heading">
+        <section
+          id="blog"
+          className="h-lvh scroll-mt-20"
+          aria-labelledby="blog-heading"
+        >
           <h2 id="blog-heading" className="sr-only">
             Blog
           </h2>
