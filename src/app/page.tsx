@@ -130,7 +130,10 @@ export default function Home() {
 
   return (
     <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
-      <div className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"></div>
+      <div
+        className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"
+        aria-hidden="true"
+      ></div>
       <SplashCursor />
       <main ref={mainRef}>
         {/* About section */}
@@ -142,12 +145,12 @@ export default function Home() {
             ref={textContainerRef}
             className="max-w-xl mx-6 flex flex-col gap-4 invisible"
           >
-            <h2
+            <h1
               id="heading1"
               className="font-[family-name:var(--font-lastik)] text-7xl"
             >
               Hey, I&apos;m
-            </h2>
+            </h1>
             <h2
               id="heading2"
               className="font-[family-name:var(--font-lastik)] text-7xl"
@@ -165,23 +168,26 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="work" className="px-4">
+        <section id="work" className="px-4 scroll-mt-20" aria-labelledby="work-heading">
+          <h2 id="work-heading" className="sr-only">
+            My Work
+          </h2>
           <div className="relative max-w-6xl mx-auto">
             {/* Work with me section */}
-            <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip ">
+            <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip">
               <div className="absolute top-0 left-0 w-full h-full">
                 <Image
                   src="/images/work_with_me.webp"
-                  alt="Let's work together"
+                  alt="Decorative background for contact section"
                   fill
                   style={{ objectFit: "cover", objectPosition: "right" }}
                 />
               </div>
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent bg-cover bg-center" />
               <div className="z-10 flex flex-col gap-4">
-                <p className="font-[family-name:var(--font-lastik)] text-4xl text-white">
+                <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white">
                   Let&apos;s chat!
-                </p>
+                </h3>
                 <p className="text-white text-lg max-w-96 text-pretty">
                   Book me for a talk or I&apos;m always down to chat about
                   exciting projects, especially immersive web (WebGL, shaders)
@@ -190,14 +196,18 @@ export default function Home() {
                 <div className={`flex gap-1 text-xl h-full`}>
                   <Link
                     href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer  "
+                    className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer"
                     aria-label="Email me at hey@jonothan.dev"
                   >
                     hey@jonothan.dev
                   </Link>
                   <button
-                    aria-label="Copy my email"
-                    className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer  "
+                    aria-label={
+                      copied
+                        ? "Email copied to clipboard"
+                        : "Copy my email to clipboard"
+                    }
+                    className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer"
                     onClick={() => {
                       navigator.clipboard.writeText("hey@jonothan.dev");
                       setCopied(true);
@@ -207,9 +217,15 @@ export default function Home() {
                     }}
                   >
                     {copied ? (
-                      <ClipboardDocumentCheckIcon className="h-5 w-5 text-purple-950" />
+                      <ClipboardDocumentCheckIcon
+                        className="h-5 w-5 text-purple-950"
+                        aria-hidden="true"
+                      />
                     ) : (
-                      <ClipboardIcon className="h-5 w-5 text-purple-950" />
+                      <ClipboardIcon
+                        className="h-5 w-5 text-purple-950"
+                        aria-hidden="true"
+                      />
                     )}
                   </button>
                 </div>
@@ -223,6 +239,8 @@ export default function Home() {
               <div
                 ref={canvasRef}
                 className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-purple-50 rounded-4xl overflow-clip"
+                aria-label="3D model visualization"
+                role="img"
               >
                 <Canvas
                   eventPrefix="client"
@@ -235,6 +253,7 @@ export default function Home() {
                     position: [-1.65, 1.6, 3.5],
                     rotation: [-0.42, -0.4, -0.1],
                   }}
+                  aria-hidden="true"
                 >
                   <Suspense fallback={null}>
                     <ambientLight intensity={0.1} />
@@ -254,17 +273,18 @@ export default function Home() {
                 </Canvas>
               </div>
 
-              {/* Rest of your content remains the same */}
               {/* Campaign */}
               <div ref={campaignRef} className="col-span-1 md:col-start-4">
                 <Link
                   href="https://waitingtolive.org/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  aria-labelledby="waiting-to-live-title"
                 >
                   <Image
                     src="/images/waiting_to_live.webp"
-                    alt="Waiting to Live Campaign"
+                    alt="The doll of Ralph sitting on a bench, waiting."
                     fill
                     style={{ objectFit: "cover", objectPosition: "center" }}
                   />
@@ -273,7 +293,10 @@ export default function Home() {
                     Campaign
                   </div>
                   <div className="z-10 flex flex-col gap-2">
-                    <p className="font-[family-name:var(--font-lastik)] text-2xl text-white">
+                    <p
+                      id="waiting-to-live-title"
+                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                    >
                       Waiting to Live
                     </p>
                     <p className="text-white text-md">
@@ -291,11 +314,13 @@ export default function Home() {
                 <Link
                   href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  aria-labelledby="hsbc-vault-title"
                 >
                   <Image
                     src="/images/hsbc_vault.webp"
-                    alt="HSBC Vault"
+                    alt="The HSBC Vault installation in waterloo station."
                     fill
                     style={{ objectFit: "cover", objectPosition: "center" }}
                   />
@@ -304,7 +329,10 @@ export default function Home() {
                     Installation
                   </div>
                   <div className="z-10 flex flex-col gap-2">
-                    <p className="font-[family-name:var(--font-lastik)] text-2xl text-white">
+                    <p
+                      id="hsbc-vault-title"
+                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                    >
                       HSBC Vault
                     </p>
                     <p className="text-white text-md">
@@ -323,11 +351,13 @@ export default function Home() {
                 <Link
                   href="https://vm.tiktok.com/ZNdr68mku/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  aria-labelledby="tiktok-views-title"
                 >
                   <Image
                     src="/images/effects.jpeg"
-                    alt="TikTok Effects"
+                    alt="Background showing TikTok effects"
                     fill
                     style={{
                       objectFit: "cover",
@@ -338,7 +368,10 @@ export default function Home() {
                   <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
                     Latest
                   </div>
-                  <p className="z-10 max-w-xl text-3xl md:text-6xl text-white font-[family-name:var(--font-lastik)]">
+                  <p
+                    id="tiktok-views-title"
+                    className="z-10 max-w-xl text-3xl md:text-6xl text-white font-[family-name:var(--font-lastik)]"
+                  >
                     Views of TikTok videos using my camera effects have reached{" "}
                     <span className="inline-block font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2 py-2">
                       8,773,773,403
@@ -356,11 +389,13 @@ export default function Home() {
                 <Link
                   href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  aria-labelledby="supermarket-scan-title"
                 >
                   <Image
                     src="/images/tiktok_live_supermarket_scan.webp"
-                    alt="Supermarket Scan"
+                    alt="YouTube thumbnail for the live stream showing my face and the title."
                     fill
                     style={{ objectFit: "cover", objectPosition: "top" }}
                   />
@@ -369,7 +404,10 @@ export default function Home() {
                     Tutorial
                   </div>
                   <div className="z-10 flex flex-col gap-2">
-                    <p className="font-[family-name:var(--font-lastik)] text-2xl text-white">
+                    <p
+                      id="supermarket-scan-title"
+                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                    >
                       How I made the viral Supermarket Scan effect
                     </p>
                     <p className="text-white text-md text-pretty">
@@ -384,11 +422,13 @@ export default function Home() {
                 <Link
                   href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  aria-labelledby="magpie-app-title"
                 >
                   <Image
                     src="/images/magpie_app.webp"
-                    alt="Magpie App"
+                    alt="Screenshot of the Magpie app showing mentor profiles."
                     fill
                     style={{ objectFit: "cover", objectPosition: "top" }}
                   />
@@ -397,7 +437,10 @@ export default function Home() {
                     App
                   </div>
                   <div className="z-10 flex flex-col gap-2">
-                    <p className="font-[family-name:var(--font-lastik)] text-2xl text-white">
+                    <p
+                      id="magpie-app-title"
+                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                    >
                       Magpie: VML&apos;s award-winning mentorship app
                     </p>
                     <p className="text-white text-md text-pretty">
@@ -410,7 +453,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="blog" className="h-screen">
+        <section id="blog" className="h-lvh scroll-mt-20" aria-labelledby="blog-heading">
+          <h2 id="blog-heading" className="sr-only">
+            Blog
+          </h2>
           <div className="flex flex-col items-center justify-center h-full">
             <p className="max-w-96 text-4xl">Coming soon!</p>
           </div>
