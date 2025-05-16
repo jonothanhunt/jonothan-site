@@ -22,25 +22,25 @@ uniform float uGridSize;
 varying vec2 vUv;
 
 // Color palette
-vec3 colorA = vec3(0.22, 0.06, 0.30); // #731f96
-vec3 colorB = vec3(0.34, 0.135, 0.085); // #ad452b
+// vec3 colorA = vec3(0.22, 0.06, 0.30); // #731f96
+// vec3 colorB = vec3(0.34, 0.135, 0.085); // #ad452b
 
 // Procedural swirling blend mask
-float swirlNoise(vec2 uv) {
-  uv *= 20.0; // more detail
-  uv += vec2(uTime * 0.1, uTime * 0.12);
+// float swirlNoise(vec2 uv) {
+//   uv *= 20.0; // more detail
+//   uv += vec2(uTime * 0.1, uTime * 0.12);
 
-  float n1 = sin(uv.x + sin(uv.y + uTime));
-  float n2 = sin(uv.y * 1.3 + cos(uv.x * 1.4));
-  float combined = n1 + n2;
+//   float n1 = sin(uv.x + sin(uv.y + uTime));
+//   float n2 = sin(uv.y * 1.3 + cos(uv.x * 1.4));
+//   float combined = n1 + n2;
 
-  return 0.5 + 0.5 * sin(combined);
-}
+//   return 0.5 + 0.5 * sin(combined);
+// }
 
 void main() {
   // === Mesh gradient background ===
-  float t = swirlNoise(vUv);
-  vec3 bgColor = mix(colorA, colorB, t);
+  // float t = swirlNoise(vUv);
+  // vec3 bgColor = mix(colorA, colorB, t);
 
   // === Plusses ===
   vec2 gridUV = fract(vUv * uGridSize);
@@ -54,9 +54,9 @@ void main() {
   float v = smoothstep(thickness, 0.0, centered.x) * step(centered.y, shrink);
   float plus = max(h, v);
 
-  vec3 finalColor = bgColor + vec3(plus);
+  // vec3 finalColor = bgColor + vec3(plus);
 
-  gl_FragColor = vec4(finalColor, 1.0);
+  gl_FragColor = vec4(vec3(1.0,1.0,1.0), plus);
 }
 `;
 
@@ -67,7 +67,7 @@ export function Floor({
 }) {
   const meshRef = useRef();
   const materialRef = useRef();
-  const { mouse, camera } = useThree();
+  const { camera } = useThree();
 
   // Memoize the uniforms to prevent unnecessary re-renders
   const uniforms = useMemo(
@@ -88,7 +88,7 @@ export function Floor({
 
     // Raycast to get UV of the intersection point, if any
     const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
+    raycaster.setFromCamera(state.pointer, camera);
     const intersection = raycaster.intersectObject(meshRef.current);
 
     if (intersection.length > 0) {
@@ -107,6 +107,8 @@ export function Floor({
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
         uniforms={uniforms}
+        alphaTest={0.5}
+        transparent={false}
       />
     </mesh>
   );
