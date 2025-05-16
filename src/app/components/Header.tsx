@@ -8,6 +8,8 @@ import {
   ClipboardDocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 
+import Link from "next/link";
+
 import { useState, useEffect } from "react";
 
 export default function Header() {
@@ -153,13 +155,13 @@ export default function Header() {
             }`}
           >
             <div className="flex gap-1 text-xl drop-shadow-xl drop-shadow-purple-200/50 rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
-              <a
+              <Link
                 href="mailto:hey@jonothan.dev"
                 className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer  "
                 aria-label="Email me at hey@jonothan.dev"
               >
                 hey@jonothan.dev
-              </a>
+              </Link>
               <button
                 aria-label="Copy my email"
                 className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer  "
