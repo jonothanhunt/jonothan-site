@@ -56,7 +56,7 @@ void main() {
 
   // vec3 finalColor = bgColor + vec3(plus);
 
-  gl_FragColor = vec4(vec3(1.0,1.0,1.0), plus);
+  gl_FragColor = vec4(vec3(1.0) * plus, plus);
 }
 `;
 
