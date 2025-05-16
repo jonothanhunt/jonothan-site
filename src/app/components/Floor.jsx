@@ -13,8 +13,6 @@ void main() {
 `;
 
 const fragmentShader = `
-precision lowp float;
-
 uniform vec2 uMouse;
 uniform float uTime;
 uniform float uGridSize;
