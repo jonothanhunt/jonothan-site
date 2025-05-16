@@ -13,6 +13,8 @@ void main() {
 `;
 
 const fragmentShader = `
+precision mediump float;
+
 uniform vec2 uMouse;
 uniform float uTime;
 uniform float uGridSize;
@@ -105,8 +107,6 @@ export function Floor({
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
         uniforms={uniforms}
-        alphaTest={0.5}
-        transparent={false}
       />
     </mesh>
   );
