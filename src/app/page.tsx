@@ -140,7 +140,7 @@ export default function Home() {
         >
           <div
             ref={textContainerRef}
-            className="max-w-xl mx-4 flex flex-col gap-4 invisible"
+            className="max-w-xl mx-6 flex flex-col gap-4 invisible"
           >
             <h2
               id="heading1"
@@ -188,13 +188,13 @@ export default function Home() {
                   and mixed reality!
                 </p>
                 <div className={`flex gap-1 text-xl h-full`}>
-                  <a
+                  <Link
                     href="mailto:hey@jonothan.dev"
                     className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer  "
                     aria-label="Email me at hey@jonothan.dev"
                   >
                     hey@jonothan.dev
-                  </a>
+                  </Link>
                   <button
                     aria-label="Copy my email"
                     className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer  "
@@ -258,7 +258,8 @@ export default function Home() {
               {/* Campaign */}
               <div ref={campaignRef} className="col-span-1 md:col-start-4">
                 <Link
-                  href="#"
+                  href="https://waitingtolive.org/"
+                  target="_blank"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                 >
                   <Image
@@ -288,7 +289,8 @@ export default function Home() {
                 className="col-span-1 md:col-start-4 md:row-start-2"
               >
                 <Link
-                  href="#"
+                  href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
+                  target="_blank"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                 >
                   <Image
@@ -319,7 +321,8 @@ export default function Home() {
                 className="col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3"
               >
                 <Link
-                  href="#"
+                  href="https://vm.tiktok.com/ZNdr68mku/"
+                  target="_blank"
                   className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                 >
                   <Image
@@ -351,7 +354,8 @@ export default function Home() {
                 className="col-span-1 md:col-start-1 md:row-start-3"
               >
                 <Link
-                  href="#"
+                  href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
+                  target="_blank"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                 >
                   <Image
@@ -378,7 +382,8 @@ export default function Home() {
               {/* Magpie App */}
               <div ref={magpieRef} className="col-span-1 md:row-start-4">
                 <Link
-                  href="#"
+                  href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
+                  target="_blank"
                   className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                 >
                   <Image
