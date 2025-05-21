@@ -1,8 +1,8 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useRef, useState } from "react";
-import Model from "./components/Model";
-import SplashCursor from "./components/SplashCursor";
+import Model from "../components/Model";
+import SplashCursor from "../components/SplashCursor";
 import {
   ClipboardIcon,
   ClipboardDocumentCheckIcon,
@@ -181,7 +181,7 @@ export default function Home() {
             <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip">
               <div className="absolute top-0 left-0 w-full h-full">
                 <Image
-                  src="/images/work_with_me.webp"
+                  src="/images/home/work_with_me.webp"
                   alt="Decorative background for contact section"
                   fill
                   style={{ objectFit: "cover", objectPosition: "right" }}
@@ -242,7 +242,7 @@ export default function Home() {
               {/* Canvas */}
               <div
                 ref={canvasRef}
-                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip"
+                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip shadow-xl shadow-purple-950/20"
                 aria-label="Desk scene in 3D!"
                 role="img"
               >
@@ -290,11 +290,11 @@ export default function Home() {
                   href="https://waitingtolive.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
                   aria-labelledby="waiting-to-live-title"
                 >
                   <Image
-                    src="/images/waiting_to_live.webp"
+                    src="/images/home/waiting_to_live.webp"
                     alt="The doll of Ralph sitting on a bench, waiting."
                     fill
                     style={{ objectFit: "cover", objectPosition: "center" }}
@@ -326,11 +326,11 @@ export default function Home() {
                   href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
                   aria-labelledby="hsbc-vault-title"
                 >
                   <Image
-                    src="/images/hsbc_vault.webp"
+                    src="/images/home/hsbc_vault.webp"
                     alt="The HSBC Vault installation in waterloo station."
                     fill
                     style={{ objectFit: "cover", objectPosition: "center" }}
@@ -363,11 +363,11 @@ export default function Home() {
                   href="https://vm.tiktok.com/ZNdr68mku/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
                   aria-labelledby="tiktok-views-title"
                 >
                   <Image
-                    src="/images/effects.jpeg"
+                    src="/images/home/effects.jpeg"
                     alt="Background showing TikTok effects"
                     fill
                     style={{
@@ -401,11 +401,11 @@ export default function Home() {
                   href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
                   aria-labelledby="supermarket-scan-title"
                 >
                   <Image
-                    src="/images/tiktok_live_supermarket_scan.webp"
+                    src="/images/home/tiktok_live_supermarket_scan.webp"
                     alt="YouTube thumbnail for the live stream showing my face and the title."
                     fill
                     style={{ objectFit: "cover", objectPosition: "top" }}
@@ -434,11 +434,11 @@ export default function Home() {
                   href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
                   aria-labelledby="magpie-app-title"
                 >
                   <Image
-                    src="/images/magpie_app.webp"
+                    src="/images/home/magpie_app.webp"
                     alt="Screenshot of the Magpie app showing mentor profiles."
                     fill
                     style={{ objectFit: "cover", objectPosition: "top" }}
@@ -464,7 +464,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section
+        {/* <section
           id="blog"
           className="h-lvh scroll-mt-20"
           aria-labelledby="blog-heading"
@@ -475,7 +475,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center h-full">
             <p className="max-w-96 text-4xl">Coming soon!</p>
           </div>
-        </section>
+        </section> */}
       </main>
     </div>
   );
