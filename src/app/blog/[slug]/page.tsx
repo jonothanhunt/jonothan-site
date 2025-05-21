@@ -15,13 +15,15 @@ export async function generateStaticParams() {
     }));
 }
 
+type BlogParams = Promise<{ slug: string }>;
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: BlogParams;
 }) {
-  const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
+  const { slug } = await params;
 
   try {
     const { metadata } = await import(`@/content/blog/${slug}.mdx`);
@@ -36,11 +38,15 @@ export async function generateMetadata({
 
 export default async function BlogPost({
   params,
+  searchParams,
 }: {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: BlogParams;
+  searchParams?: SearchParams;
 }) {
-  const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
+  const { slug } = await params;
+  if (searchParams) {
+    await searchParams;
+  }
 
   let metadata;
   try {
