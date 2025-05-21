@@ -46,14 +46,12 @@ loadingManager.onError = (url) => {
 
 // Texture paths configuration
 const TEXTURE_PATHS = {
-  effectHouse: "/images/effect_house.png",
-  reactLogo: "/images/react_logo.png",
-  nextjsLogo: "/images/nextjs_logo.png",
-  threeLogo: "/images/three_logo.png",
-  touchdesignerLogo: "/images/touchdesigner_logo.png",
-  blenderBadge: "/images/blender_badge.png",
-  outsideLayerBackground: "/images/outside_layer_background.png",
-  outsideLayerForeground: "/images/outside_layer_foreground.png",
+  effectHouse: "/images/desk/effect_house.png",
+  reactLogo: "/images/desk/react_logo.png",
+  nextjsLogo: "/images/desk/nextjs_logo.png",
+  threeLogo: "/images/desk/three_logo.png",
+  touchdesignerLogo: "/images/desk/touchdesigner_logo.png",
+  blenderBadge: "/images/desk/blender_badge.png",
 };
 
 // Shader Materials
