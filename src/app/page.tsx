@@ -242,7 +242,7 @@ export default function Home() {
               {/* Canvas */}
               <div
                 ref={canvasRef}
-                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip shadow-xl shadow-purple-950/20"
+                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip"
                 aria-label="Desk scene in 3D!"
                 role="img"
               >
@@ -290,7 +290,7 @@ export default function Home() {
                   href="https://waitingtolive.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                   aria-labelledby="waiting-to-live-title"
                 >
                   <Image
@@ -326,7 +326,7 @@ export default function Home() {
                   href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
                   aria-labelledby="hsbc-vault-title"
                 >
                   <Image
@@ -363,7 +363,7 @@ export default function Home() {
                   href="https://vm.tiktok.com/ZNdr68mku/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
+                  className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
                   aria-labelledby="tiktok-views-title"
                 >
                   <Image
@@ -401,7 +401,7 @@ export default function Home() {
                   href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
                   aria-labelledby="supermarket-scan-title"
                 >
                   <Image
@@ -434,7 +434,7 @@ export default function Home() {
                   href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer shadow-xl shadow-purple-950/20"
+                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
                   aria-labelledby="magpie-app-title"
                 >
                   <Image
