@@ -55,7 +55,11 @@ export async function generateStaticParams() {
 
 type ThingsParams = { slug?: string[] };
 
-export async function generateMetadata({ params }: { params: ThingsParams }) {
+interface PageProps {
+  params: Promise<ThingsParams>;
+}
+
+export async function generateMetadata({ params }: PageProps) {
   const awaitedParams = await params;
   if (!awaitedParams.slug) {
     return {
@@ -76,7 +80,7 @@ export async function generateMetadata({ params }: { params: ThingsParams }) {
   }
 }
 
-export default async function Thing({ params }: { params: ThingsParams }) {
+export default async function Thing({ params }: PageProps) {
   const posts = await getThings();
   const awaitedParams = await params;
   const selectedSlug = awaitedParams.slug?.[0];
