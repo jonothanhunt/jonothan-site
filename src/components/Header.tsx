@@ -100,7 +100,7 @@ export default function Header() {
     }
   };
 
-  const handleBlogClick = () => {
+  const handleThingsClick = () => {
     router.push("/blog");
   };
 
@@ -143,7 +143,7 @@ export default function Header() {
 
           <li>
             <button
-              onClick={handleBlogClick}
+              onClick={handleThingsClick}
               className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer ${
                 activeSection === "blog" ? "bg-purple-100 px-3 shadow-xl shadow-purple-950/20" : "px-2"
               }`}
@@ -154,7 +154,7 @@ export default function Header() {
                   activeSection === "blog" ? "size-6" : "size-0"
                 }`}
               />
-              <span>Blog</span>
+              <span>Things</span>
             </button>
           </li>
 

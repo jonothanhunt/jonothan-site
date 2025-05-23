@@ -470,7 +470,7 @@ export default function Home() {
           aria-labelledby="blog-heading"
         >
           <h2 id="blog-heading" className="sr-only">
-            Blog
+            Things
           </h2>
           <div className="flex flex-col items-center justify-center h-full">
             <p className="max-w-96 text-4xl">Coming soon!</p>

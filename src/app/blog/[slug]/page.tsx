@@ -15,13 +15,13 @@ export async function generateStaticParams() {
     }));
 }
 
-type BlogParams = Promise<{ slug: string }>;
+type ThingsParams = Promise<{ slug: string }>;
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export async function generateMetadata({
   params,
 }: {
-  params: BlogParams;
+  params: ThingsParams;
 }) {
   const { slug } = await params;
 
@@ -36,11 +36,11 @@ export async function generateMetadata({
   }
 }
 
-export default async function BlogPost({
+export default async function Thing({
   params,
   searchParams,
 }: {
-  params: BlogParams;
+  params: ThingsParams;
   searchParams?: SearchParams;
 }) {
   const { slug } = await params;
