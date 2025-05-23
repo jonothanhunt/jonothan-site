@@ -33,16 +33,16 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </a>
     ),
     ul: ({ children }) => (
-      <ul className="list-disc pl-8 pb-4 leading-relaxed space-y-1">
+      <ul className="list-disc pl-8 pb-4 leading-relaxed space-y-1 text-lg">
         {children}
       </ul>
     ),
     ol: ({ children }) => (
-      <ol className="list-decimal pl-8 pb-4 leading-relaxed space-y-1">
+      <ol className="list-decimal pl-8 pb-4 leading-relaxed space-y-1 text-lg">
         {children}
       </ol>
     ),
-    li: ({ children }) => <li className="pl-1">{children}</li>,
+    li: ({ children }) => <li className="pl-1 text-lg">{children}</li>,
     img: (props) => (
       <Image
         width={1200}
