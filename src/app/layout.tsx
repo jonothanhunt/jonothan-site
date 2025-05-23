@@ -26,13 +26,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${lastik.variable} ${atkinsonHyperlegible.variable} antialiased`}
+        className={`${lastik.variable} ${atkinsonHyperlegible.variable} antialiased min-h-screen h-full flex flex-col`}
       >
         {/* <div className="fixed -z-50 top-0 left-0 pointer-events-none w-full h-full bg-gradient-to-b from-[#ffe5fd] to-[#d2d8ec]"></div> */}
         <Header />
-        {children}
+        <main className="flex-1">
+          {children}
+        </main>
         <footer className="mt-24 w-full dark:bg-gray-900 text-center py-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} Jonothan Hunt.
