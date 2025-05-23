@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatCustomDate } from "@/utils/formatDate";
 
 // Helper function to get all blog posts with metadata
-async function getBlogPosts() {
+async function getThings() {
   const postsDirectory = path.join(process.cwd(), "src/content/blog");
   const filenames = fs.readdirSync(postsDirectory);
 
@@ -42,8 +42,8 @@ async function getBlogPosts() {
   );
 }
 
-export default async function BlogOverview() {
-  const posts = await getBlogPosts();
+export default async function ThingsOverview() {
+  const posts = await getThings();
 
   return (
     <div className="min-h-screen">
