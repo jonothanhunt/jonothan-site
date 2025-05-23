@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-type BlogLayoutProps = {
+type ThingsLayoutProps = {
   children: ReactNode;
   metadata: {
     title: string;
@@ -9,7 +9,7 @@ type BlogLayoutProps = {
   };
 };
 
-export default function BlogLayout({ children, metadata }: BlogLayoutProps) {
+export default function ThingsLayout({ children, metadata }: ThingsLayoutProps) {
   return (
     <article className="prose lg:prose-xl mx-auto">
       <h1 className="font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-pretty">
