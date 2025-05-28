@@ -107,7 +107,7 @@ export default function Header() {
   return (
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
       <nav aria-label="Main navigation">
-        <ul className="mx-auto py-1 px-2 w-fit flex justify-center items-center bg-pink-200/70 backdrop-blur-3xl rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-xl shadow-purple-950/10">
+        <ul className="mx-auto py-1 px-2 w-fit flex justify-center items-center bg-pink-200/70 backdrop-blur-3xl rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-xl shadow-purple-950/20/10">
           <li
             className={`${
               activeSection === "about"

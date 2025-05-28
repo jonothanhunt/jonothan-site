@@ -4,5 +4,5 @@ export interface ThingMetadata {
   title: string;
   date: string;
   excerpt: string;
-  type: ThingType;
+  type: ThingType[];
 }
