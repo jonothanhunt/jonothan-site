@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import type { ComponentType } from 'react';
+import { useState, useEffect } from "react";
+import type { ComponentType } from "react";
 
 export function DynamicMDXContent({ slug }: { slug: string }) {
   const [Component, setComponent] = useState<ComponentType | null>(null);
@@ -34,12 +34,14 @@ export function DynamicMDXContent({ slug }: { slug: string }) {
   }, [Component]);
 
   return (
-    <div 
+    <div
       className={`px-5 bg-purple-50 transition-all duration-1000 ease-in-out overflow-hidden ${
-        Component && isMounted && !isUnmounting ? 'max-h-[20000px] opacity-100' : 'max-h-0 opacity-0'
+        Component && isMounted && !isUnmounting
+          ? "max-h-[20000px] opacity-100"
+          : "max-h-0 opacity-0"
       }`}
     >
-      {Component && <Component />}
+      <div className="pt-5">{Component && <Component />}</div>
     </div>
   );
 }
