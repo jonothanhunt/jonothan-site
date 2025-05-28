@@ -9,19 +9,19 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 
     // Override HTML elements
     h1: ({ children }) => (
-      <h1 className="font-[family-name:var(--font-lastik)] text-3xl text-black text-pretty pt-4 pb-4">
+      <h1 className="font-[family-name:var(--font-lastik)] text-3xl text-black text-pretty pt-4 pb-5">
         {children}
       </h1>
     ),
     h2: ({ children }) => (
-      <h2 className="font-bold text-2xl text-black text-pretty pb-4 pt-4">
+      <h2 className="font-bold text-2xl text-black text-pretty pb-5 pt-4">
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-xl text-black text-pretty pb-4">{children}</h3>
+      <h3 className="text-xl text-black text-pretty pb-5">{children}</h3>
     ),
-    p: ({ children }) => <p className="text-pretty text-lg pb-4">{children}</p>,
+    p: ({ children }) => <p className="text-pretty text-lg pb-5">{children}</p>,
     a: ({ children, href }) => (
       <a
         className="text-black text-pretty hover:text-purple-700 underline underline-offset-4"
@@ -33,12 +33,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </a>
     ),
     ul: ({ children }) => (
-      <ul className="list-disc pl-8 pb-4 leading-relaxed space-y-1 text-lg">
+      <ul className="list-disc pl-8 pb-5 leading-relaxed space-y-1 text-lg">
         {children}
       </ul>
     ),
     ol: ({ children }) => (
-      <ol className="list-decimal pl-8 pb-4 leading-relaxed space-y-1 text-lg">
+      <ol className="list-decimal pl-8 pb-5 leading-relaxed space-y-1 text-lg">
         {children}
       </ol>
     ),
