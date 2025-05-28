@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
@@ -14,6 +14,26 @@ interface ThingsListProps {
 
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
+  const selectedPostRef = useRef<HTMLDivElement>(null);
+
+//   useEffect(() => {
+//     // Only scroll if it's the initial load (URL navigation)
+//     const isInitialLoad = window.location.pathname.includes(selectedSlug || '');
+//     if (selectedSlug && selectedPostRef.current && isInitialLoad) {
+//       // Add a small delay to ensure content is rendered
+//       setTimeout(() => {
+//         const element = selectedPostRef.current;
+//         if (element) {
+//           const elementPosition = element.getBoundingClientRect().top;
+//           const offsetPosition = elementPosition + window.pageYOffset - 80; // 20 tailwind units = 80px
+//           window.scrollTo({
+//             top: offsetPosition,
+//             behavior: "smooth"
+//           });
+//         }
+//       }, 300);
+//     }
+//   }, [selectedSlug]);
 
   // Get unique types from all posts
   const availableTypes = useMemo(() => {
@@ -39,7 +59,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   };
 
   return (
-    <div className="">
+    <main className="blog-list" role="main" aria-label="Blog posts">
       <div className="h-42" />
       <div className="container max-w-3xl mx-auto py-8 px-4 font-[family-name:var(--font-hyperlegible)]">
         <FilterChips
@@ -48,16 +68,21 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
           onTypeSelect={handleTypeSelect}
           onClearFilters={handleClearFilters}
         />
-        <div className="space-y-8">
+        <div className="space-y-8" role="feed" aria-label="Blog posts list">
           {filteredPosts.map((post) => {
             const isSelected = post.slug === selectedSlug;
 
             return (
-              <div
+              <article
                 key={post.slug}
+                ref={isSelected ? selectedPostRef : null}
                 className="border-purple-200 bg-purple-50 rounded-4xl overflow-clip shadow-xl shadow-purple-900/10 transition-[background-color,box-shadow] duration-300"
+                aria-expanded={isSelected}
               >
-                <Link href={isSelected ? "/blog" : `/blog/${post.slug}`}>
+                <Link 
+                  href={isSelected ? "/blog" : `/blog/${post.slug}`}
+                  aria-label={`${isSelected ? 'Close' : 'Open'} blog post: ${post.title}`}
+                >
                   <div
                     className={`flex flex-col-reverse p-5 sm:flex-row gap-2 justify-between bg-gradient-to-bl from-purple-200 via-transparent to-transparent transition-[background-color] duration-300 ${
                       isSelected
@@ -65,30 +90,55 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                         : "rounded-t-4xl rounded-b-4xl"
                     }`}
                   >
-                    <h2 className="font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-pretty">
+                    <h2 
+                      className="font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-pretty"
+                      tabIndex={isSelected ? 0 : -1}
+                      ref={node => {
+                        if (node && isSelected) {
+                          // Make element programmatically focusable without visible focus ring
+                          node.setAttribute('tabindex', '0');
+                          // Move focus to the element without visual indication
+                          if (window.location.pathname.includes(selectedSlug || '')) {
+                            requestAnimationFrame(() => {
+                              node.focus({ preventScroll: true });
+                              // Remove focus immediately
+                              node.blur();
+                            });
+                          }
+                        }
+                      }}
+                    >
                       {post.title}
                     </h2>
-                    <div className="z-10 flex min-w-fit gap-2 items-center">
+                    <div className="z-10 flex min-w-fit gap-2 " aria-label="Post metadata">
                       {post.type.map((type) => (
-                        <p
+                        <span
                           key={type}
+                          role="tag"
                           className="text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full bg-pink-200/70  text-sm"
                         >
                           {type}
-                        </p>
+                        </span>
                       ))}
-                      <p className="text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full bg-purple-50 text-sm">
+                      <time 
+                        dateTime={post.date}
+                        className="text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full bg-purple-50 text-sm"
+                      >
                         {formatCustomDate(post.date)}
-                      </p>
+                      </time>
                     </div>
                   </div>
                 </Link>
-                {isSelected && <DynamicMDXContent slug={post.slug} />}
-              </div>
+                {isSelected && (
+                  <section aria-label="Blog post content">
+                    <DynamicMDXContent slug={post.slug} />
+                  </section>
+                )}
+              </article>
             );
           })}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
