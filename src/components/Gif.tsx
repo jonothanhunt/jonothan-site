@@ -34,7 +34,7 @@ export default function Gif({ src, alt }: GifProps) {
   const imageToShow = showGif ? src : previewSrc;
 
   return (
-    <div className="relative w-full pb-4">
+    <div className="relative w-full pb-5">
       <Image
         unoptimized={showGif}
         width={1200}
