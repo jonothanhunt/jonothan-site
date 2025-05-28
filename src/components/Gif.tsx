@@ -52,7 +52,7 @@ export default function Gif({ src, alt }: GifProps) {
       {hasPreview && (
         <button
           onClick={togglePlay}
-          className={`absolute top-4 right-4 bg-pink-200/70 backdrop-blur-3xl text-purple-950 shadow-xl shadow-purple-950/50 rounded-full p-2 transition-opacity ${
+          className={`absolute top-4 right-4 bg-pink-200/70 backdrop-blur-3xl text-purple-950 shadow-xl shadow-purple-300/50 rounded-full p-2 transition-opacity ${
             isPlaying ? "opacity-0" : "opacity-100"
           } hover:opacity-100`}
           aria-label={isPlaying ? "Pause GIF" : "Play GIF"}

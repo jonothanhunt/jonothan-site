@@ -1,4 +1,4 @@
-import { ThingType } from '@/types/thing';
+import { ThingType } from "@/types/thing";
 
 interface FilterChipsProps {
   selectedTypes: ThingType[];
@@ -7,29 +7,37 @@ interface FilterChipsProps {
   onClearFilters: () => void;
 }
 
-export default function FilterChips({ selectedTypes, availableTypes, onTypeSelect, onClearFilters }: FilterChipsProps) {
+export default function FilterChips({
+  selectedTypes,
+  availableTypes,
+  onTypeSelect,
+  onClearFilters,
+}: FilterChipsProps) {
   const hasFilters = selectedTypes.length > 0;
 
   return (
-    <div className="flex flex-wrap gap-2 items-center mb-8">
+    <div className="max-w-full flex gap-2 items-center px-5 pb-10 rounded-4xl w-fill sm:w-fit overflow-x-scroll no-scrollbar">
+      <span className="text-purple-950 text-sm font-semibold">
+        Filter:
+      </span>
       {availableTypes.map((type) => (
         <button
           key={type}
           onClick={() => onTypeSelect(type)}
           className={`px-3 py-2 rounded-full text-sm transition-all duration-300 ${
             selectedTypes.includes(type)
-              ? 'bg-purple-800 text-white shadow-lg shadow-purple-950/20'
-              : 'bg-pink-200/70 text-purple-950 shadow-xl shadow-purple-950/20 hover:bg-purple-300/50'
+              ? "bg-purple-800 text-white shadow-md shadow-purple-900/20 translate-y-[2px]"
+              : "bg-pink-200/70 text-purple-950 shadow-xl shadow-pink-900/30 hover:bg-purple-300/50"
           }`}
         >
           {type}
         </button>
       ))}
-      
+
       {hasFilters && (
         <button
           onClick={onClearFilters}
-          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-500 text-white text-sm shadow-xl shadow-red-950/20 hover:bg-red-600 transition-all duration-300"
+          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-800 text-white text-sm shadow-xl shadow-red-800/20 hover:bg-red-600 transition-all duration-300"
         >
           <svg
             width="14"
