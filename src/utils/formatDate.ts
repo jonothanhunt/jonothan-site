@@ -1,9 +1,12 @@
 export function formatCustomDate(dateString: string) {
-  const date = new Date(dateString);
-
-  const day = date.getDate();
-  const month = date.toLocaleString("en-GB", { month: "short" }); // e.g. "Jan"
-  const year = `'${date.getFullYear().toString().slice(-2)}`; // e.g. "'25"
+  // Ensure date is parsed correctly across all platforms by explicitly creating a UTC date
+  // and then converting to local time
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  
+  const localDay = date.getDate();
+  const localMonth = date.toLocaleString("en-GB", { month: "short" }); // e.g. "Jan"
+  const localYear = `'${date.getFullYear().toString().slice(-2)}`; // e.g. "'25"
 
   const getOrdinal = (n: number) => {
     if (n > 3 && n < 21) return `${n}th`;
@@ -19,5 +22,5 @@ export function formatCustomDate(dateString: string) {
     }
   };
 
-  return `${getOrdinal(day)} ${month} ${year}`;
+  return `${getOrdinal(localDay)} ${localMonth} ${localYear}`;
 }
