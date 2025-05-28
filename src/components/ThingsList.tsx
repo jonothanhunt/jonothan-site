@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
@@ -16,24 +16,24 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
   const selectedPostRef = useRef<HTMLDivElement>(null);
 
-  //   useEffect(() => {
-  //     // Only scroll if it's the initial load (URL navigation)
-  //     const isInitialLoad = window.location.pathname.includes(selectedSlug || '');
-  //     if (selectedSlug && selectedPostRef.current && isInitialLoad) {
-  //       // Add a small delay to ensure content is rendered
-  //       setTimeout(() => {
-  //         const element = selectedPostRef.current;
-  //         if (element) {
-  //           const elementPosition = element.getBoundingClientRect().top;
-  //           const offsetPosition = elementPosition + window.pageYOffset - 80; // 20 tailwind units = 80px
-  //           window.scrollTo({
-  //             top: offsetPosition,
-  //             behavior: "smooth"
-  //           });
-  //         }
-  //       }, 300);
-  //     }
-  //   }, [selectedSlug]);
+    useEffect(() => {
+      // Only scroll if it's the initial load (URL navigation)
+      const isInitialLoad = window.location.pathname.includes(selectedSlug || '');
+      if (selectedSlug && selectedPostRef.current && isInitialLoad) {
+        // Add a small delay to ensure content is rendered
+        setTimeout(() => {
+          const element = selectedPostRef.current;
+          if (element) {
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - 80; // 20 tailwind units = 80px
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth"
+            });
+          }
+        }, 300);
+      }
+    }, [selectedSlug]);
 
   // Get unique types from all posts
   const availableTypes = useMemo(() => {
