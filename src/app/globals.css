@@ -50,3 +50,14 @@ html {
   opacity: 0;
   transform: translateY(50px);
 }
+
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
