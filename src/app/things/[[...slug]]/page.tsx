@@ -52,24 +52,20 @@ export async function generateStaticParams() {
     }));
 }
 
-type ThingsParams = { slug?: string[] };
+type Params = Promise<{ slug?: string[] }>;
 
-interface PageProps {
-  params: Promise<ThingsParams>;
-}
-
-export async function generateMetadata({ params }: PageProps) {
-  const awaitedParams = await params;
-  if (!awaitedParams.slug) {
+export async function generateMetadata({ params }: { params: Params }) {
+  const { slug } = await params;
+  if (!slug) {
     return {
       title: "Things",
       description: "Things I've made.",
     };
   }
 
-  const slug = awaitedParams.slug[0];
+  const currentSlug = slug[0];
   try {
-    const { metadata } = await import(`@/content/things/${slug}.mdx`);
+    const { metadata } = await import(`@/content/things/${currentSlug}.mdx`);
     return {
       title: metadata.title,
       description: metadata.excerpt || "",
@@ -79,8 +75,9 @@ export async function generateMetadata({ params }: PageProps) {
   }
 }
 
-export default async function Page({ params }: { params: { slug?: string[] } }) {
-  const selectedSlug = params.slug?.[0];
+export default async function Page({ params }: { params: Params }) {
+  const { slug } = await params;
+  const selectedSlug = slug?.[0];
   const posts = await getThings();
 
   if (selectedSlug && !posts.find((post) => post.slug === selectedSlug)) {
