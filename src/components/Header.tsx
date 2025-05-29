@@ -2,9 +2,9 @@
 import {
   SparklesIcon,
   AtSymbolIcon,
-  BookOpenIcon,
   ClipboardIcon,
   ClipboardDocumentCheckIcon,
+  CodeBracketIcon,
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
@@ -132,7 +132,7 @@ export default function Header() {
               }`}
               aria-label="Navigate to work"
             >
-              <SparklesIcon
+              <CodeBracketIcon
                 className={`transition-all duration-300 ${
                   activeSection === "work" ? "size-6" : "size-0"
                 }`}
@@ -149,7 +149,7 @@ export default function Header() {
               }`}
               aria-label="Navigate to blog"
             >
-              <BookOpenIcon
+              <SparklesIcon
                 className={`transition-all duration-300 ${
                   activeSection === "blog" ? "size-6" : "size-0"
                 }`}
