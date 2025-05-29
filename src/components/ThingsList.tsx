@@ -81,7 +81,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                 className="border border-white/5 bg-purple-50 rounded-4xl overflow-clip shadow-xl shadow-purple-900/10 transition-[background-color,box-shadow] duration-300"
               >
                 <Link
-                  href={isSelected ? "/blog" : `/blog/${post.slug}`}
+                  href={isSelected ? "/things" : `/things/${post.slug}`}
                   aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
                     post.title
                   }`}
