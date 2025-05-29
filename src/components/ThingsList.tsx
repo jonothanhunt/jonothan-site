@@ -40,23 +40,24 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   };
 
   useEffect(() => {
-    // Prevent the default scroll-to-top and implement smooth scrolling
     if (selectedSlug && selectedPostRef.current) {
-      if (document.documentElement.scrollTop > 0) {
-        window.history.scrollRestoration = "manual";
-      }
-
-      requestAnimationFrame(() => {
+      // Add a small delay to ensure content is fully rendered
+      const timeoutId = setTimeout(() => {
         const element = selectedPostRef.current;
         if (element) {
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - 80;
+          // Get the element's position relative to the viewport
+          const rect = element.getBoundingClientRect();
+          const absoluteElementTop = rect.top + window.pageYOffset;
+          
+          // Scroll to the element with offset
           window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth",
+            top: absoluteElementTop - 80, // 80px offset from top
+            behavior: 'smooth'
           });
         }
-      });
+      }, 300); // Small delay to ensure content is rendered
+
+      return () => clearTimeout(timeoutId);
     }
   }, [selectedSlug]);
 
