@@ -8,11 +8,10 @@ import {
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function Header() {
-  const router = useRouter();
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
@@ -84,13 +83,10 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
 
-  const scrollToSection = (sectionId: "home" | "about" | "work") => {
-    // If we're not on the home page, navigate there with hash
-    if (pathname !== "/") {
-      // Navigate to home page with hash fragment
-      router.push(`/#${sectionId}`);
-    } else {
-      // If already on home page, just scroll and update URL without reload
+  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: "home" | "about" | "work") => {
+    if (pathname === "/") {
+      // If already on home page, prevent default navigation and smooth scroll
+      e.preventDefault();
       const element = document.getElementById(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
@@ -98,16 +94,13 @@ export default function Header() {
         window.history.pushState(null, "", `/#${sectionId}`);
       }
     }
-  };
-
-  const handleThingsClick = () => {
-    router.push("/things");
+    // If not on home page, let Link handle the navigation
   };
 
   return (
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
       <nav aria-label="Main navigation">
-        <ul className="mx-auto py-1 px-2 w-fit flex justify-center items-center border border-white/20 bg-pink-200/80 backdrop-saturate-200 backdrop-blur-md rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-2xl shadow-pink-900/50">
+        <ul className="mx-auto py-1 px-2 w-fit h-12 flex justify-center items-center border border-white/20 bg-pink-200/80 backdrop-saturate-200 backdrop-blur-md rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-2xl shadow-pink-900/50">
           <li
             className={`${
               activeSection === "about"
@@ -115,18 +108,20 @@ export default function Header() {
                 : "opacity-100 w-26 ml-2"
             } text-2xl overflow-clip transition-all duration-700`}
           >
-            <button
-              onClick={() => scrollToSection("about")}
+            <Link
+              href="/#about"
+              onClick={(e) => handleSectionClick(e, "about")}
               aria-label="Navigate to home"
               className="cursor-pointer rounded-full pr-2 py-1 transition-all"
             >
               <span>Jonothan</span>
-            </button>
+            </Link>
           </li>
 
           <li>
-            <button
-              onClick={() => scrollToSection("work")}
+            <Link
+              href="/#work"
+              onClick={(e) => handleSectionClick(e, "work")}
               className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 ${
                 activeSection === "work" ? "bg-purple-100 border  px-3 shadow-xl shadow-purple-950/20" : "px-2"
               }`}
@@ -138,12 +133,12 @@ export default function Header() {
                 }`}
               />
               <span>Work</span>
-            </button>
+            </Link>
           </li>
 
           <li>
-            <button
-              onClick={handleThingsClick}
+            <Link
+              href="/things"
               className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer ${
                 activeSection === "blog" ? "bg-purple-100 px-3 shadow-xl shadow-purple-950/20" : "px-2"
               }`}
@@ -155,7 +150,7 @@ export default function Header() {
                 }`}
               />
               <span>Things</span>
-            </button>
+            </Link>
           </li>
 
           <li className="relative">
