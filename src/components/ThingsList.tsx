@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
@@ -13,25 +14,49 @@ interface ThingsListProps {
 }
 
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
-  const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const selectedPostRef = useRef<HTMLDivElement>(null);
 
+  // Initialize selected types from URL params
+  const [selectedTypes, setSelectedTypes] = useState<ThingType[]>(() => {
+    const types = searchParams.get("types")?.split(",") || [];
+    return types.filter((type): type is ThingType =>
+      initialPosts.some((post) => post.type.includes(type as ThingType))
+    );
+  });
+
+  // Update URL when filters change
+  const updateURLParams = (types: ThingType[]) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (types.length > 0) {
+      params.set("types", types.join(","));
+    } else {
+      params.delete("types");
+    }
+    const newPath =
+      window.location.pathname + (types.length ? `?${params}` : "");
+    router.replace(newPath);
+  };
+
   useEffect(() => {
-    // Only scroll if it's the initial load (URL navigation)
-    const isInitialLoad = window.location.pathname.includes(selectedSlug || "");
-    if (selectedSlug && selectedPostRef.current && isInitialLoad) {
-      // Add a small delay to ensure content is rendered
-      setTimeout(() => {
+    // Prevent the default scroll-to-top and implement smooth scrolling
+    if (selectedSlug && selectedPostRef.current) {
+      if (document.documentElement.scrollTop > 0) {
+        window.history.scrollRestoration = "manual";
+      }
+
+      requestAnimationFrame(() => {
         const element = selectedPostRef.current;
         if (element) {
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - 80; // 20 tailwind units = 80px
+          const offsetPosition = elementPosition + window.scrollY - 80;
           window.scrollTo({
             top: offsetPosition,
             behavior: "smooth",
           });
         }
-      }, 300);
+      });
     }
   }, [selectedSlug]);
 
@@ -49,13 +74,16 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
       : initialPosts;
 
   const handleTypeSelect = (type: ThingType) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
+    const newTypes = selectedTypes.includes(type)
+      ? selectedTypes.filter((t) => t !== type)
+      : [...selectedTypes, type];
+    setSelectedTypes(newTypes);
+    updateURLParams(newTypes);
   };
 
   const handleClearFilters = () => {
     setSelectedTypes([]);
+    updateURLParams([]);
   };
 
   return (
@@ -81,7 +109,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                 className="border border-white/5 bg-purple-50 rounded-4xl overflow-clip shadow-xl shadow-purple-900/10 transition-[background-color,box-shadow] duration-300"
               >
                 <Link
-                  href={isSelected ? "/things" : `/things/${post.slug}`}
+                  href={`${isSelected ? "/things" : `/things/${post.slug}`}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
                   aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
                     post.title
                   }`}
