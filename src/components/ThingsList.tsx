@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
@@ -15,12 +15,13 @@ interface ThingsListProps {
 
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const selectedPostRef = useRef<HTMLDivElement>(null);
 
-  // Initialize selected types from URL params
+  // Initialize selected types from URL
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>(() => {
-    const types = searchParams.get("types")?.split(",") || [];
+    if (typeof window === 'undefined') return [];
+    const params = new URLSearchParams(window.location.search);
+    const types = params.get("types")?.split(",") || [];
     return types.filter((type): type is ThingType =>
       initialPosts.some((post) => post.type.includes(type as ThingType))
     );
@@ -28,14 +29,14 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
 
   // Update URL when filters change
   const updateURLParams = (types: ThingType[]) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     if (types.length > 0) {
       params.set("types", types.join(","));
     } else {
       params.delete("types");
     }
-    const newPath =
-      window.location.pathname + (types.length ? `?${params}` : "");
+    const newPath = 
+      window.location.pathname + (params.toString() ? `?${params}` : "");
     router.replace(newPath);
   };
 
@@ -110,7 +111,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                 className="border border-white/5 bg-purple-50 rounded-4xl overflow-clip shadow-xl shadow-purple-900/10 transition-[background-color,box-shadow] duration-300"
               >
                 <Link
-                  href={`${isSelected ? "/things" : `/things/${post.slug}`}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
+                  href={`${isSelected ? "/things" : `/things/${post.slug}`}${typeof window !== 'undefined' ? window.location.search : ''}`}
                   aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
                     post.title
                   }`}
