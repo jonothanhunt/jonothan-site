@@ -16,24 +16,24 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
   const selectedPostRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      // Only scroll if it's the initial load (URL navigation)
-      const isInitialLoad = window.location.pathname.includes(selectedSlug || '');
-      if (selectedSlug && selectedPostRef.current && isInitialLoad) {
-        // Add a small delay to ensure content is rendered
-        setTimeout(() => {
-          const element = selectedPostRef.current;
-          if (element) {
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - 80; // 20 tailwind units = 80px
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth"
-            });
-          }
-        }, 300);
-      }
-    }, [selectedSlug]);
+  useEffect(() => {
+    // Only scroll if it's the initial load (URL navigation)
+    const isInitialLoad = window.location.pathname.includes(selectedSlug || "");
+    if (selectedSlug && selectedPostRef.current && isInitialLoad) {
+      // Add a small delay to ensure content is rendered
+      setTimeout(() => {
+        const element = selectedPostRef.current;
+        if (element) {
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - 80; // 20 tailwind units = 80px
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 300);
+    }
+  }, [selectedSlug]);
 
   // Get unique types from all posts
   const availableTypes = useMemo(() => {
@@ -61,12 +61,14 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   return (
     <main className="blog-list" role="main" aria-label="Blog posts">
       <div className="h-42" />
-      <FilterChips
-        selectedTypes={selectedTypes}
-        availableTypes={availableTypes}
-        onTypeSelect={handleTypeSelect}
-        onClearFilters={handleClearFilters}
-      />
+      <div className="max-w-3xl mx-auto pb-8 font-[family-name:var(--font-hyperlegible)]">
+        <FilterChips
+          selectedTypes={selectedTypes}
+          availableTypes={availableTypes}
+          onTypeSelect={handleTypeSelect}
+          onClearFilters={handleClearFilters}
+        />
+      </div>
       <div className="container max-w-3xl mx-auto pb-8 px-4 font-[family-name:var(--font-hyperlegible)]">
         <div className="space-y-8" role="feed" aria-label="Blog posts list">
           {filteredPosts.map((post) => {
