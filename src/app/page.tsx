@@ -45,6 +45,7 @@ export default function Home() {
       // Text animations with SplitText using the cleaner onSplit approach
       SplitText.create("#heading1", {
         type: "words, chars",
+        aria: "auto",
         onSplit(self) {
           gsap.from(self.words, {
             duration: 0.7,
@@ -61,6 +62,7 @@ export default function Home() {
 
       SplitText.create("#heading2", {
         type: "words, chars",
+        aria: "auto",
         onSplit(self) {
           gsap.from(self.words, {
             duration: 0.7,
@@ -77,6 +79,7 @@ export default function Home() {
 
       SplitText.create("#paragraph", {
         type: "words",
+        aria: "auto",
         onSplit(self) {
           gsap.from(self.words, {
             duration: 0.5,
@@ -146,22 +149,14 @@ export default function Home() {
             className="max-w-xl mx-6 flex flex-col gap-4 invisible"
           >
             <h1
-              id="heading1"
-              className="font-[family-name:var(--font-lastik)] text-7xl"
-              aria-label="auto"
+              className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col"
             >
-              <span>Hey, I&apos;m</span>
+              <span id="heading1">Hey, I&apos;m</span>
+              <span id="heading2">Jonothan.</span>
             </h1>
-            <span
-              id="heading2"
-              className="font-[family-name:var(--font-lastik)] text-7xl"
-            >
-              Jonothan.
-            </span>
             <p
               id="paragraph"
               className="text-2xl font-[family-name:var(--font-hyperlegible)] text-pretty"
-              aria-label="auto"
             >
               I&apos;m a creative developer creating innovative experiences for
               brands like HSBC and the NHS, leading our Creative Tech Studio at
