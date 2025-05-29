@@ -14,7 +14,7 @@ export function DynamicMDXContent({ slug }: { slug: string }) {
     setIsUnmounting(false);
     setComponent(null);
 
-    import(`@/content/blog/${slug}.mdx`).then((mod) => {
+    import(`@/content/things/${slug}.mdx`).then((mod) => {
       setComponent(() => mod.default);
     });
 

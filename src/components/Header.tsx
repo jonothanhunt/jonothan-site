@@ -23,7 +23,7 @@ export default function Header() {
     if (pathname === "/") {
       // When returning to home page, set initial section based on scroll position
       updateActiveSection();
-    } else if (pathname.startsWith("/blog")) {
+    } else if (pathname.startsWith("/things")) {
       setActiveSection("blog");
     }
   }, [pathname]);
@@ -101,7 +101,7 @@ export default function Header() {
   };
 
   const handleThingsClick = () => {
-    router.push("/blog");
+    router.push("/things");
   };
 
   return (
@@ -175,9 +175,9 @@ export default function Header() {
             </button>
 
             <div
-              className={`absolute mt-2 right-0 z-50 transition-all duration-300 ${
+              className={`absolute mt-2 right-0 z-50 transition-all duration-300 drop-shadow-purple-900/20 ${
                 showContactPopup
-                  ? "top-10 opacity-100 pointer-events-auto drop-shadow-xl drop-shadow-purple-950/20"
+                  ? "top-10 opacity-100 pointer-events-auto drop-shadow-2xl"
                   : "top-12 opacity-0 pointer-events-none drop-shadow-sm"
               }`}
             >

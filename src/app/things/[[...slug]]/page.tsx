@@ -5,7 +5,7 @@ import { ThingsList } from "@/components/ThingsList";
 
 // Helper function to get all blog posts with metadata
 async function getThings() {
-  const postsDirectory = path.join(process.cwd(), "src/content/blog");
+  const postsDirectory = path.join(process.cwd(), "src/content/things");
   const filenames = fs.readdirSync(postsDirectory);
 
   const posts = await Promise.all(
@@ -17,7 +17,7 @@ async function getThings() {
         const slug = filename.replace(/\.(mdx|md)$/, "");
 
         try {
-          const { metadata } = await import(`@/content/blog/${slug}.mdx`);
+          const { metadata } = await import(`@/content/things/${slug}.mdx`);
           return {
             slug,
             ...metadata,
@@ -41,7 +41,7 @@ async function getThings() {
 }
 
 export async function generateStaticParams() {
-  const postsDirectory = path.join(process.cwd(), "src/content/blog");
+  const postsDirectory = path.join(process.cwd(), "src/content/things");
   const filenames = fs.readdirSync(postsDirectory);
 
   return filenames
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   const slug = awaitedParams.slug[0];
   try {
-    const { metadata } = await import(`@/content/blog/${slug}.mdx`);
+    const { metadata } = await import(`@/content/things/${slug}.mdx`);
     return {
       title: metadata.title,
       description: metadata.excerpt || "",
