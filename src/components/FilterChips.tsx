@@ -24,7 +24,7 @@ export default function FilterChips({
         <button
           key={type}
           onClick={() => onTypeSelect(type)}
-          className={`px-3 py-2 rounded-full text-sm transition-all duration-300 ${
+          className={`px-3 py-2 rounded-full text-sm transition-all duration-300 border border-white/20 ${
             selectedTypes.includes(type)
               ? "bg-purple-800 text-white shadow-md shadow-purple-900/20 translate-y-[2px]"
               : "bg-pink-200/70 text-purple-950 shadow-xl shadow-pink-900/30 hover:bg-purple-300/50"
