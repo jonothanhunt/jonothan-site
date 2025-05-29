@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: 'https://jonothan.dev/blog',
+      url: 'https://jonothan.dev/things',
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.5,
