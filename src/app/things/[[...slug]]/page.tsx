@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
+// import { Suspense } from "react";
 import { ThingsList } from "@/components/ThingsList";
 
 // Helper function to get all blog posts with metadata
@@ -78,10 +79,20 @@ export async function generateMetadata({ params }: PageProps) {
   }
 }
 
-export default async function Thing({ params }: PageProps) {
+export default async function Page({ params }: { params: { slug?: string[] } }) {
+  const selectedSlug = params.slug?.[0];
   const posts = await getThings();
-  const awaitedParams = await params;
-  const selectedSlug = awaitedParams.slug?.[0];
 
-  return <ThingsList initialPosts={posts} selectedSlug={selectedSlug} />;
+  if (selectedSlug && !posts.find((post) => post.slug === selectedSlug)) {
+    notFound();
+  }
+
+  return (
+    <div>
+      <ThingsList 
+        initialPosts={posts} 
+        selectedSlug={selectedSlug} 
+      />
+    </div>
+  );
 }
