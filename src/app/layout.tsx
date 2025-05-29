@@ -35,9 +35,9 @@ export default function RootLayout({
         <main className="flex-1">
           {children}
         </main>
-        <footer className="mt-24 w-full dark:bg-gray-900 text-center py-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            &copy; {new Date().getFullYear()} Jonothan Hunt.
+        <footer className="mt-24 w-full text-center py-4">
+          <p className="text-sm text-purple-950/50">
+            &copy; {new Date().getFullYear()} Jonothan Hunt
           </p>
         </footer>
       </body>
