@@ -148,18 +148,20 @@ export default function Home() {
             <h1
               id="heading1"
               className="font-[family-name:var(--font-lastik)] text-7xl"
+              aria-label="auto"
             >
-              Hey, I&apos;m
+              <span>Hey, I&apos;m</span>
             </h1>
-            <h2
+            <span
               id="heading2"
               className="font-[family-name:var(--font-lastik)] text-7xl"
             >
               Jonothan.
-            </h2>
+            </span>
             <p
               id="paragraph"
               className="text-2xl font-[family-name:var(--font-hyperlegible)] text-pretty"
+              aria-label="auto"
             >
               I&apos;m a creative developer creating innovative experiences for
               brands like HSBC and the NHS, leading our Creative Tech Studio at

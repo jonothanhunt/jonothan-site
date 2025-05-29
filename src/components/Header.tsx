@@ -107,7 +107,7 @@ export default function Header() {
   return (
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
       <nav aria-label="Main navigation">
-        <ul className="mx-auto py-1 px-2 w-fit flex justify-center items-center bg-pink-200/70 backdrop-blur-3xl rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-2xl shadow-pink-900/50">
+        <ul className="mx-auto py-1 px-2 w-fit flex justify-center items-center border border-white/20 bg-pink-200/80 backdrop-saturate-200 backdrop-blur-md rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-2xl shadow-pink-900/50">
           <li
             className={`${
               activeSection === "about"
@@ -127,8 +127,8 @@ export default function Header() {
           <li>
             <button
               onClick={() => scrollToSection("work")}
-              className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer ${
-                activeSection === "work" ? "bg-purple-100 px-3 shadow-xl shadow-purple-950/20" : "px-2"
+              className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 ${
+                activeSection === "work" ? "bg-purple-100 border  px-3 shadow-xl shadow-purple-950/20" : "px-2"
               }`}
               aria-label="Navigate to work"
             >

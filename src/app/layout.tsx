@@ -17,7 +17,7 @@ const atkinsonHyperlegible = localFont({
 
 export const metadata: Metadata = {
   title: "Jonothan Hunt",
-  description: "Creative developer",
+  description: "Creative developer creating innovative experiences for brands",
 };
 
 export default function RootLayout({
