@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
-import FilterChips from "@/components/FilterChips";
+import { ThingsListFilters } from "@/components/ThingsListFilters";
 
 interface ThingsListProps {
   initialPosts: (ThingMetadata & { slug: string })[];
@@ -14,31 +13,8 @@ interface ThingsListProps {
 }
 
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
-  const router = useRouter();
   const selectedPostRef = useRef<HTMLDivElement>(null);
-
-  // Initialize selected types from URL
-  const [selectedTypes, setSelectedTypes] = useState<ThingType[]>(() => {
-    if (typeof window === 'undefined') return [];
-    const params = new URLSearchParams(window.location.search);
-    const types = params.get("types")?.split(",") || [];
-    return types.filter((type): type is ThingType =>
-      initialPosts.some((post) => post.type.includes(type as ThingType))
-    );
-  });
-
-  // Update URL when filters change
-  const updateURLParams = (types: ThingType[]) => {
-    const params = new URLSearchParams(window.location.search);
-    if (types.length > 0) {
-      params.set("types", types.join(","));
-    } else {
-      params.delete("types");
-    }
-    const newPath = 
-      window.location.pathname + (params.toString() ? `?${params}` : "");
-    router.replace(newPath);
-  };
+  const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
 
   useEffect(() => {
     if (selectedSlug && selectedPostRef.current) {
@@ -75,30 +51,15 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
         )
       : initialPosts;
 
-  const handleTypeSelect = (type: ThingType) => {
-    const newTypes = selectedTypes.includes(type)
-      ? selectedTypes.filter((t) => t !== type)
-      : [...selectedTypes, type];
-    setSelectedTypes(newTypes);
-    updateURLParams(newTypes);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedTypes([]);
-    updateURLParams([]);
-  };
-
   return (
     <main className="blog-list" role="main" aria-label="Blog posts">
       <div className="h-42" />
-      <div className="max-w-3xl mx-auto pb-8 font-[family-name:var(--font-hyperlegible)]">
-        <FilterChips
-          selectedTypes={selectedTypes}
+      <Suspense>
+        <ThingsListFilters
           availableTypes={availableTypes}
-          onTypeSelect={handleTypeSelect}
-          onClearFilters={handleClearFilters}
+          onFiltersChange={setSelectedTypes}
         />
-      </div>
+      </Suspense>
       <div className="container max-w-3xl mx-auto pb-8 px-4 font-[family-name:var(--font-hyperlegible)]">
         <div className="space-y-8" role="feed" aria-label="Blog posts list">
           {filteredPosts.map((post) => {
