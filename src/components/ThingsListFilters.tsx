@@ -41,7 +41,13 @@ export function ThingsListFilters({ availableTypes, onFiltersChange }: ThingsLis
     } else {
       params.delete("types");
     }
-    router.replace(`${pathname}${params.toString() ? `?${params}` : ""}`);
+    
+    // If we're viewing an article, redirect to the main list view
+    if (pathname !== "/things") {
+      router.push(`/things${params.toString() ? `?${params}` : ""}`);
+    } else {
+      router.replace(`${pathname}${params.toString() ? `?${params}` : ""}`);
+    }
   };
 
   const handleTypeSelect = (type: ThingType) => {
