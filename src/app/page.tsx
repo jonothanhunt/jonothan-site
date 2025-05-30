@@ -152,7 +152,7 @@ export default function Home() {
               className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col"
             >
               <span id="heading1">Hey, I&apos;m</span>
-              <span id="heading2">Jonothan.</span>
+              <span className="whitespace-nowrap" id="heading2">Jonothan.</span>
             </h1>
             <p
               id="paragraph"
@@ -160,7 +160,7 @@ export default function Home() {
             >
               I&apos;m a creative developer creating innovative experiences for
               brands like HSBC and the NHS, leading our Creative Tech Studio at
-              VML in the UK.
+              VML in London, UK.
             </p>
           </div>
         </section>
@@ -308,7 +308,7 @@ export default function Home() {
                       Waiting to Live
                     </p>
                     <p className="text-white text-md">
-                      Our campaign is increasing organ donation for the NHS.
+                      Our campaign is raising awareness of organ donation for the NHS.
                     </p>
                   </div>
                 </Link>
