@@ -32,15 +32,15 @@ export const metadata: Metadata = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Jonothan Hunt",
-  alternateName: "Jonathan Hunt",
-  url: "https://jonothan.dev",
-  jobTitle: "Creative Developer",
-  sameAs: [
-    // Add your real social URLs if you want
-    "https://www.linkedin.com/in/jonothanhunt/",
-  ],
+  "@type": "ProfilePage",
+  mainEntity: {
+    "@type": "Person",
+    name: "Jonothan Hunt",
+    alternateName: "Jonathan Hunt",
+    url: "https://jonothan.dev",
+    jobTitle: "Creative Developer",
+    sameAs: ["https://www.linkedin.com/in/jonothanhunt/"],
+  },
 };
 
 export default function RootLayout({
