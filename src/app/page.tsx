@@ -52,7 +52,7 @@ export default function Home() {
             y: 50,
             opacity: 0,
             rotation: "random(-30, 30)",
-            filter: "blur(4px)",
+            // filter: "blur(4px)",
             stagger: 0.15,
             ease: "back",
             delay: 0.2,
@@ -69,7 +69,7 @@ export default function Home() {
             y: 50,
             opacity: 0,
             rotation: "random(-30, 30)",
-            filter: "blur(4px)",
+            // filter: "blur(4px)",
             stagger: 0.15,
             ease: "back",
             delay: 0.8,
@@ -85,7 +85,7 @@ export default function Home() {
             duration: 0.5,
             y: 30,
             opacity: 0,
-            filter: "blur(2px)",
+            // filter: "blur(2px)",
             stagger: 0.03,
             ease: "power2.out",
             delay: 1.5,
@@ -106,7 +106,7 @@ export default function Home() {
       gsap.set(elements, {
         y: 50,
         opacity: 0,
-        filter: "blur(4px)",
+        // filter: "blur(4px)",
       });
 
       // Create animations for each element
@@ -115,7 +115,7 @@ export default function Home() {
         gsap.to(element, {
           y: 0,
           opacity: 1,
-          filter: "blur(0px)",
+          // filter: "blur(0px)",
           duration: 0.8,
           ease: "power2.out",
           scrollTrigger: {
