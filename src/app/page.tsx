@@ -10,6 +10,7 @@ import {
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head";
 
 // GSAP imports
 import gsap from "gsap";
@@ -132,336 +133,361 @@ export default function Home() {
   );
 
   return (
-    <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
-      <div
-        className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"
-        aria-hidden="true"
-      ></div>
-      <SplashCursor />
-      <main ref={mainRef}>
-        {/* About section */}
-        <section
-          id="about"
-          className="relative min-h-[calc(100vh-180px)] w-full flex flex-col items-center py-20 justify-center"
-        >
-          <div
-            ref={textContainerRef}
-            className="max-w-xl mx-6 flex flex-col gap-4 invisible"
+    <>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: "Jonothan Hunt",
+              alternateName: "Jonathan Hunt",
+              url: "https://jonothan.dev",
+              image: "https://jonothan.dev/images/jonothan_profile.jpeg", // replace with your real image URL
+              jobTitle: "Creative Developer",
+              worksFor: {
+                "@type": "Organization",
+                name: "VML",
+              },
+              sameAs: ["https://www.linkedin.com/in/jonothan"],
+            }),
+          }}
+        />
+      </Head>
+      <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
+        <div
+          className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"
+          aria-hidden="true"
+        ></div>
+        <SplashCursor />
+        <main ref={mainRef}>
+          {/* About section */}
+          <section
+            id="about"
+            className="relative min-h-[calc(100vh-180px)] w-full flex flex-col items-center py-20 justify-center"
           >
-            <h1
-              className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col"
+            <div
+              ref={textContainerRef}
+              className="max-w-xl mx-6 flex flex-col gap-4 invisible"
             >
-              <span id="heading1">Hey, I&apos;m</span>
-              <span className="whitespace-nowrap" id="heading2">Jonothan.</span>
-            </h1>
-            <p
-              id="paragraph"
-              className="text-2xl font-[family-name:var(--font-hyperlegible)] text-pretty"
-            >
-              I&apos;m a creative developer creating innovative experiences for
-              brands like HSBC and the NHS, leading our Creative Tech Studio at
-              VML in London, UK.
-            </p>
-          </div>
-        </section>
+              <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col">
+                <span id="heading1">Hey, I&apos;m</span>
+                <span className="whitespace-nowrap" id="heading2">
+                  Jonothan.
+                </span>
+              </h1>
+              <p
+                id="paragraph"
+                className="text-2xl font-[family-name:var(--font-hyperlegible)] text-pretty"
+              >
+                I&apos;m a creative developer creating innovative experiences
+                for brands like HSBC and the NHS, leading our Creative Tech
+                Studio at VML in London, UK.
+              </p>
+            </div>
+          </section>
 
-        <section
-          id="work"
-          className="px-4 scroll-mt-20"
-          aria-labelledby="work-heading"
-        >
-          <h2 id="work-heading" className="sr-only">
-            My Work
-          </h2>
-          <div className="relative max-w-6xl mx-auto">
-            {/* Work with me section */}
-            <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip">
-              <div className="absolute top-0 left-0 w-full h-full">
-                <Image
-                  src="/images/home/work_with_me.webp"
-                  alt="Decorative background for contact section"
-                  fill
-                  style={{ objectFit: "cover", objectPosition: "right" }}
-                />
+          <section
+            id="work"
+            className="px-4 scroll-mt-20"
+            aria-labelledby="work-heading"
+          >
+            <h2 id="work-heading" className="sr-only">
+              My Work
+            </h2>
+            <div className="relative max-w-6xl mx-auto">
+              {/* Work with me section */}
+              <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip">
+                <div className="absolute top-0 left-0 w-full h-full">
+                  <Image
+                    src="/images/home/work_with_me.webp"
+                    alt="Decorative background for contact section"
+                    fill
+                    style={{ objectFit: "cover", objectPosition: "right" }}
+                  />
+                </div>
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent bg-cover bg-center" />
+                <div className="z-10 flex flex-col gap-4">
+                  <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white">
+                    Let&apos;s chat!
+                  </h3>
+                  <p className="text-white text-lg max-w-96 text-pretty">
+                    Book me for a talk or I&apos;m always down to chat about
+                    exciting projects, especially immersive web (WebGL, shaders)
+                    and mixed reality!
+                  </p>
+                  <div className={`flex gap-1 text-xl h-full`}>
+                    <Link
+                      href="mailto:hey@jonothan.dev"
+                      className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer"
+                      aria-label="Email me at hey@jonothan.dev"
+                    >
+                      hey@jonothan.dev
+                    </Link>
+                    <button
+                      aria-label={
+                        copied
+                          ? "Email copied to clipboard"
+                          : "Copy my email to clipboard"
+                      }
+                      className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer"
+                      onClick={() => {
+                        navigator.clipboard.writeText("hey@jonothan.dev");
+                        setCopied(true);
+                        setTimeout(() => {
+                          setCopied(false);
+                        }, 5000);
+                      }}
+                    >
+                      {copied ? (
+                        <ClipboardDocumentCheckIcon
+                          className="h-5 w-5 text-purple-950"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <ClipboardIcon
+                          className="h-5 w-5 text-purple-950"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent bg-cover bg-center" />
-              <div className="z-10 flex flex-col gap-4">
-                <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white">
-                  Let&apos;s chat!
-                </h3>
-                <p className="text-white text-lg max-w-96 text-pretty">
-                  Book me for a talk or I&apos;m always down to chat about
-                  exciting projects, especially immersive web (WebGL, shaders)
-                  and mixed reality!
-                </p>
-                <div className={`flex gap-1 text-xl h-full`}>
-                  <Link
-                    href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer"
-                    aria-label="Email me at hey@jonothan.dev"
-                  >
-                    hey@jonothan.dev
-                  </Link>
-                  <button
-                    aria-label={
-                      copied
-                        ? "Email copied to clipboard"
-                        : "Copy my email to clipboard"
-                    }
-                    className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer"
-                    onClick={() => {
-                      navigator.clipboard.writeText("hey@jonothan.dev");
-                      setCopied(true);
-                      setTimeout(() => {
-                        setCopied(false);
-                      }, 5000);
+
+              <div className="h-4" />
+
+              <div className="relative grid grid-cols-1 md:grid-cols-[1fr_minmax(0,_2fr)_minmax(0,_2fr)_1fr] md:grid-rows-4 gap-4 h-full w-full">
+                {/* Canvas */}
+                <div
+                  ref={canvasRef}
+                  className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip"
+                  aria-label="Desk scene in 3D!"
+                  role="img"
+                >
+                  <Canvas
+                    // eventPrefix="client"
+                    dpr={[1, 1]}
+                    orthographic
+                    camera={{
+                      zoom: 350,
+                      near: 0.1,
+                      far: 1000,
+                      position: [-1.65, 1.6, 3.5],
+                      rotation: [-0.42, -0.4, -0.1],
                     }}
+                    gl={{
+                      alpha: true,
+                      antialias: true,
+                      premultipliedAlpha: false,
+                    }}
+                    style={{ background: "transparent" }}
+                    aria-hidden="true"
                   >
-                    {copied ? (
-                      <ClipboardDocumentCheckIcon
-                        className="h-5 w-5 text-purple-950"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <ClipboardIcon
-                        className="h-5 w-5 text-purple-950"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </button>
+                    <Suspense fallback={null}>
+                      <color attach="background" args={["black"]} />
+                      <ambientLight intensity={0.1} />
+                      <directionalLight position={[0, 10, 5]} intensity={3.2} />
+                      <Model canvasRef={canvasRef} />
+                      <EffectComposer>
+                        <N8AO
+                          quality="performance"
+                          aoRadius={100}
+                          distanceFalloff={0.4}
+                          intensity={4}
+                          screenSpaceRadius
+                          color={[0.6, 0.0, 0.8]}
+                        />
+                      </EffectComposer>
+                    </Suspense>
+                  </Canvas>
+                </div>
+
+                {/* Campaign */}
+                <div ref={campaignRef} className="col-span-1 md:col-start-4">
+                  <Link
+                    href="https://waitingtolive.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    aria-labelledby="waiting-to-live-title"
+                  >
+                    <Image
+                      src="/images/home/waiting_to_live.webp"
+                      alt="The doll of Ralph sitting on a bench, waiting."
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "center" }}
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/50 to-purple-950" />
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                      Campaign
+                    </div>
+                    <div className="z-10 flex flex-col gap-2">
+                      <p
+                        id="waiting-to-live-title"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                      >
+                        Waiting to Live
+                      </p>
+                      <p className="text-white text-md">
+                        Our campaign is raising awareness of organ donation for
+                        the NHS.
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* HSBC Vault */}
+                <div
+                  ref={hsbcRef}
+                  className="col-span-1 md:col-start-4 md:row-start-2"
+                >
+                  <Link
+                    href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
+                    aria-labelledby="hsbc-vault-title"
+                  >
+                    <Image
+                      src="/images/home/hsbc_vault.webp"
+                      alt="The HSBC Vault installation in waterloo station."
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "center" }}
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-950/50 to-orange-950" />
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                      Installation
+                    </div>
+                    <div className="z-10 flex flex-col gap-2">
+                      <p
+                        id="hsbc-vault-title"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                      >
+                        HSBC Vault
+                      </p>
+                      <p className="text-white text-md">
+                        My team and I created the software running HSBC&apos;s
+                        Vault experience.
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* TikTok Views Highlight */}
+                <div
+                  ref={tiktokRef}
+                  className="col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3"
+                >
+                  <Link
+                    href="https://vm.tiktok.com/ZNdr68mku/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
+                    aria-labelledby="tiktok-views-title"
+                  >
+                    <Image
+                      src="/images/home/effects.jpeg"
+                      alt="Background showing TikTok effects"
+                      fill
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                        opacity: 0.2,
+                      }}
+                    />
+                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                      Latest
+                    </div>
+                    <p
+                      id="tiktok-views-title"
+                      className="z-10 max-w-xl text-3xl md:text-6xl text-white font-[family-name:var(--font-lastik)]"
+                    >
+                      Views of TikTok videos using my camera effects have
+                      reached{" "}
+                      <span className="inline-block font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2 py-2">
+                        8,773,773,403
+                      </span>
+                      !
+                    </p>
+                  </Link>
+                </div>
+
+                {/* Supermarket Scan */}
+                <div
+                  ref={supermarketRef}
+                  className="col-span-1 md:col-start-1 md:row-start-3"
+                >
+                  <Link
+                    href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
+                    aria-labelledby="supermarket-scan-title"
+                  >
+                    <Image
+                      src="/images/home/tiktok_live_supermarket_scan.webp"
+                      alt="YouTube thumbnail for the live stream showing my face and the title."
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "top" }}
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950" />
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                      Tutorial
+                    </div>
+                    <div className="z-10 flex flex-col gap-2">
+                      <p
+                        id="supermarket-scan-title"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                      >
+                        How I made the viral Supermarket Scan effect
+                      </p>
+                      <p className="text-white text-md text-pretty">
+                        Coding live with Celine on Effect House&apos;s YouTube
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Magpie App */}
+                <div ref={magpieRef} className="col-span-1 md:row-start-4">
+                  <Link
+                    href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
+                    aria-labelledby="magpie-app-title"
+                  >
+                    <Image
+                      src="/images/home/magpie_app.webp"
+                      alt="Screenshot of the Magpie app showing mentor profiles."
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "top" }}
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950" />
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                      App
+                    </div>
+                    <div className="z-10 flex flex-col gap-2">
+                      <p
+                        id="magpie-app-title"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                      >
+                        Magpie: VML&apos;s award-winning mentorship app
+                      </p>
+                      <p className="text-white text-md text-pretty">
+                        I developed our mentorship app built for Microsoft
+                        Teams.
+                      </p>
+                    </div>
+                  </Link>
                 </div>
               </div>
             </div>
+          </section>
 
-            <div className="h-4" />
-
-            <div className="relative grid grid-cols-1 md:grid-cols-[1fr_minmax(0,_2fr)_minmax(0,_2fr)_1fr] md:grid-rows-4 gap-4 h-full w-full">
-              {/* Canvas */}
-              <div
-                ref={canvasRef}
-                className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip"
-                aria-label="Desk scene in 3D!"
-                role="img"
-              >
-                <Canvas
-                  // eventPrefix="client"
-                  dpr={[1, 1]}
-                  orthographic
-                  camera={{
-                    zoom: 350,
-                    near: 0.1,
-                    far: 1000,
-                    position: [-1.65, 1.6, 3.5],
-                    rotation: [-0.42, -0.4, -0.1],
-                  }}
-                  gl={{
-                    alpha: true,
-                    antialias: true,
-                    premultipliedAlpha: false,
-                  }}
-                  style={{ background: "transparent" }}
-                  aria-hidden="true"
-                >
-                  <Suspense fallback={null}>
-                    <color attach="background" args={["black"]} />
-                    <ambientLight intensity={0.1} />
-                    <directionalLight position={[0, 10, 5]} intensity={3.2} />
-                    <Model canvasRef={canvasRef} />
-                    <EffectComposer>
-                      <N8AO
-                        quality="performance"
-                        aoRadius={100}
-                        distanceFalloff={0.4}
-                        intensity={4}
-                        screenSpaceRadius
-                        color={[0.6, 0.0, 0.8]}
-                      />
-                    </EffectComposer>
-                  </Suspense>
-                </Canvas>
-              </div>
-
-              {/* Campaign */}
-              <div ref={campaignRef} className="col-span-1 md:col-start-4">
-                <Link
-                  href="https://waitingtolive.org/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
-                  aria-labelledby="waiting-to-live-title"
-                >
-                  <Image
-                    src="/images/home/waiting_to_live.webp"
-                    alt="The doll of Ralph sitting on a bench, waiting."
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center" }}
-                  />
-                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/50 to-purple-950" />
-                  <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
-                    Campaign
-                  </div>
-                  <div className="z-10 flex flex-col gap-2">
-                    <p
-                      id="waiting-to-live-title"
-                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
-                    >
-                      Waiting to Live
-                    </p>
-                    <p className="text-white text-md">
-                      Our campaign is raising awareness of organ donation for the NHS.
-                    </p>
-                  </div>
-                </Link>
-              </div>
-
-              {/* HSBC Vault */}
-              <div
-                ref={hsbcRef}
-                className="col-span-1 md:col-start-4 md:row-start-2"
-              >
-                <Link
-                  href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
-                  aria-labelledby="hsbc-vault-title"
-                >
-                  <Image
-                    src="/images/home/hsbc_vault.webp"
-                    alt="The HSBC Vault installation in waterloo station."
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center" }}
-                  />
-                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-950/50 to-orange-950" />
-                  <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
-                    Installation
-                  </div>
-                  <div className="z-10 flex flex-col gap-2">
-                    <p
-                      id="hsbc-vault-title"
-                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
-                    >
-                      HSBC Vault
-                    </p>
-                    <p className="text-white text-md">
-                      My team and I created the software running HSBC&apos;s
-                      Vault experience.
-                    </p>
-                  </div>
-                </Link>
-              </div>
-
-              {/* TikTok Views Highlight */}
-              <div
-                ref={tiktokRef}
-                className="col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3"
-              >
-                <Link
-                  href="https://vm.tiktok.com/ZNdr68mku/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
-                  aria-labelledby="tiktok-views-title"
-                >
-                  <Image
-                    src="/images/home/effects.jpeg"
-                    alt="Background showing TikTok effects"
-                    fill
-                    style={{
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      opacity: 0.2,
-                    }}
-                  />
-                  <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
-                    Latest
-                  </div>
-                  <p
-                    id="tiktok-views-title"
-                    className="z-10 max-w-xl text-3xl md:text-6xl text-white font-[family-name:var(--font-lastik)]"
-                  >
-                    Views of TikTok videos using my camera effects have reached{" "}
-                    <span className="inline-block font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2 py-2">
-                      8,773,773,403
-                    </span>
-                    !
-                  </p>
-                </Link>
-              </div>
-
-              {/* Supermarket Scan */}
-              <div
-                ref={supermarketRef}
-                className="col-span-1 md:col-start-1 md:row-start-3"
-              >
-                <Link
-                  href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
-                  aria-labelledby="supermarket-scan-title"
-                >
-                  <Image
-                    src="/images/home/tiktok_live_supermarket_scan.webp"
-                    alt="YouTube thumbnail for the live stream showing my face and the title."
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "top" }}
-                  />
-                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950" />
-                  <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
-                    Tutorial
-                  </div>
-                  <div className="z-10 flex flex-col gap-2">
-                    <p
-                      id="supermarket-scan-title"
-                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
-                    >
-                      How I made the viral Supermarket Scan effect
-                    </p>
-                    <p className="text-white text-md text-pretty">
-                      Coding live with Celine on Effect House&apos;s YouTube
-                    </p>
-                  </div>
-                </Link>
-              </div>
-
-              {/* Magpie App */}
-              <div ref={magpieRef} className="col-span-1 md:row-start-4">
-                <Link
-                  href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
-                  aria-labelledby="magpie-app-title"
-                >
-                  <Image
-                    src="/images/home/magpie_app.webp"
-                    alt="Screenshot of the Magpie app showing mentor profiles."
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "top" }}
-                  />
-                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950" />
-                  <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
-                    App
-                  </div>
-                  <div className="z-10 flex flex-col gap-2">
-                    <p
-                      id="magpie-app-title"
-                      className="font-[family-name:var(--font-lastik)] text-2xl text-white"
-                    >
-                      Magpie: VML&apos;s award-winning mentorship app
-                    </p>
-                    <p className="text-white text-md text-pretty">
-                      I developed our mentorship app built for Microsoft Teams.
-                    </p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* <section
+          {/* <section
           id="blog"
           className="h-lvh scroll-mt-20"
           aria-labelledby="blog-heading"
@@ -473,7 +499,8 @@ export default function Home() {
             <p className="max-w-96 text-4xl">Coming soon!</p>
           </div>
         </section> */}
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }

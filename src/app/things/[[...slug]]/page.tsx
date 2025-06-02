@@ -3,6 +3,7 @@ import path from "path";
 import { notFound } from "next/navigation";
 // import { Suspense } from "react";
 import { ThingsList } from "@/components/ThingsList";
+import Head from "next/head";
 
 // Helper function to get all blog posts with metadata
 async function getThings() {
@@ -30,7 +31,7 @@ async function getThings() {
             title: slug,
             date: new Date().toISOString(),
             excerpt: "",
-            type: "Post" // Default type
+            type: "Post", // Default type
           };
         }
       })
@@ -69,6 +70,10 @@ export async function generateMetadata({ params }: { params: Params }) {
     return {
       title: metadata.title,
       description: metadata.excerpt || "",
+      keywords: [
+        "Jonothan Hunt Blog",
+        "Jonathan Hunt Blog",
+      ],
     };
   } catch {
     return notFound();
@@ -84,12 +89,30 @@ export default async function Page({ params }: { params: Params }) {
     notFound();
   }
 
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Things I've Made",
+    description: "Things I've made.",
+    url: "https://jonothan.dev/things",
+    author: {
+      "@type": "Person",
+      name: "Jonothan Hunt",
+      url: "https://jonothan.dev",
+    },
+  };
+
   return (
-    <div>
-      <ThingsList 
-        initialPosts={posts} 
-        selectedSlug={selectedSlug} 
-      />
-    </div>
+    <>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
+        />
+      </Head>
+      <div>
+        <ThingsList initialPosts={posts} selectedSlug={selectedSlug} />
+      </div>
+    </>
   );
 }

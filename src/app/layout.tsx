@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Head from "next/head";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "../components/Header";
@@ -30,19 +29,6 @@ export const metadata: Metadata = {
   ],
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfilePage",
-  mainEntity: {
-    "@type": "Person",
-    name: "Jonothan Hunt",
-    alternateName: "Jonathan Hunt",
-    url: "https://jonothan.dev",
-    jobTitle: "Creative Developer",
-    sameAs: ["https://www.linkedin.com/in/jonothanhunt/"],
-  },
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -50,12 +36,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </Head>
       <body
         className={`${lastik.variable} ${atkinsonHyperlegible.variable} antialiased min-h-screen h-full flex flex-col`}
       >
