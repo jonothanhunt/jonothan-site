@@ -17,6 +17,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
+import InfiniteScrollingLogosAnimation from "@/components/InfiniteScrollingLogosAnimation";
 
 // Register the plugins
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -31,6 +32,7 @@ export default function Home() {
   const tiktokRef = useRef(null);
   const supermarketRef = useRef(null);
   const magpieRef = useRef(null);
+  const awardsRef = useRef(null);
 
   // Ref for the text container to prevent FOUC
   const textContainerRef = useRef(null);
@@ -93,6 +95,21 @@ export default function Home() {
           });
         },
       });
+
+      // Animate awards
+      if (awardsRef.current) {
+        const awardsLinks = (awardsRef.current as HTMLElement).children;
+        gsap.set(awardsRef.current, { autoAlpha: 1 }); // Make visible but still transparent
+        gsap.from(awardsLinks, {
+          duration: 0.5,
+          scale: 0.8,
+          opacity: 0,
+          y: 20,
+          stagger: 0.15,
+          ease: "back.out(1.7)",
+          delay: 2.3, // Start after paragraph animation
+        });
+      }
 
       // Set initial state for scroll elements
       const elements = [
@@ -165,7 +182,7 @@ export default function Home() {
           {/* About section */}
           <section
             id="about"
-            className="relative min-h-[calc(100vh-180px)] w-full flex flex-col items-center py-20 justify-center"
+            className="relative min-h-[calc(100vh-300px)] w-full flex flex-col items-center py-20 justify-center"
           >
             <div
               ref={textContainerRef}
@@ -185,6 +202,45 @@ export default function Home() {
                 for brands like HSBC and the NHS, leading our Creative Tech
                 Studio at VML in London, UK.
               </p>
+              <div ref={awardsRef} className="w-full flex justify-start items-center gap-4 mt-4 opacity-0">
+                <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
+                  <Image
+                    src="/images/logos/cannes_lions_logo.svg"
+                    alt="Cannes Lions logo"
+                    width={200}
+                    height={200}
+                    className="w-8"
+                  />
+                </Link>
+                <Link
+                  href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
+                  className="relative w-8 mr-2"
+                >
+                  <Image
+                    src="/images/logos/newblood_white_pencil.svg"
+                    alt="D&AD New Blood White Pencil"
+                    width={200}
+                    height={200}
+                    className="w-7"
+                  />
+                  <Image
+                    src="/images/logos/dad_logo.svg"
+                    alt="D&AD logo"
+                    width={200}
+                    height={200}
+                    className="absolute -bottom-2 -right-2 w-6 z-10"
+                  />
+                </Link>
+                <Link href="https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie">
+                  <Image
+                    src="/images/logos/the_drum_logo.jpeg"
+                    alt="The Drum logo"
+                    width={200}
+                    height={200}
+                    className="w-8"
+                  />
+                </Link>
+              </div>
             </div>
           </section>
 
@@ -197,6 +253,9 @@ export default function Home() {
               My Work
             </h2>
             <div className="relative max-w-6xl mx-auto">
+              {/* Logos */}
+              <InfiniteScrollingLogosAnimation />
+              <div className="h-12" />
               {/* Work with me section */}
               <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip">
                 <div className="absolute top-0 left-0 w-full h-full">
