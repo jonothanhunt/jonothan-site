@@ -27,6 +27,44 @@ export default function Header() {
     }
   }, [pathname]);
 
+  // Close contact popup when clicking outside
+  useEffect(() => {
+    if (!showContactPopup) return;
+
+    let clickHandler: (e: MouseEvent) => void;
+
+    // Wait a bit before adding the click handler to avoid immediate closing
+    const timeoutId = setTimeout(() => {
+      clickHandler = (e: MouseEvent) => {
+        const target = e.target as Element;
+        const isCopyButton =
+          target.closest('button[aria-label="Email copied to clipboard"]') ||
+          target.closest('button[aria-label="Copy my email to clipboard"]');
+
+        // Only proceed if the click is outside both contact button and popup
+        if (
+          !target.closest('button[aria-label="Contact"]') &&
+          !target.closest('div[class*="fixed mt-2 right-4"]')
+        ) {
+          // For clicks on copy button, the button's onClick handler will manage the timing
+          if (!isCopyButton && !copied) {
+            // For other clicks (and not during copy feedback period), close immediately
+            setShowContactPopup(false);
+          }
+        }
+      };
+
+      document.addEventListener("click", clickHandler);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (clickHandler) {
+        document.removeEventListener("click", clickHandler);
+      }
+    };
+  }, [showContactPopup, copied]);
+
   // Handle URL hash for scrolling when the component mounts or URL changes
   useEffect(() => {
     // Check if there's a hash in the URL
@@ -83,7 +121,10 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
 
-  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: "home" | "about" | "work") => {
+  const handleSectionClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    sectionId: "home" | "about" | "work"
+  ) => {
     if (pathname === "/") {
       // If already on home page, prevent default navigation and smooth scroll
       e.preventDefault();
@@ -99,116 +140,145 @@ export default function Header() {
 
   return (
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
-      <nav aria-label="Main navigation">
-        <ul className="mx-auto py-1 px-2 w-fit h-12 flex justify-center items-center border border-white/20 bg-pink-200/80 backdrop-saturate-200 backdrop-blur-md rounded-full font-[family-name:var(--font-lastik)] text-purple-950 shadow-2xl shadow-pink-900/50">
-          <li
-            className={`${
-              activeSection === "about"
-                ? "opacity-0 w-0 ml-0 mr-0"
-                : "opacity-100 w-26 ml-2"
-            } text-2xl overflow-clip transition-all duration-700`}
-          >
-            <Link
-              href="/#about"
-              onClick={(e) => handleSectionClick(e, "about")}
-              aria-label="Navigate to home"
-              className="cursor-pointer rounded-full pr-2 py-1 transition-all"
+      <nav aria-label="Main navigation" className="relative">
+        {/* Glass Container */}
+        <div className="relative flex items-center bg-transparent rounded-full overflow-visible flex-1 shadow-xl shadow-purple-700/10 text-purple-950 transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,2.2)] mx-auto w-fit">
+          {/* Glass Filter - SVG displacement effect */}
+          <div className="absolute inset-0 rounded-full z-0 backdrop-blur-[3px] [filter:url(#lensFilter)_saturate(120%)]"></div>
+          {/* Glass Overlay - Semi-transparent background */}
+          <div className="absolute inset-0 rounded-full z-[1] bg-pink-200/70"></div>
+          {/* Glass Specular - Edge highlight effect */}
+          <div className="absolute inset-0 rounded-full z-[2] shadow-[inset_1px_1px_0_rgba(255,255,255,0.40),inset_0_0_5px_rgba(255,255,255,0.40)]"></div>
+          {/* Glass Content - Actual nav items */}
+          <ul className="relative z-[3] flex flex-1 items-center mx-auto py-1 px-2 w-fit h-12 justify-center font-[family-name:var(--font-lastik)] text-purple-950">
+            <li
+              className={`${
+                activeSection === "about"
+                  ? "opacity-0 w-0 ml-0 mr-0"
+                  : "opacity-100 w-26 ml-2"
+              } text-2xl overflow-clip transition-all duration-700`}
             >
-              <span>Jonothan</span>
-            </Link>
-          </li>
+              <Link
+                href="/#about"
+                onClick={(e) => handleSectionClick(e, "about")}
+                aria-label="Navigate to home"
+                className="cursor-pointer rounded-full pr-2 py-1 transition-all h-8 flex items-center"
+              >
+                <span>Jonothan</span>
+              </Link>
+            </li>
 
-          <li>
-            <Link
-              href="/#work"
-              onClick={(e) => handleSectionClick(e, "work")}
-              className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 ${
-                activeSection === "work" ? "bg-purple-100 border  px-3 shadow-xl shadow-purple-950/20" : "px-2"
-              }`}
-              aria-label="Navigate to work"
-            >
-              <CodeBracketIcon
-                className={`transition-all duration-300 ${
-                  activeSection === "work" ? "size-6" : "size-0"
+            <li>
+              <Link
+                href="/#work"
+                onClick={(e) => handleSectionClick(e, "work")}
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 h-8 ${
+                  activeSection === "work"
+                    ? "bg-purple-50/60 border px-3 shadow-xl shadow-purple-700/10"
+                    : "px-2"
                 }`}
-              />
-              <span>Work</span>
-            </Link>
-          </li>
+                aria-label="Navigate to work"
+              >
+                <CodeBracketIcon
+                  className={`transition-all duration-300 ${
+                    activeSection === "work" ? "size-6" : "size-0"
+                  }`}
+                />
+                <span>Work</span>
+              </Link>
+            </li>
 
-          <li>
-            <Link
-              href="/things"
-              className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer ${
-                activeSection === "blog" ? "bg-purple-100 px-3 shadow-xl shadow-purple-950/20" : "px-2"
-              }`}
-              aria-label="Navigate to blog"
-            >
-              <SparklesIcon
-                className={`transition-all duration-300 ${
-                  activeSection === "blog" ? "size-6" : "size-0"
+            <li>
+              <Link
+                href="/things"
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 ${
+                  activeSection === "blog"
+                    ? "bg-purple-50/60 px-3 shadow-xl shadow-purple-700/10"
+                    : "px-2"
                 }`}
-              />
-              <span>Things</span>
-            </Link>
-          </li>
+                aria-label="Navigate to blog"
+              >
+                <SparklesIcon
+                  className={`transition-all duration-300 ${
+                    activeSection === "blog" ? "size-6" : "size-0"
+                  }`}
+                />
+                <span>Things</span>
+              </Link>
+            </li>
 
-          <li className="relative">
-            <button
-              onClick={() => setShowContactPopup(!showContactPopup)}
-              className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer ${
-                showContactPopup ? "bg-purple-100 px-3 ml-2 shadow-xl shadow-purple-950/20" : "px-2 ml-0"
-              }`}
-              aria-label="Contact"
-            >
-              <AtSymbolIcon
-                className={`transition-all duration-300 ${
-                  showContactPopup ? "size-6" : "size-0"
+            <li className="relative">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation(); // Prevent event bubbling
+                  setShowContactPopup(!showContactPopup);
+                  console.log(
+                    "Contact button clicked, popup state:",
+                    !showContactPopup
+                  ); // Debug log
+                }}
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 ${
+                  showContactPopup
+                    ? "bg-purple-50/60 px-3 ml-2 shadow-xl shadow-purple-700/10"
+                    : "px-2 ml-0"
                 }`}
-              />
-              <span>Contact</span>
-            </button>
+                aria-label="Contact"
+              >
+                <AtSymbolIcon
+                  className={`transition-all duration-300 ${
+                    showContactPopup ? "size-6" : "size-0"
+                  }`}
+                />
+                <span>Contact</span>
+              </button>
 
-            <div
-              className={`absolute mt-2 right-0 z-50 transition-all duration-300 drop-shadow-purple-900/20 ${
-                showContactPopup
-                  ? "top-10 opacity-100 pointer-events-auto drop-shadow-2xl"
-                  : "top-12 opacity-0 pointer-events-none drop-shadow-sm"
-              }`}
-            >
-              <div className="flex gap-1 text-xl drop-shadow-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
-                <Link
-                  href="mailto:hey@jonothan.dev"
-                  className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer"
-                  aria-label="Email me at hey@jonothan.dev"
-                >
-                  hey@jonothan.dev
-                </Link>
-                <button
-                  aria-label={
-                    copied
-                      ? "Email copied to clipboard"
-                      : "Copy my email to clipboard"
-                  }
-                  className="inline-flex items-center justify-center bg-purple-50  px-3 py-2 rounded-r-lg transition-all cursor-pointer"
-                  onClick={() => {
-                    navigator.clipboard.writeText("hey@jonothan.dev");
-                    setCopied(true);
-                    setTimeout(() => {
-                      setCopied(false);
-                    }, 5000);
-                  }}
-                >
-                  {copied ? (
-                    <ClipboardDocumentCheckIcon className="h-5 w-5 text-purple-950" />
-                  ) : (
-                    <ClipboardIcon className="h-5 w-5 text-purple-950" />
-                  )}
-                </button>
+              <div
+                className={`absolute right-0 z-[100] flex items-center bg-purple-50/80 backdrop-blur-[6px] rounded-lg overflow-visible shadow-xl shadow-purple-700/20 transition-all duration-300 ${
+                  showContactPopup
+                    ? "top-12 opacity-100 pointer-events-auto translate-y-0"
+                    : "top-16 opacity-0 pointer-events-none translate-y-1"
+                }`}
+              >
+                <div className="relative z-[3] flex gap-1 text-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
+                  <Link
+                    href="mailto:hey@jonothan.dev"
+                    className="inline-flex items-center text-purple-950 text-base px-3 py-2 transition-all cursor-pointer"
+                    aria-label="Email me at hey@jonothan.dev"
+                  >
+                    hey@jonothan.dev
+                  </Link>
+                  <button
+                    aria-label={
+                      copied
+                        ? "Email copied to clipboard"
+                        : "Copy my email to clipboard"
+                    }
+                    className="inline-flex items-center justify-center px-3 py-2 transition-all hover:bg-purple-50 active:bg-purple-50 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent closing popup when clicking copy button
+                      navigator.clipboard.writeText("hey@jonothan.dev");
+                      setCopied(true);
+
+                      // Set a timeout to clear the copied state and close the popup after 1 second
+                      setTimeout(() => {
+                        setCopied(false);
+                        setShowContactPopup(false); // Actually close the popup
+                      }, 1000);
+                    }}
+                  >
+                    {copied ? (
+                      <ClipboardDocumentCheckIcon className="h-5 w-5 text-purple-950" />
+                    ) : (
+                      <ClipboardIcon className="h-5 w-5 text-purple-950" />
+                    )}
+                  </button>
+                </div>
+                {/* </div> */}
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </nav>
     </header>
   );

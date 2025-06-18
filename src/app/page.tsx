@@ -10,7 +10,6 @@ import {
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import Image from "next/image";
 import Link from "next/link";
-import Head from "next/head";
 
 // GSAP imports
 import gsap from "gsap";
@@ -58,7 +57,7 @@ export default function Home() {
             // filter: "blur(4px)",
             stagger: 0.15,
             ease: "back",
-            delay: 0.2,
+            delay: 0.1,
           });
         },
       });
@@ -75,7 +74,7 @@ export default function Home() {
             // filter: "blur(4px)",
             stagger: 0.15,
             ease: "back",
-            delay: 0.8,
+            delay: 0.4,
           });
         },
       });
@@ -91,7 +90,7 @@ export default function Home() {
             // filter: "blur(2px)",
             stagger: 0.03,
             ease: "power2.out",
-            delay: 1.5,
+            delay: 0.8,
           });
         },
       });
@@ -107,7 +106,7 @@ export default function Home() {
           y: 20,
           stagger: 0.15,
           ease: "back.out(1.7)",
-          delay: 2.3, // Start after paragraph animation
+          delay: 1.6, // Start after paragraph animation
         });
       }
 
@@ -151,27 +150,6 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Person",
-              name: "Jonothan Hunt",
-              alternateName: "Jonathan Hunt",
-              url: "https://jonothan.dev",
-              image: "https://jonothan.dev/images/jonothan_profile.jpeg", // replace with your real image URL
-              jobTitle: "Creative Developer",
-              worksFor: {
-                "@type": "Organization",
-                name: "VML",
-              },
-              sameAs: ["https://www.linkedin.com/in/jonothan"],
-            }),
-          }}
-        />
-      </Head>
       <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
         <div
           className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"
@@ -196,13 +174,16 @@ export default function Home() {
               </h1>
               <p
                 id="paragraph"
-                className="text-2xl font-[family-name:var(--font-hyperlegible)] text-pretty"
+                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] text-pretty"
               >
-                I&apos;m a creative developer creating innovative experiences
-                for brands like HSBC and the NHS, leading our Creative Tech
-                Studio at VML in London, UK.
+                I&apos;m a creative developer creating innovative, award-winning
+                experiences for brands like HSBC and the NHS, leading our
+                Creative Tech Studio at VML in London, UK.
               </p>
-              <div ref={awardsRef} className="w-full flex justify-start items-center gap-4 mt-4 opacity-0">
+              <div
+                ref={awardsRef}
+                className="w-full flex justify-start items-center gap-4 mt-4 opacity-0"
+              >
                 <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
                   <Image
                     src="/images/logos/cannes_lions_logo.svg"
@@ -255,14 +236,15 @@ export default function Home() {
             <div className="relative max-w-6xl mx-auto">
               {/* Logos */}
               <InfiniteScrollingLogosAnimation />
-              <div className="h-12" />
+              <div className="h-8" />
               {/* Work with me section */}
               <div className="h-72 bg-purple-50 rounded-4xl relative p-10 flex flex-col justify-center overflow-clip">
-                <div className="absolute top-0 left-0 w-full h-full">
+                <div className="inset-0 w-full h-full">
                   <Image
                     src="/images/home/work_with_me.webp"
                     alt="Decorative background for contact section"
                     fill
+                    priority
                     style={{ objectFit: "cover", objectPosition: "right" }}
                   />
                 </div>
@@ -276,41 +258,43 @@ export default function Home() {
                     exciting projects, especially immersive web (WebGL, shaders)
                     and mixed reality!
                   </p>
-                  <div className={`flex gap-1 text-xl h-full`}>
-                    <Link
-                      href="mailto:hey@jonothan.dev"
-                      className="inline-flex items-center text-purple-950 bg-purple-50 text-base px-3 py-2 rounded-l-lg transition-all cursor-pointer"
-                      aria-label="Email me at hey@jonothan.dev"
-                    >
-                      hey@jonothan.dev
-                    </Link>
-                    <button
-                      aria-label={
-                        copied
-                          ? "Email copied to clipboard"
-                          : "Copy my email to clipboard"
-                      }
-                      className="inline-flex items-center justify-center bg-purple-50 px-3 py-2 rounded-r-lg transition-all cursor-pointer"
-                      onClick={() => {
-                        navigator.clipboard.writeText("hey@jonothan.dev");
-                        setCopied(true);
-                        setTimeout(() => {
-                          setCopied(false);
-                        }, 5000);
-                      }}
-                    >
-                      {copied ? (
-                        <ClipboardDocumentCheckIcon
-                          className="h-5 w-5 text-purple-950"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <ClipboardIcon
-                          className="h-5 w-5 text-purple-950"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </button>
+                  <div className="flex items-center">
+                    <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
+                      <Link
+                        href="mailto:hey@jonothan.dev"
+                        className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer"
+                        aria-label="Email me at hey@jonothan.dev"
+                      >
+                        hey@jonothan.dev
+                      </Link>
+                      <button
+                        aria-label={
+                          copied
+                            ? "Email copied to clipboard"
+                            : "Copy my email to clipboard"
+                        }
+                        className="inline-flex items-center justify-center bg-purple-50/90 backdrop-blur-[2px] px-3 py-2 transition-all cursor-pointer hover:bg-purple-50 active:bg-purple-50"
+                        onClick={() => {
+                          navigator.clipboard.writeText("hey@jonothan.dev");
+                          setCopied(true);
+                          setTimeout(() => {
+                            setCopied(false);
+                          }, 1000);
+                        }}
+                      >
+                        {copied ? (
+                          <ClipboardDocumentCheckIcon
+                            className="h-5 w-5 text-purple-950"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <ClipboardIcon
+                            className="h-5 w-5 text-purple-950"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

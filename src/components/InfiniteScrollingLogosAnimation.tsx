@@ -18,9 +18,9 @@ const CompanyLogoData: Array<{ src: string; alt: string }> = [
 
 const InfiniteScrollingLogosAnimation = () => {
   return (
-    <div className="container p-5">
+    <div className="p-5 w-full">
         <div 
-          className="flex relative overflow-hidden" 
+          className="flex relative overflow-hidden pointer-events-none select-none" 
           style={{
             WebkitMask: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)',
             mask: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)'
@@ -34,7 +34,7 @@ const InfiniteScrollingLogosAnimation = () => {
             }}
             initial={{ translateX: 0 }}
             animate={{ translateX: '-50%' }}
-            className="flex flex-none gap-16 pr-16"
+            className="flex flex-none gap-12 pr-12"
           >
             {[...new Array(2)].fill(0).map((_, index) => (
               <React.Fragment key={index}>
