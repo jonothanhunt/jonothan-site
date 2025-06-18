@@ -158,10 +158,12 @@ export default function Home() {
         <SplashCursor />
         <main ref={mainRef}>
           {/* About section */}
+          
           <section
             id="about"
-            className="relative min-h-[calc(100vh-300px)] w-full flex flex-col items-center py-20 justify-center"
+            className="relative min-h-[calc(100vh-250px)] w-full flex flex-col items-center py-20 justify-center"
           >
+            <div className="h-12"/>
             <div
               ref={textContainerRef}
               className="max-w-xl mx-6 flex flex-col gap-4 invisible"
