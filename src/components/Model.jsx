@@ -17,6 +17,19 @@ import {
 import * as THREE from "three";
 import { Floor } from "./Floor";
 
+// WebGL detection utility
+const isWebGLAvailable = () => {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+    );
+  } catch (e) {
+    return false;
+  }
+};
+
 // Global loading manager setup
 const loadingManager = new THREE.LoadingManager();
 let totalItems = 0;
@@ -49,7 +62,7 @@ const TEXTURE_PATHS = {
   effectHouse: "/images/desk/effect_house.png",
   reactLogo: "/images/desk/react_logo.png",
   nextjsLogo: "/images/desk/nextjs_logo.png",
-  threeLogo: "/images/desk/three_logo.png",
+  threeLogo: "/images/desk/touchdesigner_logo.png",
   touchdesignerLogo: "/images/desk/touchdesigner_logo.png",
   blenderBadge: "/images/desk/blender_badge.png",
 };
@@ -432,6 +445,47 @@ const BackgroundPortal = React.memo(({ position, rotation }) => {
 BackgroundPortal.displayName = "BackgroundPortal";
 
 export function Model(props) {
+  // State to track if WebGL is available
+  const [webGLAvailable, setWebGLAvailable] = useState(true);
+
+  // Check WebGL availability on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWebGLAvailable(isWebGLAvailable());
+    }
+  }, []);
+
+  // If WebGL is not available, show a fallback
+  if (!webGLAvailable) {
+    return (
+      <div style={{ 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '20px',
+        textAlign: 'center'
+      }}>
+        <div style={{ 
+          padding: '20px', 
+          backgroundColor: 'rgba(0,0,0,0.05)', 
+          borderRadius: '8px',
+          maxWidth: '600px'
+        }}>
+          <h2 style={{ marginBottom: '1rem' }}>3D Experience Not Available</h2>
+          <p>
+            Your browser or device doesn't support WebGL, which is required for the 3D experience.
+            This could be due to outdated graphics drivers or hardware limitations.
+          </p>
+          <p style={{ marginTop: '1rem' }}>
+            Try updating your graphics drivers or using a different browser like Chrome or Edge.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const { onLoadingProgress, onLoadingComplete, ...otherProps } = props;
   const { progress } = useProgress();
   const [loadingStarted, setLoadingStarted] = useState(false);
