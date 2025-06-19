@@ -28,7 +28,7 @@ const InfiniteScrollingLogosAnimation = () => {
         >
           <motion.div
             transition={{
-              duration: 120,
+              duration: 60,
               ease: 'linear',
               repeat: Infinity,
             }}
