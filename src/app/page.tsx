@@ -1,8 +1,9 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState, useEffect } from "react";
 import Model from "../components/Model";
 import SplashCursor from "../components/SplashCursor";
+import ErrorBoundary from "../components/ErrorBoundary";
 import {
   ClipboardIcon,
   ClipboardDocumentCheckIcon,
@@ -21,8 +22,42 @@ import InfiniteScrollingLogosAnimation from "@/components/InfiniteScrollingLogos
 // Register the plugins
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
+// WebGL detection utility
+const isWebGLAvailable = () => {
+  try {
+    if (typeof window === 'undefined') return true; // SSR check
+    
+    const canvas = document.createElement('canvas');
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    );
+  } catch {
+    return false;
+  }
+};
+
+// Fallback component for 3D section
+const WebGL3DFallback = () => (
+  <div className="w-full h-[500px] flex items-center justify-center text-center p-4 bg-purple-50 rounded-lg">
+    <div className="max-w-md">
+      <h2 className="text-xl font-semibold mb-2">3D Experience Not Available</h2>
+      <p className="mb-3">Your browser or device doesn&apos;t support WebGL, which is required for the 3D experience.</p>
+      <p>Try updating your graphics drivers or using a different browser like Chrome or Edge.</p>
+    </div>
+  </div>
+);
+
 export default function Home() {
   const [copied, setCopied] = useState(false);
+  const [webGLSupported, setWebGLSupported] = useState(true);
+
+  useEffect(() => {
+    // Check WebGL support on client-side only
+    if (typeof window !== 'undefined') {
+      setWebGLSupported(isWebGLAvailable());
+    }
+  }, []);
 
   // Create refs for all the elements you want to animate
   const canvasRef = useRef(null);
@@ -311,42 +346,58 @@ export default function Home() {
                   aria-label="Desk scene in 3D!"
                   role="img"
                 >
-                  <Canvas
-                    // eventPrefix="client"
-                    dpr={[1, 1]}
-                    orthographic
-                    camera={{
-                      zoom: 350,
-                      near: 0.1,
-                      far: 1000,
-                      position: [-1.65, 1.6, 3.5],
-                      rotation: [-0.42, -0.4, -0.1],
-                    }}
-                    gl={{
-                      alpha: true,
-                      antialias: true,
-                      premultipliedAlpha: false,
-                    }}
-                    style={{ background: "transparent" }}
-                    aria-hidden="true"
-                  >
-                    <Suspense fallback={null}>
-                      <color attach="background" args={["black"]} />
-                      <ambientLight intensity={0.1} />
-                      <directionalLight position={[0, 10, 5]} intensity={3.2} />
-                      <Model canvasRef={canvasRef} />
-                      <EffectComposer>
-                        <N8AO
-                          quality="performance"
-                          aoRadius={100}
-                          distanceFalloff={0.4}
-                          intensity={4}
-                          screenSpaceRadius
-                          color={[0.6, 0.0, 0.8]}
-                        />
-                      </EffectComposer>
-                    </Suspense>
-                  </Canvas>
+                  {webGLSupported ? (
+                    <ErrorBoundary fallback={<WebGL3DFallback />}>
+                      <Canvas
+                        onCreated={({ gl }) => {
+                          // Add enhanced WebGL error handling
+                          const canvas = gl.domElement;
+                          canvas.addEventListener('webglcontextlost', (e: Event) => {
+                            e.preventDefault();
+                            console.error('WebGL context lost');
+                            setWebGLSupported(false);
+                          });
+                        }}
+                        dpr={[1, 1]}
+                        orthographic
+                        camera={{
+                          zoom: 350,
+                          near: 0.1,
+                          far: 1000,
+                          position: [-1.65, 1.6, 3.5],
+                          rotation: [-0.42, -0.4, -0.1],
+                        }}
+                        gl={{
+                          alpha: true,
+                          antialias: true,
+                          premultipliedAlpha: false,
+                          failIfMajorPerformanceCaveat: false, // Try to render even with performance issues
+                          powerPreference: 'default', // Let browser decide best GPU
+                        }}
+                        style={{ background: "transparent" }}
+                        aria-hidden="true"
+                      >
+                        <Suspense fallback={null}>
+                          <color attach="background" args={["black"]} />
+                          <ambientLight intensity={0.1} />
+                          <directionalLight position={[0, 10, 5]} intensity={3.2} />
+                          <Model canvasRef={canvasRef} />
+                          <EffectComposer>
+                            <N8AO
+                              quality="performance"
+                              aoRadius={100}
+                              distanceFalloff={0.4}
+                              intensity={4}
+                              screenSpaceRadius
+                              color={[0.6, 0.0, 0.8]}
+                            />
+                          </EffectComposer>
+                        </Suspense>
+                      </Canvas>
+                    </ErrorBoundary>
+                  ) : (
+                    <WebGL3DFallback />
+                  )}
                 </div>
 
                 {/* Campaign */}
