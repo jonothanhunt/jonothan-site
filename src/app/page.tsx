@@ -354,7 +354,7 @@ export default function Home() {
                           const canvas = gl.domElement;
                           canvas.addEventListener('webglcontextlost', (e: Event) => {
                             e.preventDefault();
-                            console.error('WebGL context lost');
+                            // console.error('WebGL context lost');
                             setWebGLSupported(false);
                           });
                         }}
