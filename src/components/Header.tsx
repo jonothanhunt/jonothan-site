@@ -142,7 +142,7 @@ export default function Header() {
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
       <nav aria-label="Main navigation" className="relative">
         {/* Glass Container */}
-        <div className="relative flex items-center bg-transparent rounded-full overflow-visible flex-1 shadow-xl shadow-purple-700/10 text-purple-950 transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,2.2)] mx-auto w-fit">
+        <div className="relative flex items-center bg-transparent rounded-full overflow-visible flex-1 shadow-2xl shadow-pink-900/30 text-purple-950 transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,2.2)] mx-auto w-fit">
           {/* Glass Filter - SVG displacement effect */}
           <div className="absolute inset-0 rounded-full z-0 backdrop-blur-[3px] [filter:url(#lensFilter)_saturate(120%)]"></div>
           {/* Glass Overlay - Semi-transparent background */}
