@@ -13,10 +13,10 @@ const nextConfig = {
         // Apply these headers to all routes
         source: '/:path*',
         headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none';",
-          },
+          // {
+          //   key: 'Content-Security-Policy',
+          //   value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none';",
+          // },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
@@ -29,10 +29,10 @@ const nextConfig = {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          }
+          // {
+          //   key: 'Referrer-Policy',
+          //   value: 'origin-when-cross-origin',
+          // }
         ],
       },
     ];
