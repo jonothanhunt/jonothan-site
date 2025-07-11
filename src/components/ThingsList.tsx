@@ -74,7 +74,7 @@ const ArticleItem = memo(({
             <div 
               className="absolute inset-0 rounded-xl border border-white z-0"
               style={{
-                background: 'linear-gradient(25deg, rgb(243 232 255) 0%, rgb(243 232 255 / 1.0) 30%, rgb(243 232 255 / 0.9) 60%, rgb(243 232 255 / 0.8) 85%, rgb(255 255 255 / 0.6) 100%)'
+                background: 'linear-gradient(25deg, rgb(243 232 255) 0%, rgb(243 232 255 / 1.0) 30%, rgb(243 232 255 / 0.8) 60%, rgb(243 232 255 / 0.8) 85%, rgb(255 255 255 / 0.8) 100%)'
               }}
             />
           ) : (
@@ -116,9 +116,8 @@ const ArticleItem = memo(({
           {/* Title - always after metadata with guaranteed gap */}
           <h2
             className={`relative z-10 font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-balance ${
-              post.image ? "mt-auto" : "mt-4"
+              post.image ? "mt-12" : "mt-4"
             }`}
-            style={post.image ? { marginTop: 'max(3rem, auto)' } : undefined}
             tabIndex={isSelected ? 0 : -1}
             ref={(node) => {
               if (node && isSelected) {
