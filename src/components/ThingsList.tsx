@@ -63,7 +63,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
           onFiltersChange={setSelectedTypes}
         />
       </Suspense>
-      <div className="container max-w-3xl mx-auto pb-8 px-4 font-[family-name:var(--font-hyperlegible)]">
+      <div className="container max-w-3xl mx-auto pb-8 px-4 font-[family-name:var(--font-hyperlegible)] overflow-hidden">
         <div className="space-y-8" role="feed" aria-label="Blog posts list">
           {filteredPosts.map((post) => {
             const isSelected = post.slug === selectedSlug;
@@ -173,7 +173,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                             alt=""
                             fill
                             sizes="(max-width: 768px) 100vw, 768px"
-                            quality={30}
+                            quality={1}
                             className="object-cover"
                             priority={false}
                           />
