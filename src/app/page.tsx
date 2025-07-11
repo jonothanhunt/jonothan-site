@@ -82,7 +82,7 @@ export default function Home() {
       gsap.set(textContainerRef.current, { autoAlpha: 1 });
 
       // Text animations with SplitText using the cleaner onSplit approach
-      SplitText.create("#heading1", {
+      /* SplitText.create("#heading1", {
         type: "words, chars",
         aria: "auto",
         onSplit(self) {
@@ -130,10 +130,10 @@ export default function Home() {
             delay: 0.8,
           });
         },
-      });
+      }); */
 
       // Animate awards
-      if (awardsRef.current) {
+      /* if (awardsRef.current) {
         const awardsLinks = (awardsRef.current as HTMLElement).children;
         gsap.set(awardsRef.current, { autoAlpha: 1 }); // Make visible but still transparent
         gsap.from(awardsLinks, {
@@ -145,7 +145,7 @@ export default function Home() {
           ease: "back.out(1.7)",
           delay: 1.6, // Start after paragraph animation
         });
-      }
+      } */
 
       // Set initial state for scroll elements
       const elements = [
@@ -221,7 +221,7 @@ export default function Home() {
               </p>
               <div
                 ref={awardsRef}
-                className="w-full flex justify-start items-center gap-4 mt-4 opacity-0"
+                className="w-full flex justify-start items-center gap-4 mt-4"
               >
                 <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
                   <Image
