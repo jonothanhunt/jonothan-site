@@ -149,8 +149,33 @@ export default function Header() {
           <div className="absolute inset-0 rounded-full z-[1] bg-pink-200/70"></div>
           {/* Glass Specular - Edge highlight effect */}
           <div className="absolute inset-0 rounded-full z-[2] shadow-[inset_1px_1px_0_rgba(255,255,255,0.40),inset_0_0_5px_rgba(255,255,255,0.40)]"></div>
+          {/* Cursor Glow Effect */}
+          <div 
+            className="absolute inset-0 rounded-full z-[1.5] pointer-events-none opacity-0 transition-opacity duration-300"
+            style={{
+              background: 'radial-gradient(circle 160px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 1.0) 25%, rgba(255, 255, 255, 0.5) 50%, transparent 80%)'
+            }}
+          ></div>
           {/* Glass Content - Actual nav items */}
-          <ul className="relative z-[3] flex flex-1 items-center mx-auto py-1 px-2 w-fit h-12 justify-center font-[family-name:var(--font-lastik)] text-purple-950">
+          <ul className="relative z-[3] flex flex-1 items-center mx-auto py-1 px-2 w-fit h-12 justify-center font-[family-name:var(--font-lastik)] text-purple-950"
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                const glowElement = e.currentTarget.parentElement?.querySelector('.absolute.inset-0.rounded-full.z-\\[1\\.5\\]') as HTMLElement;
+                if (glowElement) {
+                  glowElement.style.setProperty('--mouse-x', `${x}%`);
+                  glowElement.style.setProperty('--mouse-y', `${y}%`);
+                  glowElement.style.opacity = '1';
+                }
+              }}
+              onMouseLeave={(e) => {
+                const glowElement = e.currentTarget.parentElement?.querySelector('.absolute.inset-0.rounded-full.z-\\[1\\.5\\]') as HTMLElement;
+                if (glowElement) {
+                  glowElement.style.opacity = '0';
+                }
+              }}
+          >
             <li
               className={`${
                 activeSection === "about"
@@ -162,7 +187,7 @@ export default function Header() {
                 href="/#about"
                 onClick={(e) => handleSectionClick(e, "about")}
                 aria-label="Navigate to home"
-                className="cursor-pointer rounded-full pr-2 py-1 transition-all h-8 flex items-center"
+                className="cursor-pointer rounded-full pr-2 py-1 transition-all h-8 flex items-center hover:text-black"
               >
                 <span>Jonothan</span>
               </Link>
@@ -172,7 +197,7 @@ export default function Header() {
               <Link
                 href="/#work"
                 onClick={(e) => handleSectionClick(e, "work")}
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 h-8 ${
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 h-8 hover:text-black ${
                   activeSection === "work"
                     ? "bg-purple-50/60 border px-3 shadow-xl shadow-purple-700/10"
                     : "px-2"
@@ -191,7 +216,7 @@ export default function Header() {
             <li>
               <Link
                 href="/things"
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 ${
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 hover:text-black ${
                   activeSection === "blog"
                     ? "bg-purple-50/60 px-3 shadow-xl shadow-purple-700/10"
                     : "px-2"
@@ -218,7 +243,7 @@ export default function Header() {
                     !showContactPopup
                   ); // Debug log
                 }}
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 ${
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 hover:text-black ${
                   showContactPopup
                     ? "bg-purple-50/60 px-3 ml-2 shadow-xl shadow-purple-700/10"
                     : "px-2 ml-0"
