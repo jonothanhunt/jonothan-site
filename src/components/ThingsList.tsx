@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect, useRef, Suspense, memo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
@@ -13,6 +12,18 @@ interface ThingsListProps {
   initialPosts: (ThingMetadata & { slug: string })[];
   selectedSlug?: string;
 }
+
+// Custom comparison function to prevent unnecessary re-renders
+const arePropsEqual = (
+  prevProps: { post: ThingMetadata & { slug: string }; isSelected: boolean; selectedPostRef: React.RefObject<HTMLDivElement | null> | null; glowHandlers: ReturnType<typeof createGlowEffect> },
+  nextProps: { post: ThingMetadata & { slug: string }; isSelected: boolean; selectedPostRef: React.RefObject<HTMLDivElement | null> | null; glowHandlers: ReturnType<typeof createGlowEffect> }
+) => {
+  return (
+    prevProps.post.slug === nextProps.post.slug &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.glowHandlers === nextProps.glowHandlers
+  );
+};
 
 // Memoized article component to prevent unnecessary re-renders
 const ArticleItem = memo(({ 
@@ -30,7 +41,7 @@ const ArticleItem = memo(({
     <article
       key={post.slug}
       ref={isSelected ? selectedPostRef : undefined}
-      className={`border border-white/10 ${
+      className={` ${
         post.image ? "min-h-42" : ""
       }
         
@@ -44,18 +55,37 @@ const ArticleItem = memo(({
         aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
           post.title
         }`}
+        className={post.image ? "relative block overflow-hidden rounded-xl" : "block rounded-xl"}
+        style={post.image ? {
+          backgroundImage: `url(${post.image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        } : undefined}
       >
         <div
           className={`relative flex flex-col p-5 ${
-            post.image ? "min-h-42 gap-4" : "gap-4"
+            post.image ? "min-h-42" : ""
           }`}
           {...glowHandlers}
         >
+          {/* Combined background overlay for images */}
+          {post.image ? (
+            <div 
+              className="absolute inset-0 rounded-xl border border-white z-0"
+              style={{
+                background: 'linear-gradient(25deg, rgb(243 232 255) 0%, rgb(243 232 255 / 1.0) 30%, rgb(243 232 255 / 0.9) 60%, rgb(243 232 255 / 0.8) 85%, rgb(255 255 255 / 0.6) 100%)'
+              }}
+            />
+          ) : (
+            <div className="absolute inset-0 rounded-xl border border-white bg-white/20 -z-10" />
+          )}
+
           {/* Cursor Glow Effect */}
-          <GlowEffect className="z-[1.5]" />
+          <GlowEffect className="absolute inset-0 z-[15] pointer-events-none" />
           {/* Metadata tags and date - always top left */}
           <div
-            className="z-10 flex flex-wrap gap-2 self-start"
+            className="z-10 relative flex flex-wrap gap-2 self-start"
             aria-label="Post metadata"
           >
             {post.type.map((type) => (
@@ -85,9 +115,10 @@ const ArticleItem = memo(({
 
           {/* Title - always after metadata with guaranteed gap */}
           <h2
-            className={`relative z-[3] font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-balance ${
-              post.image ? "z-10 mt-auto" : ""
+            className={`relative z-10 font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-balance ${
+              post.image ? "mt-auto" : "mt-4"
             }`}
+            style={post.image ? { marginTop: 'max(3rem, auto)' } : undefined}
             tabIndex={isSelected ? 0 : -1}
             ref={(node) => {
               if (node && isSelected) {
@@ -110,46 +141,6 @@ const ArticleItem = memo(({
           >
             {post.title}
           </h2>
-
-          {/* Background image with overlay */}
-          <div className="absolute -z-10 inset-0 rounded-xl border border-white bg-white/20" />
-          {post.image ? (
-            <div
-              key={`bg-${post.slug}`}
-              className="absolute -z-10 will-change-transform pointer-events-none"
-              style={{
-                top: "-32px",
-                left: "max(-32px, calc(-50vw + 50%))",
-                right: "max(-32px, calc(-50vw + 50%))",
-                bottom: "-32px",
-                filter: "blur(32px)",
-                opacity: 0.5,
-              }}
-            >
-              <div className="absolute inset-4">
-                <Image
-                  key={`img-${post.slug}`}
-                  src={post.image}
-                  alt=""
-                  fill
-                  sizes="(max-width: 768px) 100vw, 768px"
-                  quality={1}
-                  className="object-cover"
-                  priority={false}
-                  placeholder="empty"
-                />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(to top, rgba(243, 232, 255, 0.95) 0%, rgba(243, 232, 255, 0.8) 40%, rgba(243, 232, 255, 0.3) 70%, transparent 90%), linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1))",
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            <></>
-          )}
         </div>
       </Link>
       {isSelected && (
@@ -159,14 +150,20 @@ const ArticleItem = memo(({
       )}
     </article>
   );
-});
+}, arePropsEqual);
 
 ArticleItem.displayName = 'ArticleItem';
 
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const selectedPostRef = useRef<HTMLDivElement>(null);
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
-  const glowHandlers = useMemo(() => createGlowEffect(), []);
+  const glowHandlersRef = useRef<ReturnType<typeof createGlowEffect> | null>(null);
+  
+  if (!glowHandlersRef.current) {
+    glowHandlersRef.current = createGlowEffect();
+  }
+  
+  const glowHandlers = glowHandlersRef.current;
 
   useEffect(() => {
     if (selectedSlug && selectedPostRef.current) {
