@@ -1,12 +1,8 @@
 import type { MDXComponents } from "mdx/types";
 import Image from "next/image";
-// import CodepenEmbed from './src/components/CodepenEmbed';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
-    // Custom components
-    //   CodepenEmbed,
-
     // Override HTML elements
     h1: ({ children }) => (
       <h1 className="font-[family-name:var(--font-lastik)] text-3xl text-black text-pretty pt-4 pb-5">

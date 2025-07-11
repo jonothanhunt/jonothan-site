@@ -81,71 +81,7 @@ export default function Home() {
       // First set the container to be visible with GSAP
       gsap.set(textContainerRef.current, { autoAlpha: 1 });
 
-      // Text animations with SplitText using the cleaner onSplit approach
-      /* SplitText.create("#heading1", {
-        type: "words, chars",
-        aria: "auto",
-        onSplit(self) {
-          gsap.from(self.words, {
-            duration: 0.7,
-            y: 50,
-            opacity: 0,
-            rotation: "random(-30, 30)",
-            // filter: "blur(4px)",
-            stagger: 0.15,
-            ease: "back",
-            delay: 0.1,
-          });
-        },
-      });
 
-      SplitText.create("#heading2", {
-        type: "words, chars",
-        aria: "auto",
-        onSplit(self) {
-          gsap.from(self.words, {
-            duration: 0.7,
-            y: 50,
-            opacity: 0,
-            rotation: "random(-30, 30)",
-            // filter: "blur(4px)",
-            stagger: 0.15,
-            ease: "back",
-            delay: 0.4,
-          });
-        },
-      });
-
-      SplitText.create("#paragraph", {
-        type: "words",
-        aria: "auto",
-        onSplit(self) {
-          gsap.from(self.words, {
-            duration: 0.5,
-            y: 30,
-            opacity: 0,
-            // filter: "blur(2px)",
-            stagger: 0.03,
-            ease: "power2.out",
-            delay: 0.8,
-          });
-        },
-      }); */
-
-      // Animate awards
-      /* if (awardsRef.current) {
-        const awardsLinks = (awardsRef.current as HTMLElement).children;
-        gsap.set(awardsRef.current, { autoAlpha: 1 }); // Make visible but still transparent
-        gsap.from(awardsLinks, {
-          duration: 0.5,
-          scale: 0.8,
-          opacity: 0,
-          y: 20,
-          stagger: 0.15,
-          ease: "back.out(1.7)",
-          delay: 1.6, // Start after paragraph animation
-        });
-      } */
 
       // Set initial state for scroll elements
       const elements = [
@@ -160,7 +96,6 @@ export default function Home() {
       gsap.set(elements, {
         y: 50,
         opacity: 0,
-        // filter: "blur(4px)",
       });
 
       // Create animations for each element
@@ -169,7 +104,6 @@ export default function Home() {
         gsap.to(element, {
           y: 0,
           opacity: 1,
-          // filter: "blur(0px)",
           duration: 0.8,
           ease: "power2.out",
           scrollTrigger: {
