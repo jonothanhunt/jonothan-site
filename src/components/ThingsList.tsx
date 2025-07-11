@@ -23,7 +23,7 @@ const ArticleItem = memo(({
 }: {
   post: ThingMetadata & { slug: string };
   isSelected: boolean;
-  selectedPostRef: React.RefObject<HTMLDivElement> | null;
+  selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
   glowHandlers: ReturnType<typeof createGlowEffect>;
 }) => {
   return (
