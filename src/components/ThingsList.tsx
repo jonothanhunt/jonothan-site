@@ -174,23 +174,25 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                     {/* Background image with overlay */}
                     <div className="absolute -z-10 inset-0 rounded-xl border border-white bg-white/20" />
                     {post.image ? (
-                      <div className="absolute -z-10 inset-0 rounded-xl blur-2xl opacity-80 overflow-hidden">
-                        <Image
-                          src={post.image}
-                          alt=""
-                          fill
-                          sizes="(max-width: 768px) 100vw, 768px"
-                          quality={1}
-                          className="object-cover"
-                          priority={false}
-                        />
-                        <div
-                          className="absolute inset-0"
-                          style={{
-                            background:
-                              "linear-gradient(to top, rgba(243, 232, 255, 0.95) 0%, rgba(243, 232, 255, 0.8) 40%, rgba(243, 232, 255, 0.3) 70%, transparent 90%), linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1))",
-                          }}
-                        />
+                      <div className="absolute -z-10 -inset-8 blur-2xl opacity-80">
+                        <div className="absolute inset-8 rounded-xl overflow-hidden">
+                          <Image
+                            src={post.image}
+                            alt=""
+                            fill
+                            sizes="(max-width: 768px) 100vw, 768px"
+                            quality={1}
+                            className="object-cover"
+                            priority={false}
+                          />
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background:
+                                "linear-gradient(to top, rgba(243, 232, 255, 0.95) 0%, rgba(243, 232, 255, 0.8) 40%, rgba(243, 232, 255, 0.3) 70%, transparent 90%), linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1))",
+                            }}
+                          />
+                        </div>
                       </div>
                     ) : (
                       <></>
