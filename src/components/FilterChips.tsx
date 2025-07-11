@@ -24,7 +24,7 @@ export default function FilterChips({
         <button
           key={type}
           onClick={() => onTypeSelect(type)}
-          className={`px-3 py-2 rounded-full text-sm transition-all duration-300 border border-white/20 ${
+          className={`px-3 py-2 rounded-full text-sm transition-all duration-300 border border-white/20 cursor-pointer ${
             selectedTypes.includes(type)
               ? "bg-purple-900/70 text-white shadow-md shadow-purple-900/20 translate-y-[2px]"
               : "bg-pink-200/70 text-purple-950 shadow-xl shadow-pink-900/15 hover:bg-purple-300/50"
@@ -37,7 +37,7 @@ export default function FilterChips({
       {hasFilters && (
         <button
           onClick={onClearFilters}
-          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-800 text-white text-sm shadow-xl shadow-red-800/20 hover:bg-red-600 transition-all duration-300"
+          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-800 text-white text-sm shadow-xl shadow-red-800/20 hover:bg-red-600 transition-all duration-300 cursor-pointer"
         >
           <svg
             width="14"
