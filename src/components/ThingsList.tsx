@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
@@ -25,11 +26,11 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
           // Get the element's position relative to the viewport
           const rect = element.getBoundingClientRect();
           const absoluteElementTop = rect.top + window.pageYOffset;
-          
+
           // Scroll to the element with offset
           window.scrollTo({
             top: absoluteElementTop - 80, // 80px offset from top
-            behavior: 'smooth'
+            behavior: "smooth",
           });
         }
       }, 300); // Small delay to ensure content is rendered
@@ -69,23 +70,84 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
               <article
                 key={post.slug}
                 ref={isSelected ? selectedPostRef : null}
-                className="border border-white/5 bg-purple-50 rounded-4xl overflow-clip shadow-xl shadow-purple-900/10 transition-[background-color,box-shadow] duration-300"
+                className={`border border-white/10 ${
+                  post.image ? "min-h-42" : ""
+                }
+                  
+                  `}
               >
                 <Link
-                  href={`${isSelected ? "/things" : `/things/${post.slug}`}${typeof window !== 'undefined' ? window.location.search : ''}`}
+                  href={`${isSelected ? "/things" : `/things/${post.slug}`}${
+                    typeof window !== "undefined" ? window.location.search : ""
+                  }`}
                   aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
                     post.title
                   }`}
                 >
                   <div
-                    className={`flex flex-col-reverse p-5 sm:flex-row gap-2 justify-between bg-gradient-to-bl from-purple-200 via-transparent to-transparent transition-[background-color] duration-300 ${
-                      isSelected
-                        ? "rounded-t-4xl rounded-b-none"
-                        : "rounded-t-4xl rounded-b-4xl"
+                    className={`relative flex flex-col p-5 ${
+                      post.image ? "min-h-42 gap-4" : "gap-4"
                     }`}
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = ((e.clientX - rect.left) / rect.width) * 100;
+                      const y = ((e.clientY - rect.top) / rect.height) * 100;
+                      const glowElement = e.currentTarget.querySelector('.absolute.inset-0.rounded-xl.z-\\[1\\.5\\]') as HTMLElement;
+                      if (glowElement) {
+                        glowElement.style.setProperty('--mouse-x', `${x}%`);
+                        glowElement.style.setProperty('--mouse-y', `${y}%`);
+                        glowElement.style.opacity = '1';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      const glowElement = e.currentTarget.querySelector('.absolute.inset-0.rounded-xl.z-\\[1\\.5\\]') as HTMLElement;
+                      if (glowElement) {
+                        glowElement.style.opacity = '0';
+                      }
+                    }}
                   >
+                    {/* Cursor Glow Effect */}
+                    <div 
+                      className="absolute inset-0 rounded-xl z-[1.5] pointer-events-none opacity-0 transition-opacity duration-300"
+                      style={{
+                        background: 'radial-gradient(circle 480px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.4) 25%, rgba(255, 255, 255, 0.15) 50%, transparent 80%)'
+                      }}
+                    ></div>
+                    {/* Metadata tags and date - always top left */}
+                    <div
+                      className="z-10 flex flex-wrap gap-2 self-start"
+                      aria-label="Post metadata"
+                    >
+                      {post.type.map((type) => (
+                        <span
+                          key={type}
+                          role="tag"
+                          className={`text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full text-sm ${
+                            post.image
+                              ? "bg-pink-200/80 backdrop-blur-sm"
+                              : "bg-pink-200/70"
+                          }`}
+                        >
+                          {type}
+                        </span>
+                      ))}
+                      <time
+                        dateTime={post.date}
+                        className={`text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full text-sm ${
+                          post.image
+                            ? "bg-purple-50/80 backdrop-blur-sm"
+                            : "bg-purple-50"
+                        }`}
+                      >
+                        {formatCustomDate(post.date)}
+                      </time>
+                    </div>
+
+                    {/* Title - always after metadata with guaranteed gap */}
                     <h2
-                      className="font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-pretty"
+                      className={`relative z-[3] font-[family-name:var(--font-lastik)] text-3xl text-purple-950 text-balance ${
+                        post.image ? "z-10 mt-auto" : ""
+                      }`}
                       tabIndex={isSelected ? 0 : -1}
                       ref={(node) => {
                         if (node && isSelected) {
@@ -108,26 +170,31 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                     >
                       {post.title}
                     </h2>
-                    <div
-                      className="z-10 flex min-w-fit gap-2 "
-                      aria-label="Post metadata"
-                    >
-                      {post.type.map((type) => (
-                        <span
-                          key={type}
-                          role="tag"
-                          className="text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full bg-pink-200/70  text-sm"
-                        >
-                          {type}
-                        </span>
-                      ))}
-                      <time
-                        dateTime={post.date}
-                        className="text-purple-950 min-w-fit w-fit h-fit px-3 py-2 rounded-full bg-purple-50 text-sm"
-                      >
-                        {formatCustomDate(post.date)}
-                      </time>
-                    </div>
+
+                    {/* Background image with overlay */}
+                    <div className="absolute -z-10 inset-0 rounded-xl border border-white bg-white/20" />
+                    {post.image ? (
+                      <div className="absolute -z-10 inset-0 rounded-xl blur-2xl opacity-80 overflow-hidden">
+                        <Image
+                          src={post.image}
+                          alt=""
+                          fill
+                          sizes="(max-width: 768px) 100vw, 768px"
+                          quality={1}
+                          className="object-cover"
+                          priority={false}
+                        />
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background:
+                              "linear-gradient(to top, rgba(243, 232, 255, 0.95) 0%, rgba(243, 232, 255, 0.8) 40%, rgba(243, 232, 255, 0.3) 70%, transparent 90%), linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1))",
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 </Link>
                 {isSelected && (
