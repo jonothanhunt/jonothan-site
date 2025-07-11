@@ -40,6 +40,7 @@ const ArticleItem = memo(({
         href={`${isSelected ? "/things" : `/things/${post.slug}`}${
           typeof window !== "undefined" ? window.location.search : ""
         }`}
+        scroll={false}
         aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
           post.title
         }`}
