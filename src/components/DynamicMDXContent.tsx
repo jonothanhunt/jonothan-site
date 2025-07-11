@@ -35,7 +35,7 @@ export function DynamicMDXContent({ slug }: { slug: string }) {
 
   return (
     <div
-      className={`px-5 bg-purple-50 transition-all duration-1000 ease-in-out overflow-hidden ${
+      className={`px-5  transition-all duration-1000 ease-in-out overflow-hidden ${
         Component && isMounted && !isUnmounting
           ? "max-h-[20000px] opacity-100"
           : "max-h-0 opacity-0"

@@ -1,9 +1,25 @@
 import fs from "fs";
 import path from "path";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 // import { Suspense } from "react";
 import { ThingsList } from "@/components/ThingsList";
 import Head from "next/head";
+
+// Helper function to find posts with slug variations (underscore vs dash)
+function findPostWithSlugVariations(posts: { slug: string; [key: string]: unknown }[], requestedSlug: string) {
+  // First try exact match (current behavior)
+  let post = posts.find((post) => post.slug === requestedSlug);
+  if (post) return { post, shouldRedirect: false };
+
+  // If no exact match and slug contains underscores, try dash version
+  if (requestedSlug.includes('_')) {
+    const dashSlug = requestedSlug.replace(/_/g, '-');
+    post = posts.find((post) => post.slug === dashSlug);
+    if (post) return { post, shouldRedirect: true, redirectSlug: dashSlug };
+  }
+
+  return { post: null, shouldRedirect: false };
+}
 
 // Helper function to get all blog posts with metadata
 async function getThings() {
@@ -76,7 +92,18 @@ export async function generateMetadata({ params }: { params: Params }) {
       ],
     };
   } catch {
-    return notFound();
+    // Try to find if there's a dash version of this underscore slug
+    if (currentSlug.includes('_')) {
+      const dashSlug = currentSlug.replace(/_/g, '-');
+      try {
+        await import(`@/content/things/${dashSlug}.mdx`);
+        redirect(`/things/${dashSlug}`);
+      } catch {
+        redirect("/things");
+      }
+    } else {
+      redirect("/things");
+    }
   }
 }
 
@@ -85,8 +112,15 @@ export default async function Page({ params }: { params: Params }) {
   const selectedSlug = slug?.[0];
   const posts = await getThings();
 
-  if (selectedSlug && !posts.find((post) => post.slug === selectedSlug)) {
-    notFound();
+  if (selectedSlug) {
+    const { post, shouldRedirect, redirectSlug } = findPostWithSlugVariations(posts, selectedSlug);
+    
+    if (!post) {
+      redirect("/things"); // No post found with any variation
+    } else if (shouldRedirect && redirectSlug) {
+      redirect(`/things/${redirectSlug}`); // 301 redirect to dash version
+    }
+    // If post found with exact match, continue normally
   }
 
   const blogSchema = {
