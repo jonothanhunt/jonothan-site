@@ -155,14 +155,25 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                     {/* Background image with overlay */}
                     <div className="absolute -z-10 inset-0 rounded-xl border border-white bg-white/20" />
                     {post.image ? (
-                      <div className="absolute -z-10 -inset-8 blur-2xl opacity-80">
-                        <div className="absolute inset-8 rounded-xl overflow-hidden">
+                      <div
+                        className="absolute -z-10 will-change-transform"
+                        style={{
+                          top: "-32px",
+                          left: "-32px",
+                          right: "-32px",
+                          bottom: "-32px",
+                          filter: "blur(32px)",
+
+                          opacity: 0.5,
+                        }}
+                      >
+                        <div className="absolute inset-4">
                           <Image
                             src={post.image}
                             alt=""
                             fill
                             sizes="(max-width: 768px) 100vw, 768px"
-                            quality={1}
+                            quality={30}
                             className="object-cover"
                             priority={false}
                           />
