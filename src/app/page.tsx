@@ -18,6 +18,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import InfiniteScrollingLogosAnimation from "@/components/InfiniteScrollingLogosAnimation";
+import { createGlowEffect } from "@/utils/glowEffect";
 
 // Register the plugins
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -51,6 +52,7 @@ const WebGL3DFallback = () => (
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(true);
+  const glowHandlers = createGlowEffect();
 
   useEffect(() => {
     // Check WebGL support on client-side only
@@ -406,16 +408,24 @@ export default function Home() {
                     href="https://waitingtolive.org/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="waiting-to-live-title"
+                    {...glowHandlers}
                   >
+                    <div 
+                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
+                      style={{
+                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%)'
+                      }}
+                    />
                     <Image
                       src="/images/home/waiting_to_live.webp"
                       alt="The doll of Ralph sitting on a bench, waiting."
                       fill
                       style={{ objectFit: "cover", objectPosition: "center" }}
+                      className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/50 to-purple-950" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/50 to-purple-950 z-10" />
                     <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
                       Campaign
                     </div>
@@ -443,16 +453,24 @@ export default function Home() {
                     href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
                     aria-labelledby="hsbc-vault-title"
+                    {...glowHandlers}
                   >
+                    <div 
+                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
+                      style={{
+                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%)'
+                      }}
+                    />
                     <Image
                       src="/images/home/hsbc_vault.webp"
                       alt="The HSBC Vault installation in waterloo station."
                       fill
                       style={{ objectFit: "cover", objectPosition: "center" }}
+                      className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-950/50 to-orange-950" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-950/50 to-orange-950 z-10" />
                     <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
                       Installation
                     </div>
@@ -480,9 +498,16 @@ export default function Home() {
                     href="https://vm.tiktok.com/ZNdr68mku/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
+                    className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
                     aria-labelledby="tiktok-views-title"
+                    {...glowHandlers}
                   >
+                    <div 
+                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
+                      style={{
+                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                      }}
+                    />
                     <Image
                       src="/images/home/effects.jpeg"
                       alt="Background showing TikTok effects"
@@ -519,16 +544,24 @@ export default function Home() {
                     href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
                     aria-labelledby="supermarket-scan-title"
+                    {...glowHandlers}
                   >
+                    <div 
+                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
+                      style={{
+                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%)'
+                      }}
+                    />
                     <Image
                       src="/images/home/tiktok_live_supermarket_scan.webp"
                       alt="YouTube thumbnail for the live stream showing my face and the title."
                       fill
                       style={{ objectFit: "cover", objectPosition: "top" }}
+                      className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950 z-10" />
                     <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
                       Tutorial
                     </div>
@@ -552,16 +585,24 @@ export default function Home() {
                     href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 hover:outline-purple-950 hover:outline-offset-4 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
                     aria-labelledby="magpie-app-title"
+                    {...glowHandlers}
                   >
+                    <div 
+                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
+                      style={{
+                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%)'
+                      }}
+                    />
                     <Image
                       src="/images/home/magpie_app.webp"
                       alt="Screenshot of the Magpie app showing mentor profiles."
                       fill
                       style={{ objectFit: "cover", objectPosition: "top" }}
+                      className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950 z-10" />
                     <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
                       App
                     </div>

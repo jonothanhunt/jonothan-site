@@ -7,6 +7,7 @@ import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
 import { ThingsListFilters } from "@/components/ThingsListFilters";
+import { createGlowEffect, GlowEffect } from "@/utils/glowEffect";
 
 interface ThingsListProps {
   initialPosts: (ThingMetadata & { slug: string })[];
@@ -16,6 +17,7 @@ interface ThingsListProps {
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const selectedPostRef = useRef<HTMLDivElement>(null);
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
+  const glowHandlers = createGlowEffect();
 
   useEffect(() => {
     if (selectedSlug && selectedPostRef.current) {
@@ -88,31 +90,10 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                     className={`relative flex flex-col p-5 ${
                       post.image ? "min-h-42 gap-4" : "gap-4"
                     }`}
-                    onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = ((e.clientX - rect.left) / rect.width) * 100;
-                      const y = ((e.clientY - rect.top) / rect.height) * 100;
-                      const glowElement = e.currentTarget.querySelector('.absolute.inset-0.rounded-xl.z-\\[1\\.5\\]') as HTMLElement;
-                      if (glowElement) {
-                        glowElement.style.setProperty('--mouse-x', `${x}%`);
-                        glowElement.style.setProperty('--mouse-y', `${y}%`);
-                        glowElement.style.opacity = '1';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      const glowElement = e.currentTarget.querySelector('.absolute.inset-0.rounded-xl.z-\\[1\\.5\\]') as HTMLElement;
-                      if (glowElement) {
-                        glowElement.style.opacity = '0';
-                      }
-                    }}
+                    {...glowHandlers}
                   >
                     {/* Cursor Glow Effect */}
-                    <div 
-                      className="absolute inset-0 rounded-xl z-[1.5] pointer-events-none opacity-0 transition-opacity duration-300"
-                      style={{
-                        background: 'radial-gradient(circle 480px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.4) 25%, rgba(255, 255, 255, 0.15) 50%, transparent 80%)'
-                      }}
-                    ></div>
+                    <GlowEffect className="z-[1.5]" />
                     {/* Metadata tags and date - always top left */}
                     <div
                       className="z-10 flex flex-wrap gap-2 self-start"
