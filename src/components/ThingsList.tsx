@@ -74,7 +74,7 @@ const ArticleItem = memo(({
             <div 
               className="absolute inset-0 rounded-xl border border-white z-0"
               style={{
-                background: 'linear-gradient(25deg, rgb(243 232 255) 0%, rgb(243 232 255 / 1.0) 30%, rgb(243 232 255 / 0.8) 60%, rgb(243 232 255 / 0.8) 85%, rgb(255 255 255 / 0.8) 100%)'
+                background: 'linear-gradient(25deg, rgb(243 232 255) 0%, rgb(243 232 255 / 1.0) 30%, rgb(243 232 255 / 0.95) 60%, rgb(243 232 255 / 0.9) 85%)'
               }}
             />
           ) : (
