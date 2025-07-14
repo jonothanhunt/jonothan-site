@@ -273,10 +273,10 @@ export default function Header() {
                     : "top-16 opacity-0 pointer-events-none translate-y-1"
                 }`}
               >
-                <div className="relative z-[3] flex gap-1 text-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
+                <div className="relative z-[3] flex gap-1 text-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)] font-normal">
                   <Link
                     href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center text-purple-950 text-base px-3 py-2 transition-all cursor-pointer"
+                    className="inline-flex items-center text-purple-950 text-base px-3 py-2 transition-all hover:bg-purple-50 active:bg-purple-50 cursor-pointer"
                     aria-label="Email me at hey@jonothan.dev"
                   >
                     hey@jonothan.dev

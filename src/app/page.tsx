@@ -162,7 +162,7 @@ export default function Home() {
               </h1>
               <p
                 id="paragraph"
-                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-w-70 text-pretty"
+                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-normal text-pretty"
               >
                 I&apos;m a creative developer creating innovative, award-winning
                 experiences for brands like HSBC and the NHS, leading our
@@ -241,7 +241,7 @@ export default function Home() {
                   <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white font-w-70">
                     Let&apos;s chat!
                   </h3>
-                  <p className="text-white text-lg max-w-96 text-pretty font-w-70">
+                  <p className="text-white text-lg max-w-96 text-pretty font-normal">
                     Book me for a talk or I&apos;m always down to chat about
                     exciting projects, especially immersive web (WebGL, shaders)
                     and mixed reality!
@@ -250,7 +250,7 @@ export default function Home() {
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
                       <Link
                         href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer font-w-70"
+                    className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer font-normal"
                         aria-label="Email me at hey@jonothan.dev"
                       >
                         hey@jonothan.dev
@@ -293,7 +293,7 @@ export default function Home() {
                 {/* Canvas */}
                 <div
                   ref={canvasRef}
-                  className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip font-w-70"
+                  className="md:h-auto min-h-80 max-h-96 md:min-h-0 md:max-h-none col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip font-w-70"
                   aria-label="Desk scene in 3D!"
                   role="img"
                 >
@@ -441,7 +441,7 @@ export default function Home() {
                 {/* TikTok Views Highlight */}
                 <div
                   ref={tiktokRef}
-                  className="col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3 font-w-70"
+                  className="md:h-auto min-h-80 max-h-96 md:min-h-0 md:max-h-none col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3 font-w-70"
                 >
                   <Link
                     href="https://vm.tiktok.com/ZNdr68mku/"
