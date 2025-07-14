@@ -70,9 +70,42 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
     } = props;
 
     const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+    // On initial render, set all letters to the fromFontVariationSettings (low weight)
     const interpolatedSettingsRef = useRef<string[]>([]);
+    // Ensure all letters start with the correct fontVariationSettings inline style (prevents FOUC)
+    useEffect(() => {
+        if (letterRefs.current.length > 0) {
+            letterRefs.current.forEach((letterRef, idx) => {
+                if (letterRef) {
+                    letterRef.style.fontVariationSettings = fromFontVariationSettings;
+                    interpolatedSettingsRef.current[idx] = fromFontVariationSettings;
+                }
+            });
+        }
+    }, [fromFontVariationSettings, label]);
+    // Only enable proximity effect on non-touch devices (hover-capable)
+    const isHoverCapable = useMemo(() => {
+        if (typeof window === 'undefined') return true;
+        return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    }, []);
+
     const mousePositionRef = useMousePositionRef(containerRef);
     const lastPositionRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null });
+
+    // Track if the mouse has ever entered the container
+    const hasInteractedRef = useRef(false);
+
+    useEffect(() => {
+        if (!containerRef?.current) return;
+        const node = containerRef.current;
+        const handleMouseEnter = () => {
+            hasInteractedRef.current = true;
+        };
+        node.addEventListener('mouseenter', handleMouseEnter);
+        return () => {
+            node.removeEventListener('mouseenter', handleMouseEnter);
+        };
+    }, [containerRef]);
 
     const parsedSettings = useMemo(() => {
         const parseSettings = (settingsStr: string) =>
@@ -110,15 +143,30 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
 
     useAnimationFrame(() => {
         if (!containerRef?.current) return;
+        if (!isHoverCapable) {
+            // On touch devices, always use the default style
+            letterRefs.current.forEach((letterRef) => {
+                if (letterRef) {
+                    letterRef.style.fontVariationSettings = fromFontVariationSettings;
+                }
+            });
+            return;
+        }
         const { x, y } = mousePositionRef.current;
         if (lastPositionRef.current.x === x && lastPositionRef.current.y === y) {
-          return;
+            return;
         }
         lastPositionRef.current = { x, y };
         const containerRect = containerRef.current.getBoundingClientRect();
 
         letterRefs.current.forEach((letterRef, index) => {
             if (!letterRef) return;
+
+            // If the mouse has never entered, always use the default style
+            if (!hasInteractedRef.current) {
+                letterRef.style.fontVariationSettings = fromFontVariationSettings;
+                return;
+            }
 
             const rect = letterRef.getBoundingClientRect();
             const letterCenterX = rect.left + rect.width / 2 - containerRect.left;
@@ -152,6 +200,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
     const words = label.split(" ");
     let letterIndex = 0;
 
+    // Render all letters with the correct initial fontVariationSettings inline (prevents FOUC)
     return (
         <span
             ref={ref}
@@ -171,6 +220,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
                 >
                     {word.split("").map((letter) => {
                         const currentLetterIndex = letterIndex++;
+                        // Always set the initial style to fromFontVariationSettings to prevent FOUC
                         return (
                             <motion.span
                                 key={currentLetterIndex}
@@ -178,7 +228,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
                                 style={{
                                     display: "inline-block",
                                     fontVariationSettings:
-                                        interpolatedSettingsRef.current[currentLetterIndex],
+                                        interpolatedSettingsRef.current[currentLetterIndex] || fromFontVariationSettings,
                                 }}
                                 aria-hidden="true"
                             >
