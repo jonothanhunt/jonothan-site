@@ -107,7 +107,7 @@ const ArticleItem = memo(({
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-normal text-purple-950 bg-blue-100/80 hover:bg-blue-200/90 shadow-xl shadow-blue-900/10 transition-colors duration-200 border border-white/50`}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-normal text-purple-950 bg-blue-100/80 hover:bg-blue-50 shadow-xl shadow-blue-900/10 transition-colors duration-200 border border-white/50`}
                   style={{ textDecoration: 'none' }}
                   aria-label={`External link: ${link.title}`}
                 >
