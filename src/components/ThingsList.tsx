@@ -69,8 +69,8 @@ const ArticleItem = memo(({
             <div className="absolute inset-0 rounded-xl border border-white bg-white/20 -z-10" />
           )}
 
-          {/* Cursor Glow Effect */}
-          <GlowEffect className="absolute inset-0 z-[15] pointer-events-none" />
+          {/* Cursor Glow Effect - now above background but below content */}
+          <GlowEffect className="absolute inset-0 z-10 pointer-events-none" />
           {/* Metadata tags and date - always top left */}
           <div className="z-10 relative flex flex-wrap gap-2 self-start" aria-label="Post metadata">
             {post.type.map((type) => (
