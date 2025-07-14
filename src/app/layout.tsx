@@ -5,8 +5,9 @@ import Header from "../components/Header";
 
 const lastik = localFont({
   variable: "--font-lastik",
-  src: "./fonts/Lastik.woff2",
+  src: "./fonts/LastikVariable-Variable.woff2",
   display: "swap",
+  
 });
 
 const atkinsonHyperlegible = localFont({

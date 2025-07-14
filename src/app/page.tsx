@@ -1,5 +1,6 @@
 "use client";
 import { Canvas } from "@react-three/fiber";
+import VariableProximity from "../components/VariableProximity";
 import { Suspense, useRef, useState, useEffect } from "react";
 import Model from "../components/Model";
 import SplashCursor from "../components/SplashCursor";
@@ -121,7 +122,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950">
+      <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950 font-w-70">
         <div
           className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"
           aria-hidden="true"
@@ -140,14 +141,28 @@ export default function Home() {
               className="max-w-xl mx-6 flex flex-col gap-4 invisible"
             >
               <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col">
-                <span id="heading1">Hey, I&apos;m</span>
-                <span className="whitespace-nowrap" id="heading2">
-                  Jonothan.
-                </span>
+                <VariableProximity
+                  label={"Hey, I'm"}
+                  className="inline-block cursor-default select-none"
+                  fromFontVariationSettings="'wght' 50"
+                  toFontVariationSettings="'wght' 100"
+                  containerRef={textContainerRef}
+                  radius={100}
+                  falloff="linear"
+                />
+                <VariableProximity
+                  label={"Jonothan."}
+                  className="inline-block whitespace-nowrap cursor-default select-none"
+                  fromFontVariationSettings="'wght' 50"
+                  toFontVariationSettings="'wght' 100"
+                  containerRef={textContainerRef}
+                  radius={100}
+                  falloff="linear"
+                />
               </h1>
               <p
                 id="paragraph"
-                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] text-pretty"
+                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-w-70 text-pretty"
               >
                 I&apos;m a creative developer creating innovative, award-winning
                 experiences for brands like HSBC and the NHS, leading our
@@ -155,7 +170,7 @@ export default function Home() {
               </p>
               <div
                 ref={awardsRef}
-                className="w-full flex justify-start items-center gap-4 mt-4"
+                className="w-full flex justify-start items-center gap-4 mt-4 font-w-70"
               >
                 <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
                   <Image
@@ -222,11 +237,11 @@ export default function Home() {
                   />
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent bg-cover bg-center" />
-                <div className="z-10 flex flex-col gap-4">
-                  <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white">
+                <div className="z-10 flex flex-col gap-4 font-w-70">
+                  <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white font-w-70">
                     Let&apos;s chat!
                   </h3>
-                  <p className="text-white text-lg max-w-96 text-pretty">
+                  <p className="text-white text-lg max-w-96 text-pretty font-w-70">
                     Book me for a talk or I&apos;m always down to chat about
                     exciting projects, especially immersive web (WebGL, shaders)
                     and mixed reality!
@@ -235,7 +250,7 @@ export default function Home() {
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
                       <Link
                         href="mailto:hey@jonothan.dev"
-                        className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer"
+                    className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer font-w-70"
                         aria-label="Email me at hey@jonothan.dev"
                       >
                         hey@jonothan.dev
@@ -246,7 +261,7 @@ export default function Home() {
                             ? "Email copied to clipboard"
                             : "Copy my email to clipboard"
                         }
-                        className="inline-flex items-center justify-center bg-purple-50/90 backdrop-blur-[2px] px-3 py-2 transition-all cursor-pointer hover:bg-purple-50 active:bg-purple-50"
+                        className="inline-flex items-center justify-center bg-purple-50/90 backdrop-blur-[2px] px-3 py-2 transition-all cursor-pointer hover:bg-purple-50 active:bg-purple-50 font-w-70"
                         onClick={() => {
                           navigator.clipboard.writeText("hey@jonothan.dev");
                           setCopied(true);
@@ -274,11 +289,11 @@ export default function Home() {
 
               <div className="h-4" />
 
-              <div className="relative grid grid-cols-1 md:grid-cols-[1fr_minmax(0,_2fr)_minmax(0,_2fr)_1fr] md:grid-rows-4 gap-4 h-full w-full">
+              <div className="relative grid grid-cols-1 md:grid-cols-[1fr_minmax(0,_2fr)_minmax(0,_2fr)_1fr] md:grid-rows-4 gap-4 h-full w-full font-w-70">
                 {/* Canvas */}
                 <div
                   ref={canvasRef}
-                  className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip"
+                  className="aspect-square md:aspect-auto col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip font-w-70"
                   aria-label="Desk scene in 3D!"
                   role="img"
                 >
@@ -337,7 +352,7 @@ export default function Home() {
                 </div>
 
                 {/* Campaign */}
-                <div ref={campaignRef} className="col-span-1 md:col-start-4">
+                <div ref={campaignRef} className="col-span-1 md:col-start-4 font-w-70">
                   <Link
                     href="https://waitingtolive.org/"
                     target="_blank"
@@ -360,17 +375,17 @@ export default function Home() {
                       className="z-0"
                     />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/50 to-purple-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
                       Campaign
                     </div>
-                    <div className="z-10 flex flex-col gap-2">
+                    <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
                         id="waiting-to-live-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
                       >
                         Waiting to Live
                       </p>
-                      <p className="text-white text-md">
+                      <p className="text-white text-md font-normal leading-tight">
                         Our campaign is raising awareness of organ donation for
                         the NHS.
                       </p>
@@ -381,7 +396,7 @@ export default function Home() {
                 {/* HSBC Vault */}
                 <div
                   ref={hsbcRef}
-                  className="col-span-1 md:col-start-4 md:row-start-2"
+                  className="col-span-1 md:col-start-4 md:row-start-2 font-w-70"
                 >
                   <Link
                     href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
@@ -405,17 +420,17 @@ export default function Home() {
                       className="z-0"
                     />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-950/50 to-orange-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
                       Installation
                     </div>
-                    <div className="z-10 flex flex-col gap-2">
+                    <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
                         id="hsbc-vault-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
                       >
                         HSBC Vault
                       </p>
-                      <p className="text-white text-md">
+                      <p className="text-white text-md font-normal leading-tight">
                         My team and I created the software running HSBC&apos;s
                         Vault experience.
                       </p>
@@ -426,7 +441,7 @@ export default function Home() {
                 {/* TikTok Views Highlight */}
                 <div
                   ref={tiktokRef}
-                  className="col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3"
+                  className="col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3 font-w-70"
                 >
                   <Link
                     href="https://vm.tiktok.com/ZNdr68mku/"
@@ -452,19 +467,22 @@ export default function Home() {
                         opacity: 0.2,
                       }}
                     />
-                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
                       Latest
                     </div>
                     <p
                       id="tiktok-views-title"
-                      className="z-10 max-w-xl text-3xl md:text-6xl text-white font-[family-name:var(--font-lastik)]"
+                      className="z-10 max-w-xl text-3xl md:text-5xl text-white font-[family-name:var(--font-lastik)] font-w-60"
                     >
                       Views of TikTok videos using my camera effects have
                       reached{" "}
-                      <span className="inline-block font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2 py-2">
-                        8,773,773,403
+                      <span className="inline-block">
+                        <span className="inline font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2 pt-2 pb-0 font-w-70">
+                        9,391,015,623
                       </span>
                       !
+                      </span>
+                      
                     </p>
                   </Link>
                 </div>
@@ -472,7 +490,7 @@ export default function Home() {
                 {/* Supermarket Scan */}
                 <div
                   ref={supermarketRef}
-                  className="col-span-1 md:col-start-1 md:row-start-3"
+                  className="col-span-1 md:col-start-1 md:row-start-3 font-w-70"
                 >
                   <Link
                     href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
@@ -496,17 +514,17 @@ export default function Home() {
                       className="z-0"
                     />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
                       Tutorial
                     </div>
-                    <div className="z-10 flex flex-col gap-2">
+                    <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
                         id="supermarket-scan-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
                       >
                         How I made the viral Supermarket Scan effect
                       </p>
-                      <p className="text-white text-md text-pretty">
+                      <p className="text-white text-md text-pretty font-normal leading-tight">
                         Coding live with Celine on Effect House&apos;s YouTube
                       </p>
                     </div>
@@ -514,7 +532,7 @@ export default function Home() {
                 </div>
 
                 {/* Magpie App */}
-                <div ref={magpieRef} className="col-span-1 md:row-start-4">
+                <div ref={magpieRef} className="col-span-1 md:row-start-4 font-w-70">
                   <Link
                     href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                     target="_blank"
@@ -537,17 +555,17 @@ export default function Home() {
                       className="z-0"
                     />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl">
+                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
                       App
                     </div>
-                    <div className="z-10 flex flex-col gap-2">
+                    <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
                         id="magpie-app-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
                       >
                         Magpie: VML&apos;s award-winning mentorship app
                       </p>
-                      <p className="text-white text-md text-pretty">
+                      <p className="text-white text-md text-pretty font-normal leading-tight">
                         I developed our mentorship app built for Microsoft
                         Teams.
                       </p>
