@@ -56,8 +56,8 @@ export function GlowEffect({
   variant?: "default" | "dark" 
 }) {
   const glowStyles = {
-    default: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)',
-    dark: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%)'
+    default: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 40%, transparent 70%)',
+    dark: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.32) 0%, rgba(139, 92, 246, 0.16) 40%, transparent 70%)'
   };
 
   return (
