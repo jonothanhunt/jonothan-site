@@ -157,7 +157,7 @@ export default function Header() {
             }}
           ></div>
           {/* Glass Content - Actual nav items */}
-          <ul className="relative z-[3] flex flex-1 items-center mx-auto py-1 px-2 w-fit h-12 justify-center font-[family-name:var(--font-lastik)] text-purple-950"
+          <ul className="relative z-[3] flex flex-1 items-center mx-auto py-1 px-2 w-fit h-12 justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle"
               onMouseMove={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -177,11 +177,12 @@ export default function Header() {
               }}
           >
             <li
-              className={`${
+              className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${
                 activeSection === "about"
-                  ? "opacity-0 w-0 ml-0 mr-0"
-                  : "opacity-100 w-26 ml-2"
-              } text-2xl overflow-clip transition-all duration-700`}
+                  ? "w-0 ml-0 mr-0"
+                  : "w-26 ml-2"
+              }`}
+              style={{ minWidth: 0 }}
             >
               <Link
                 href="/#about"
@@ -189,7 +190,14 @@ export default function Header() {
                 aria-label="Navigate to home"
                 className="cursor-pointer rounded-full pr-2 py-1 transition-all h-8 flex items-center hover:text-black"
               >
-                <span>Jonothan</span>
+                <span
+                  className={`leading-[1.1] align-middle relative top-[2px] transition-opacity duration-700 ${
+                    activeSection === "about" ? "opacity-10" : "opacity-100"
+                  }`}
+                  style={{ display: "inline-block", whiteSpace: "nowrap" }}
+                >
+                  Jonothan
+                </span>
               </Link>
             </li>
 
@@ -209,7 +217,7 @@ export default function Header() {
                     activeSection === "work" ? "size-6" : "size-0"
                   }`}
                 />
-                <span>Work</span>
+                <span className="align-middle relative top-[2px]">Work</span>
               </Link>
             </li>
 
@@ -228,7 +236,7 @@ export default function Header() {
                     activeSection === "blog" ? "size-6" : "size-0"
                   }`}
                 />
-                <span>Things</span>
+                <span className="align-middle relative top-[2px]">Things</span>
               </Link>
             </li>
 
@@ -255,7 +263,7 @@ export default function Header() {
                     showContactPopup ? "size-6" : "size-0"
                   }`}
                 />
-                <span>Contact</span>
+                <span className="align-middle relative top-[2px]">Contact</span>
               </button>
 
               <div
