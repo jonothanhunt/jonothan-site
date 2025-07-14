@@ -41,34 +41,22 @@ const ArticleItem = memo(({
     <article
       key={post.slug}
       ref={isSelected ? selectedPostRef : undefined}
-      className={` ${
-        post.image ? "min-h-42" : ""
-      }
-        
-        `}
+      className={`${post.image ? "min-h-42" : ""}`}
     >
-      <Link
-        href={`${isSelected ? "/things" : `/things/${post.slug}`}${
-          typeof window !== "undefined" ? window.location.search : ""
-        }`}
-        scroll={false}
-        aria-label={`${isSelected ? "Close" : "Open"} blog post: ${
-          post.title
-        }`}
-        className={post.image ? "relative block overflow-hidden rounded-xl" : "block rounded-xl"}
+      <CardDiv
+        post={post}
+        isSelected={isSelected}
+        ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${post.title}`}
+        className={post.image ? "relative block overflow-hidden rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10" : "block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"}
         style={post.image ? {
           backgroundImage: `url(${post.image})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
         } : undefined}
+        {...glowHandlers}
       >
-        <div
-          className={`relative flex flex-col p-5 ${
-            post.image ? "min-h-42" : ""
-          }`}
-          {...glowHandlers}
-        >
+        <div className={`relative flex flex-col p-5 ${post.image ? "min-h-42" : ""}`}>
           {/* Combined background overlay for images */}
           {post.image ? (
             <div 
@@ -84,10 +72,7 @@ const ArticleItem = memo(({
           {/* Cursor Glow Effect */}
           <GlowEffect className="absolute inset-0 z-[15] pointer-events-none" />
           {/* Metadata tags and date - always top left */}
-          <div
-            className="z-10 relative flex flex-wrap gap-2 self-start"
-            aria-label="Post metadata"
-          >
+          <div className="z-10 relative flex flex-wrap gap-2 self-start" aria-label="Post metadata">
             {post.type.map((type) => (
               <span
                 key={type}
@@ -113,6 +98,37 @@ const ArticleItem = memo(({
             </time>
           </div>
 
+          {/* Links chips - top right */}
+          {post.links && post.links.length > 0 && (
+            <div className="absolute top-5 right-5 z-20 flex flex-wrap gap-1 self-end">
+              {post.links.map((link) => (
+                <Link
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-sm font-normal text-purple-950 bg-blue-100/80 hover:bg-blue-200/90 shadow-xl shadow-blue-900/10 transition-colors duration-200 border border-white/50`}
+                  style={{ textDecoration: 'none' }}
+                  aria-label={`External link: ${link.title}`}
+                >
+                  {link.title}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="ml-1"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M7 7h10v10" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          )}
+
           {/* Title - always after metadata with guaranteed gap */}
           <h2
             className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl text-purple-950 text-balance ${
@@ -121,9 +137,7 @@ const ArticleItem = memo(({
             tabIndex={isSelected ? 0 : -1}
             ref={(node) => {
               if (node && isSelected) {
-                // Make element programmatically focusable without visible focus ring
                 node.setAttribute("tabindex", "0");
-                // Move focus to the element without visual indication
                 if (
                   window.location.pathname.includes(
                     post.slug || ""
@@ -131,7 +145,6 @@ const ArticleItem = memo(({
                 ) {
                   requestAnimationFrame(() => {
                     node.focus({ preventScroll: true });
-                    // Remove focus immediately
                     node.blur();
                   });
                 }
@@ -141,7 +154,7 @@ const ArticleItem = memo(({
             {post.title}
           </h2>
         </div>
-      </Link>
+      </CardDiv>
       {isSelected && (
         <section aria-label="Blog post content">
           <DynamicMDXContent slug={post.slug} />
@@ -151,7 +164,44 @@ const ArticleItem = memo(({
   );
 }, arePropsEqual);
 
+
 ArticleItem.displayName = 'ArticleItem';
+
+// CardDiv: a div that acts as a clickable card for navigation
+import { useRouter } from "next/navigation";
+import { ReactNode, HTMLAttributes } from "react";
+interface CardDivProps extends HTMLAttributes<HTMLDivElement> {
+  post: ThingMetadata & { slug: string };
+  isSelected: boolean;
+  ariaLabel: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children: ReactNode;
+}
+function CardDiv({ post, isSelected, ariaLabel, className, style, children, ...rest }: CardDivProps) {
+  const router = useRouter();
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent navigation if clicking a link inside the card
+    if ((e.target as HTMLElement).closest('a')) return;
+    router.push(isSelected ? "/things" : `/things/${post.slug}` + (typeof window !== "undefined" ? window.location.search : ""), { scroll: false });
+  };
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      className={className}
+      style={style}
+      onClick={handleClick}
+      onKeyDown={e => {
+        if (e.key === "Enter" || e.key === " ") handleClick(e as unknown as React.MouseEvent);
+      }}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const selectedPostRef = useRef<HTMLDivElement>(null);
