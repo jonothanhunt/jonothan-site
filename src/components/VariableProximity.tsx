@@ -1,19 +1,23 @@
-import { forwardRef, useMemo, useRef, useEffect, MutableRefObject, CSSProperties, HTMLAttributes } from "react";
-import { motion } from "motion/react";
 
-function useAnimationFrame(callback: () => void) {
-    useEffect(() => {
-        let frameId: number;
-        const loop = () => {
-            callback();
-            frameId = requestAnimationFrame(loop);
-        };
-        frameId = requestAnimationFrame(loop);
-        return () => cancelAnimationFrame(frameId);
-    }, [callback]);
+
+
+interface VariableProximityProps extends HTMLAttributes<HTMLSpanElement> {
+    label: string;
+    fromFontVariationSettings: string;
+    toFontVariationSettings: string;
+    containerRef: RefObject<HTMLElement | null>;
+    radius?: number;
+    falloff?: "linear" | "exponential" | "gaussian";
+    className?: string;
+    onClick?: () => void;
+    style?: CSSProperties;
 }
 
-function useMousePositionRef(containerRef: MutableRefObject<HTMLElement | null>) {
+import { forwardRef, useMemo, useRef, useEffect, RefObject, CSSProperties, HTMLAttributes } from "react";
+import { motion } from "motion/react";
+
+
+function useMousePositionRef(containerRef: RefObject<HTMLElement | null>) {
     const positionRef = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
@@ -43,16 +47,18 @@ function useMousePositionRef(containerRef: MutableRefObject<HTMLElement | null>)
     return positionRef;
 }
 
-interface VariableProximityProps extends HTMLAttributes<HTMLSpanElement>{
-    label: string;
-    fromFontVariationSettings: string;
-    toFontVariationSettings: string;
-    containerRef: MutableRefObject<HTMLElement | null>;
-    radius?: number;
-    falloff?: "linear" | "exponential" | "gaussian";
-    className?: string;
-    onClick?: () => void;
-    style?: CSSProperties;
+function useAnimationFrame(callback: () => void) {
+    useEffect(() => {
+        let frameId: number;
+        const loop = () => {
+            callback();
+            frameId = requestAnimationFrame(loop);
+        };
+        frameId = requestAnimationFrame(loop);
+        return () => cancelAnimationFrame(frameId);
+    }, [callback]);
+
+
 }
 
 const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((props, ref) => {
@@ -84,9 +90,17 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
         }
     }, [fromFontVariationSettings, label]);
     // Only enable proximity effect on non-touch devices (hover-capable)
-    const isHoverCapable = useMemo(() => {
-        if (typeof window === 'undefined') return true;
-        return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    // Only disable proximity effect after a real touch event (so Apple Pencil hover works)
+    const hasTouchRef = useRef(false);
+    useEffect(() => {
+        const onTouch = () => {
+            hasTouchRef.current = true;
+        };
+        window.addEventListener('touchstart', onTouch, { passive: true });
+        return () => {
+            window.removeEventListener('touchstart', onTouch);
+        };
     }, []);
 
     const mousePositionRef = useMousePositionRef(containerRef);
@@ -143,7 +157,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
 
     useAnimationFrame(() => {
         if (!containerRef?.current) return;
-        if (!isHoverCapable) {
+        if (hasTouchRef.current) {
             // On touch devices, always use the default style
             letterRefs.current.forEach((letterRef) => {
                 if (letterRef) {
