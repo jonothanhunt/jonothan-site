@@ -79,12 +79,10 @@ export default function Home() {
 
   useGSAP(
     () => {
-      // First set the container to be visible with GSAP
+      // Prevent Flash of Unstyled Content (FOUC) by initially hiding the text container and then revealing it with GSAP.
       gsap.set(textContainerRef.current, { autoAlpha: 1 });
 
-
-
-      // Set initial state for scroll elements
+      // Animate the work section elements into view as the user scrolls.
       const elements = [
         canvasRef.current,
         campaignRef.current,
@@ -99,9 +97,7 @@ export default function Home() {
         opacity: 0,
       });
 
-      // Create animations for each element
       elements.forEach((element) => {
-        // Create the ScrollTrigger animation
         gsap.to(element, {
           y: 0,
           opacity: 1,
@@ -576,19 +572,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* <section
-          id="blog"
-          className="h-lvh scroll-mt-20"
-          aria-labelledby="blog-heading"
-        >
-          <h2 id="blog-heading" className="sr-only">
-            Things
-          </h2>
-          <div className="flex flex-col items-center justify-center h-full">
-            <p className="max-w-96 text-4xl">Coming soon!</p>
-          </div>
-        </section> */}
-        </main>
+          </main>
       </div>
     </>
   );
