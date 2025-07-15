@@ -17,7 +17,7 @@ export default function Header() {
   const [activeSection, setActiveSection] = useState("about");
   const [showContactPopup, setShowContactPopup] = useState(false);
 
-  // Reset active section when navigating to home page
+  // When the pathname changes, update the active section.
   useEffect(() => {
     if (pathname === "/") {
       // When returning to home page, set initial section based on scroll position
@@ -27,7 +27,7 @@ export default function Header() {
     }
   }, [pathname]);
 
-  // Close contact popup when clicking outside
+  // Close the contact popup when the user clicks outside of it.
   useEffect(() => {
     if (!showContactPopup) return;
 
@@ -65,7 +65,7 @@ export default function Header() {
     };
   }, [showContactPopup, copied]);
 
-  // Handle URL hash for scrolling when the component mounts or URL changes
+  // When the component mounts or the pathname changes, scroll to the section specified in the URL hash.
   useEffect(() => {
     // Check if there's a hash in the URL
     if (pathname === "/" && window.location.hash) {
