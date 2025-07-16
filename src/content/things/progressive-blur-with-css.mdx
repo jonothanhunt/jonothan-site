@@ -1,0 +1,66 @@
+export const metadata = {
+  title: "Progressive blur with CSS",
+  date: "2025-07-16",
+  excerpt: "A quick demo and explanation of how to create a progressive blur effect using only CSS.",
+  type: ["Thing"],
+  image: "/things-content/progressive-blur-with-css/images/progressive_blur_example.jpeg",
+};
+
+## Making progressive blur with CSS
+
+
+Progressive blur is all the rage.
+
+But I'm not a fan of how I usually see it implemented on the web.
+
+Take a look at this example:
+
+<SandpackEmbed
+  basePath="/things-content/progressive-blur-with-css/code/progressive-blur-comparison/"
+  files={[{file: "index.html"}, {file: "styles.css", visible: false}]}
+  template="static"
+  view="preview"
+/>
+
+
+See the lovely *progressive* blur on the left?
+
+![image render of progressive backdrop blur on the left and a simpler blur with mask over the top](/things-content/progressive-blur-with-css/images/progressive_blur_example.jpeg)
+
+
+Why does it look better?
+
+Because it actually progressively blurs the background, increasing the blur effect the higher it goes. The version on the right is just a blanket backdrop blur with a gradient mask.
+
+
+Here's how I made progressive blur with CSS:
+
+**Attempt 1:** I thought, why not just stack lots of divs with increasing amounts of backdrop blur?
+
+<SandpackEmbed
+  basePath="/things-content/progressive-blur-with-css/code/progressive-blur-simple/"
+  files={[{file: "index.html"}, {file: "styles.css", visible: false}]}
+  template="static"
+/>
+
+
+It looks cool, but the clear difference between the blur levels isn't the smooth progressive blur we're after.
+
+
+**Attempt 2:** Overlap them and give each one a gradient mask:
+
+<SandpackEmbed
+  basePath="/things-content/progressive-blur-with-css/code/progressive-blur-demo/"
+  files={[{file: "index.html"}, {file: "styles.css", visible: false}]}
+  template="static"
+/>
+
+That was easy!
+
+This isn't *hugely* performant (though you can optimize by using fewer, but larger, blur steps).
+
+
+I did try some SVG filter effects, but those don't tend to work so well on mobile.
+
+
+For now though, this works—and it looks pretty cool!
