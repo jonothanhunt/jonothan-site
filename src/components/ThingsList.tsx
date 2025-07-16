@@ -47,7 +47,7 @@ const ArticleItem = memo(({
         post={post}
         isSelected={isSelected}
         ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${post.title}`}
-        className={post.image ? "relative block overflow-hidden rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10" : "block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"}
+        className={post.image ? "relative block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10" : "block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"}
         style={post.image ? {
           backgroundImage: `url(${post.image})`,
           backgroundSize: 'cover',
