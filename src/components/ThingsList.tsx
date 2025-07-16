@@ -251,7 +251,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
 
   return (
     <main className="blog-list" role="main" aria-label="Blog posts">
-      <div className="h-42" />
+      <div className="h-24" />
       <Suspense>
         <ThingsListFilters
           availableTypes={availableTypes}
