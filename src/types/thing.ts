@@ -1,4 +1,4 @@
-export type ThingType = 'Post' | 'Video' | '3D Model' | 'Image' | 'AR Filter';
+export type ThingType = string;
 
 export interface ThingLink {
   title: string;
