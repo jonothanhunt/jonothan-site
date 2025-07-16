@@ -1,6 +1,43 @@
 import type { MDXComponents } from "mdx/types";
 import Image from "next/image";
 
+
+import React from "react";
+import Gif from "./src/components/Gif";
+
+// CodeSandboxEmbed component for MDX
+const CodeSandboxEmbed = ({ src }: { src: string }) => (
+  <div
+    style={{
+      width: "100vw",
+      marginLeft: "calc(50% - 50vw)",
+      marginRight: "calc(50% - 50vw)",
+      marginTop: "2rem",
+      marginBottom: "2rem",
+      display: "flex",
+      justifyContent: "center",
+    }}
+  >
+    <iframe
+      src={src}
+      style={{
+        width: "min(1200px, 95vw)",
+        height: "600px",
+        border: 0,
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
+        background: "#fff",
+      }}
+      allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+      sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+      allowFullScreen
+      loading="lazy"
+      title="CodeSandbox Embed"
+    />
+  </div>
+);
+
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     // Override HTML elements
@@ -54,6 +91,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {children}
       </pre>
     ),
+    // Custom MDX component for CodeSandbox embeds
+    CodeSandboxEmbed,
+    Gif,
     ...components,
   };
 }
