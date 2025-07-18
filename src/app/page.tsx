@@ -160,7 +160,7 @@ export default function Home() {
                 id="paragraph"
                 className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-normal text-pretty"
               >
-                I&apos;m a creative developer creating innovative, award-winning
+                I&apos;m a creative technologist and developer creating innovative, award-winning
                 experiences for brands like HSBC and the NHS, leading our
                 Creative Tech Studio at VML in London, UK.
               </p>
