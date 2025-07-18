@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "../components/Header";
+import { Analytics } from "@vercel/analytics/next";
 
 const lastik = localFont({
   variable: "--font-lastik",
   src: "./fonts/LastikVariable-Variable.woff2",
   display: "swap",
-  
 });
 
 const atkinsonHyperlegible = localFont({
@@ -98,6 +98,7 @@ export default function RootLayout({
             />
           </filter>
         </svg>
+        <Analytics />
       </body>
     </html>
   );
