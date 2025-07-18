@@ -16,7 +16,15 @@ export default function FilterChips({
   const hasFilters = selectedTypes.length > 0;
 
   return (
-    <div className="max-w-full flex gap-2 items-center px-5 py-10 w-fill sm:w-fit overflow-x-scroll no-scrollbar whitespace-nowrap">
+    <div
+      className="max-w-full flex gap-2 items-center px-5 py-10 w-fill sm:w-fit overflow-x-scroll no-scrollbar whitespace-nowrap"
+      style={{
+        WebkitMaskImage:
+          'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
+        maskImage:
+          'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
+      }}
+    >
       <span className="text-purple-950 text-sm font-semibold">
         Filter:
       </span>
