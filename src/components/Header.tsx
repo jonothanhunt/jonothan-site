@@ -143,8 +143,8 @@ export default function Header() {
       <nav aria-label="Main navigation" className="relative">
         {/* Glass Container */}
         <div className="relative flex items-center bg-transparent rounded-full overflow-visible flex-1 shadow-2xl shadow-pink-900/30 text-purple-950 transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,2.2)] mx-auto w-fit">
-          {/* Glass Filter - SVG displacement effect */}
-          <div className="absolute inset-0 rounded-full z-0 backdrop-blur-[3px] [filter:url(#lensFilter)_saturate(120%)]"></div>
+          {/* Glass Blur - CSS-only backdrop blur (removed SVG filter for performance) */}
+          <div className="absolute inset-0 rounded-full z-0 backdrop-blur-[3px]"></div>
           {/* Glass Overlay - Semi-transparent background */}
           <div className="absolute inset-0 rounded-full z-[1] bg-pink-200/70"></div>
           {/* Glass Specular - Edge highlight effect */}
