@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, Suspense, memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ThingMetadata, ThingType } from "@/types/thing";
 import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
@@ -20,18 +21,21 @@ const arePropsEqual = (
     isSelected: boolean;
     selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
+  isPriority: boolean;
   },
   nextProps: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
     selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
+  isPriority: boolean;
   }
 ) => {
   return (
     prevProps.post.slug === nextProps.post.slug &&
     prevProps.isSelected === nextProps.isSelected &&
-    prevProps.glowHandlers === nextProps.glowHandlers
+  prevProps.glowHandlers === nextProps.glowHandlers &&
+  prevProps.isPriority === nextProps.isPriority
   );
 };
 
@@ -42,11 +46,13 @@ const ArticleItem = memo(
     isSelected,
     selectedPostRef,
     glowHandlers,
+  isPriority,
   }: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
     selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
+  isPriority: boolean;
   }) => {
     return (
       <article
@@ -65,16 +71,6 @@ const ArticleItem = memo(
               ? "relative block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"
               : "block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"
           }
-          style={
-            post.image
-              ? {
-                  backgroundImage: `url(${post.image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }
-              : undefined
-          }
           {...glowHandlers}
         >
           <div
@@ -82,6 +78,18 @@ const ArticleItem = memo(
               post.image ? "min-h-42" : ""
             }`}
           >
+            {post.image ? (
+              <Image
+                src={post.image}
+                alt=""
+                aria-hidden="true"
+                fill
+                className="absolute inset-0 rounded-xl object-cover"
+                sizes="(max-width: 640px) 100vw, 512px"
+                quality={50}
+                priority={isPriority}
+              />
+            ) : null}
             {/* Combined background overlay for images */}
             {post.image ? (
               <div
@@ -321,8 +329,9 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
       </Suspense>
       <div className="container max-w-3xl mx-auto pb-8 px-4 font-[family-name:var(--font-hyperlegible)]">
         <div className="space-y-8" role="feed" aria-label="Blog posts list">
-          {filteredPosts.map((post) => {
+          {filteredPosts.map((post, idx) => {
             const isSelected = post.slug === selectedSlug;
+            const isPriority = idx < 5; // prioritize above-the-fold images
 
             return (
               <ArticleItem
@@ -331,6 +340,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                 isSelected={isSelected}
                 selectedPostRef={isSelected ? selectedPostRef : null}
                 glowHandlers={glowHandlers}
+                isPriority={isPriority}
               />
             );
           })}
