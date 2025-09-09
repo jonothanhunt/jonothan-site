@@ -75,29 +75,7 @@ export default function RootLayout({
           </p>
         </footer>
 
-        {/* SVG Filter for glass effect */}
-        <svg xmlns="http://www.w3.org/2000/svg" style={{ display: "none" }}>
-          <filter
-            id="lensFilter"
-            x="0%"
-            y="0%"
-            width="100%"
-            height="100%"
-            filterUnits="objectBoundingBox"
-          >
-            <feComponentTransfer in="SourceAlpha" result="alpha">
-              <feFuncA type="identity" />
-            </feComponentTransfer>
-            <feGaussianBlur in="alpha" stdDeviation="50" result="blur" />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="blur"
-              scale="25"
-              xChannelSelector="A"
-              yChannelSelector="A"
-            />
-          </filter>
-        </svg>
+  {/* Removed SVG filter for performance; CSS backdrop-blur is used instead */}
         <Analytics />
       </body>
     </html>
