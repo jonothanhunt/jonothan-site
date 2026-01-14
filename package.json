@@ -24,7 +24,7 @@
     "gray-matter": "^4.0.3",
     "gsap": "^3.13.0",
     "motion": "^12.11.3",
-    "next": "15.3.2",
+    "next": "15.3.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-slot-counter": "^3.3.2",
