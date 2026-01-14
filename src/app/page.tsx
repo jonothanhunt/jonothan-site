@@ -4,6 +4,7 @@ import VariableProximity from "../components/VariableProximity";
 import { Suspense, useRef, useState, useEffect } from "react";
 import Model from "../components/Model";
 import SplashCursor from "../components/SplashCursor";
+import LiveTicker from "../components/LiveTicker";
 import ErrorBoundary from "../components/ErrorBoundary";
 import {
   ClipboardIcon,
@@ -28,7 +29,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 const isWebGLAvailable = () => {
   try {
     if (typeof window === 'undefined') return true; // SSR check
-    
+
     const canvas = document.createElement('canvas');
     return !!(
       window.WebGLRenderingContext &&
@@ -126,17 +127,17 @@ export default function Home() {
         <SplashCursor />
         <main ref={mainRef}>
           {/* About section */}
-          
+
           <section
             id="about"
             className="relative min-h-[calc(100vh-250px)] w-full flex flex-col items-center py-20 justify-center"
           >
-            <div className="h-12"/>
+            <div className="h-12" />
             <div
               ref={textContainerRef}
               className="max-w-xl mx-6 flex flex-col gap-4 invisible"
             >
-              <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col">
+              <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col text-emerald-600">
                 <VariableProximity
                   label={"Hey, I'm"}
                   className="inline-block cursor-default select-none"
@@ -158,11 +159,10 @@ export default function Home() {
               </h1>
               <p
                 id="paragraph"
-                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-normal text-pretty"
+                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-normal text-pretty text-sky-600"
               >
                 I&apos;m a creative technologist and developer creating innovative, award-winning
-                experiences for brands like HSBC and the NHS, leading our
-                Creative Tech Studio at VML in London, UK.
+                experiences for brands like HSBC and the NHS, directing Creative Innovation at VML in London, UK.
               </p>
               <div
                 ref={awardsRef}
@@ -239,14 +239,13 @@ export default function Home() {
                   </h3>
                   <p className="text-white text-lg max-w-96 text-pretty font-normal">
                     Book me for a talk or I&apos;m always down to chat about
-                    exciting projects, especially immersive web (WebGL, shaders)
-                    and mixed reality!
+                    exciting projects, especially immersive web (WebGL, shaders), webAR and social effects
                   </p>
                   <div className="flex items-center">
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
                       <Link
                         href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer font-normal"
+                        className="inline-flex items-center text-purple-950 bg-purple-50/90 hover:bg-purple-50 active:bg-purple-50 backdrop-blur-[2px] text-base px-3 py-2 transition-all cursor-pointer font-normal"
                         aria-label="Email me at hey@jonothan.dev"
                       >
                         hey@jonothan.dev
@@ -347,17 +346,59 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Campaign */}
+                {/* Campaign (Now Creative Tech Stack) */}
                 <div ref={campaignRef} className="col-span-1 md:col-start-4 font-w-70">
+                  <Link
+                    href="/things/creative-tech-stack"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    aria-labelledby="creative-tech-stack-title"
+                    {...glowHandlers}
+                  >
+                    <div
+                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
+                      style={{
+                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                      }}
+                    />
+                    <Image
+                      src="/things-content/creative-tech-stack/images/creative-tech-stack.png"
+                      alt="Creative Tech Stack website screenshot"
+                      fill
+                      style={{ objectFit: "cover", objectPosition: "center" }}
+                      className="z-0"
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-emerald-100 via-70% to-emerald-100 z-10" />
+                    <div className="w-fit px-4 py-2 bg-emerald-600 text-white backdrop-blur-md rounded-2xl font-normal">
+                      Web
+                    </div>
+                    <div className="z-10 flex flex-col gap-2 font-w-70">
+                      <p
+                        id="creative-tech-stack-title"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-emerald-800 font-w-70"
+                      >
+                        Creative Tech Stack
+                      </p>
+                      <p className="text-emerald-800 text-md font-normal leading-tight">
+                        A tools database & blog for creative technologists.
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* HSBC Vault (Now Waiting to Live) */}
+                <div
+                  ref={hsbcRef}
+                  className="col-span-1 md:col-start-4 md:row-start-2 font-w-70"
+                >
                   <Link
                     href="https://waitingtolive.org/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
                     aria-labelledby="waiting-to-live-title"
                     {...glowHandlers}
                   >
-                    <div 
+                    <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
                         background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
@@ -370,65 +411,20 @@ export default function Home() {
                       style={{ objectFit: "cover", objectPosition: "center" }}
                       className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/50 to-purple-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-100 via-70% to-orange-100 z-10" />
+                    <div className="w-fit px-4 py-2 bg-orange-600 text-white backdrop-blur-md rounded-2xl font-normal">
                       Campaign
                     </div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
                         id="waiting-to-live-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-orange-800 font-w-70"
                       >
                         Waiting to Live
                       </p>
-                      <p className="text-white text-md font-normal leading-tight">
+                      <p className="text-orange-800 text-md font-normal leading-tight">
                         Our campaign is raising awareness of organ donation for
                         the NHS.
-                      </p>
-                    </div>
-                  </Link>
-                </div>
-
-                {/* HSBC Vault */}
-                <div
-                  ref={hsbcRef}
-                  className="col-span-1 md:col-start-4 md:row-start-2 font-w-70"
-                >
-                  <Link
-                    href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer  "
-                    aria-labelledby="hsbc-vault-title"
-                    {...glowHandlers}
-                  >
-                    <div 
-                      className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
-                      style={{
-                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
-                      }}
-                    />
-                    <Image
-                      src="/images/home/hsbc_vault.webp"
-                      alt="The HSBC Vault installation in waterloo station."
-                      fill
-                      style={{ objectFit: "cover", objectPosition: "center" }}
-                      className="z-0"
-                    />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-950/50 to-orange-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
-                      Installation
-                    </div>
-                    <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p
-                        id="hsbc-vault-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
-                      >
-                        HSBC Vault
-                      </p>
-                      <p className="text-white text-md font-normal leading-tight">
-                        My team and I created the software running HSBC&apos;s
-                        Vault experience.
                       </p>
                     </div>
                   </Link>
@@ -447,7 +443,7 @@ export default function Home() {
                     aria-labelledby="tiktok-views-title"
                     {...glowHandlers}
                   >
-                    <div 
+                    <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
                         background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
@@ -463,7 +459,7 @@ export default function Home() {
                         opacity: 0.2,
                       }}
                     />
-                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
+                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-normal">
                       Latest
                     </div>
                     <p
@@ -473,55 +469,56 @@ export default function Home() {
                       Views of TikTok videos using my camera effects have
                       reached{" "}
                       <span className="inline-block">
-                        <span className="inline font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2 pt-2 pb-0 font-w-70">
-                        9,391,015,623
+                        <LiveTicker
+                          initialValue={9987883874}
+                          className="inline-flex font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2"
+                        />
                       </span>
-                      !
-                      </span>
-                      
+
                     </p>
                   </Link>
                 </div>
 
-                {/* Supermarket Scan */}
+                {/* Supermarket Scan (Now HSBC Vault) */}
                 <div
                   ref={supermarketRef}
                   className="col-span-1 md:col-start-1 md:row-start-3 font-w-70"
                 >
                   <Link
-                    href="https://www.youtube.com/live/6vYkZmNvDEg?si=Ts9xPxF03xS6G0ao"
+                    href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer "
-                    aria-labelledby="supermarket-scan-title"
+                    aria-labelledby="hsbc-vault-title"
                     {...glowHandlers}
                   >
-                    <div 
+                    <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
                         background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
                       }}
                     />
                     <Image
-                      src="/images/home/tiktok_live_supermarket_scan.webp"
-                      alt="YouTube thumbnail for the live stream showing my face and the title."
+                      src="/images/home/hsbc_vault.webp"
+                      alt="The HSBC Vault installation in waterloo station."
                       fill
-                      style={{ objectFit: "cover", objectPosition: "top" }}
+                      style={{ objectFit: "cover", objectPosition: "center" }}
                       className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
-                      Tutorial
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-sky-100 via-70% to-sky-100 z-10" />
+                    <div className="w-fit px-4 py-2 bg-sky-600 text-white backdrop-blur-md rounded-2xl font-normal">
+                      Installation
                     </div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
-                        id="supermarket-scan-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
+                        id="hsbc-vault-title"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-sky-800 font-w-70"
                       >
-                        How I made the viral Supermarket Scan effect
+                        HSBC Vault
                       </p>
-                      <p className="text-white text-md text-pretty font-normal leading-tight">
-                        Coding live with Celine on Effect House&apos;s YouTube
+                      <p className="text-sky-800 text-md text-pretty font-normal leading-tight">
+                        My team and I created the software running HSBC&apos;s
+                        Vault experience.
                       </p>
                     </div>
                   </Link>
@@ -537,7 +534,7 @@ export default function Home() {
                     aria-labelledby="magpie-app-title"
                     {...glowHandlers}
                   >
-                    <div 
+                    <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
                         background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
@@ -550,18 +547,18 @@ export default function Home() {
                       style={{ objectFit: "cover", objectPosition: "top" }}
                       className="z-0"
                     />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-950/80 to-purple-950 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-w-70">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-rose-100 via-70% to-rose-100 z-10" />
+                    <div className="w-fit px-4 py-2 bg-rose-600 text-white backdrop-blur-md rounded-2xl font-normal">
                       App
                     </div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p
                         id="magpie-app-title"
-                        className="font-[family-name:var(--font-lastik)] text-2xl text-white font-w-70"
+                        className="font-[family-name:var(--font-lastik)] text-2xl text-rose-800 font-w-70"
                       >
                         Magpie: VML&apos;s award-winning mentorship app
                       </p>
-                      <p className="text-white text-md text-pretty font-normal leading-tight">
+                      <p className="text-rose-800 text-md text-pretty font-normal leading-tight">
                         I developed our mentorship app built for Microsoft
                         Teams.
                       </p>
@@ -572,7 +569,7 @@ export default function Home() {
             </div>
           </section>
 
-          </main>
+        </main>
       </div>
     </>
   );

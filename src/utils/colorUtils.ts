@@ -9,20 +9,22 @@ export interface Theme {
     linkHover: string;
     shadow: string;
     accentShadow: string;
+    accentText: string;
 }
 
 export const PLAYFUL_THEMES: Theme[] = [
     {
-        name: "Mint",
-        bg: "bg-teal-100",
-        border: "border-teal-200",
-        text: "text-teal-950",
-        pillBg: "bg-teal-200",
-        accent: "bg-teal-600",
-        lightAccent: "bg-teal-50",
-        linkHover: "hover:bg-teal-200",
-        shadow: "shadow-teal-600/15",
-        accentShadow: "shadow-teal-600/50",
+        name: "Green",
+        bg: "bg-emerald-100",
+        border: "border-emerald-200",
+        text: "text-emerald-950",
+        pillBg: "bg-emerald-200",
+        accent: "bg-emerald-600",
+        lightAccent: "bg-emerald-50",
+        linkHover: "hover:bg-emerald-200",
+        shadow: "shadow-emerald-600/15",
+        accentShadow: "shadow-emerald-600/50",
+        accentText: "text-emerald-600",
     },
     {
         name: "Peach",
@@ -35,6 +37,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         linkHover: "hover:bg-orange-200",
         shadow: "shadow-orange-600/15",
         accentShadow: "shadow-orange-600/50",
+        accentText: "text-orange-600",
     },
     {
         name: "Sky",
@@ -47,6 +50,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         linkHover: "hover:bg-sky-200",
         shadow: "shadow-sky-600/15",
         accentShadow: "shadow-sky-600/50",
+        accentText: "text-sky-600",
     },
     {
         name: "Lavender",
@@ -59,6 +63,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         linkHover: "hover:bg-purple-200",
         shadow: "shadow-purple-600/15",
         accentShadow: "shadow-purple-600/50",
+        accentText: "text-purple-600",
     },
     {
         name: "Lemon",
@@ -71,6 +76,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         linkHover: "hover:bg-yellow-200",
         shadow: "shadow-yellow-600/15",
         accentShadow: "shadow-yellow-600/50",
+        accentText: "text-yellow-700",
     },
     {
         name: "Rose",
@@ -83,5 +89,6 @@ export const PLAYFUL_THEMES: Theme[] = [
         linkHover: "hover:bg-rose-200",
         shadow: "shadow-rose-600/15",
         accentShadow: "shadow-rose-600/50",
+        accentText: "text-rose-600",
     },
 ];
