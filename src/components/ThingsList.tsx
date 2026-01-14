@@ -169,7 +169,7 @@ const ArticleItem = memo(
 
             {/* Title - always after metadata with guaranteed gap */}
             <h2
-              className={`relative z-10 font-[family-name:var(--font-lastik)] font-bold text-3xl ${theme.text} text-balance ${post.image ? "mt-12" : "mt-6"
+              className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl ${theme.text} text-balance ${post.image ? "mt-12" : "mt-6"
                 }`}
               tabIndex={isSelected ? 0 : -1}
               ref={(node) => {

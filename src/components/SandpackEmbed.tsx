@@ -23,8 +23,12 @@ export function SandpackEmbed({ basePath, files, template = "static", view = "bo
   const [fileContents, setFileContents] = useState<Record<string, { code: string }>>({});
   useEffect(() => {
     let isMounted = true;
+
+    // Re-derive fileList inside effect to avoid dependency warnings/instability
+    const currentFileList = files.map(f => typeof f === "string" ? { file: f, visible: true } : { file: f.file, visible: f.visible !== false });
+
     Promise.all(
-      fileList.map(async ({ file }) => {
+      currentFileList.map(async ({ file }) => {
         const res = await fetch(`${basePath}${file}`);
         const code = await res.text();
         return ["/" + file, { code }];
