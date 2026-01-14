@@ -15,6 +15,24 @@
   --color-purple: oklch(0.72 0.11 178);
 } */
 
+/* 
+  PLAYFUL THEME REFERENCE (defined in src/utils/colorUtils.ts)
+  
+  Used for Blog Posts, Filter Chips, and Header.
+  Themes cycle or are assigned by index.
+
+  - Mint (Teal):     bg-teal-100,    border-teal-200,    text-teal-950,    accent-teal-600
+  - Peach (Orange):  bg-orange-100,  border-orange-200,  text-orange-950,  accent-orange-600
+  - Sky (Blue):      bg-sky-100,     border-sky-200,     text-sky-950,     accent-sky-600
+  - Lavender (Purple): bg-purple-100, border-purple-200, text-purple-950,  accent-purple-600
+  - Lemon (Yellow):  bg-yellow-100,  border-yellow-200,  text-yellow-950,  accent-yellow-600
+  - Rose (Red):      bg-rose-100,    border-rose-200,    text-rose-950,    accent-rose-600
+
+  Shadows:
+  - Base: 15% opacity matching accent color (e.g., shadow-teal-600/15)
+  - Accent: 50% opacity matching accent color (e.g., shadow-teal-600/50)
+*/
+
 /*
 html::before {
   content: "";
@@ -40,16 +58,12 @@ html {
 .crosses {
   background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%2359168b' stroke-width='1'%3E%3Cline x1='10' y1='4' x2='10' y2='16' /%3E%3Cline x1='4' y1='10' x2='16' y2='10' /%3E%3C/g%3E%3C/svg%3E");
   background-repeat: repeat;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
+  -webkit-mask-image: linear-gradient(to bottom,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0) 100%);
   opacity: 0.1;
 }
 
@@ -67,6 +81,7 @@ html {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

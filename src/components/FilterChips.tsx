@@ -1,4 +1,5 @@
 import { ThingType } from "@/types/thing";
+import { PLAYFUL_THEMES } from "@/utils/colorUtils";
 
 interface FilterChipsProps {
   selectedTypes: ThingType[];
@@ -28,24 +29,28 @@ export default function FilterChips({
       <span className="text-purple-950 text-sm font-semibold">
         Filter:
       </span>
-      {availableTypes.map((type) => (
-        <button
-          key={type}
-          onClick={() => onTypeSelect(type)}
-          className={`px-3 py-2 rounded-full text-sm transition-all duration-300 border border-white/20 cursor-pointer ${
-            selectedTypes.includes(type)
-              ? "bg-purple-900/70 text-white shadow-md shadow-purple-900/20 translate-y-[2px]"
-              : "bg-pink-200/70 text-purple-950 shadow-xl shadow-pink-900/15 hover:bg-pink-100/90"
-          }`}
-        >
-          {type}
-        </button>
-      ))}
+      {availableTypes.map((type, idx) => {
+        const theme = PLAYFUL_THEMES[idx % PLAYFUL_THEMES.length];
+        const isSelected = selectedTypes.includes(type);
+
+        return (
+          <button
+            key={type}
+            onClick={() => onTypeSelect(type)}
+            className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${isSelected
+              ? `${theme.accent} text-white shadow-xl ${theme.shadow} translate-y-[2px] border-transparent`
+              : `${theme.bg} ${theme.text} ${theme.border} hover:brightness-95 hover:-translate-y-0.5 hover:shadow-xl shadow-lg ${theme.shadow}`
+              }`}
+          >
+            {type}
+          </button>
+        );
+      })}
 
       {hasFilters && (
         <button
           onClick={onClearFilters}
-          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-800 text-white text-sm shadow-xl shadow-red-800/20 hover:bg-red-600 transition-all duration-300 cursor-pointer"
+          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-100 text-red-900 border border-red-200 text-sm font-medium shadow-sm hover:bg-red-200 transition-all duration-300 cursor-pointer"
         >
           <svg
             width="14"

@@ -8,6 +8,7 @@ import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
 import { ThingsListFilters } from "@/components/ThingsListFilters";
 import { createGlowEffect, GlowEffect } from "@/utils/glowEffect";
+import { PLAYFUL_THEMES, Theme } from "@/utils/colorUtils";
 
 interface ThingsListProps {
   initialPosts: (ThingMetadata & { slug: string })[];
@@ -21,21 +22,24 @@ const arePropsEqual = (
     isSelected: boolean;
     selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
-  isPriority: boolean;
+    isPriority: boolean;
+    theme: Theme;
   },
   nextProps: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
     selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
-  isPriority: boolean;
+    isPriority: boolean;
+    theme: Theme;
   }
 ) => {
   return (
     prevProps.post.slug === nextProps.post.slug &&
     prevProps.isSelected === nextProps.isSelected &&
-  prevProps.glowHandlers === nextProps.glowHandlers &&
-  prevProps.isPriority === nextProps.isPriority
+    prevProps.glowHandlers === nextProps.glowHandlers &&
+    prevProps.isPriority === nextProps.isPriority &&
+    prevProps.theme.name === nextProps.theme.name
   );
 };
 
@@ -46,13 +50,15 @@ const ArticleItem = memo(
     isSelected,
     selectedPostRef,
     glowHandlers,
-  isPriority,
+    isPriority,
+    theme,
   }: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
     selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
-  isPriority: boolean;
+    isPriority: boolean;
+    theme: Theme;
   }) => {
     return (
       <article
@@ -63,20 +69,18 @@ const ArticleItem = memo(
         <CardDiv
           post={post}
           isSelected={isSelected}
-          ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${
-            post.title
-          }`}
+          ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${post.title
+            }`}
           className={
             post.image
-              ? "relative block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"
-              : "block rounded-xl cursor-pointer group shadow-2xl shadow-pink-900/10"
+              ? `relative block rounded-xl cursor-pointer group shadow-xl ${theme.shadow} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${theme.bg} ${theme.border} border`
+              : `block rounded-xl cursor-pointer group shadow-xl ${theme.shadow} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${theme.bg} ${theme.border} border`
           }
           {...glowHandlers}
         >
           <div
-            className={`relative flex flex-col p-5 ${
-              post.image ? "min-h-42" : ""
-            }`}
+            className={`relative flex flex-col p-6 ${post.image ? "min-h-42" : ""
+              }`}
           >
             {post.image ? (
               <Image
@@ -84,27 +88,16 @@ const ArticleItem = memo(
                 alt=""
                 aria-hidden="true"
                 fill
-                className="absolute inset-0 rounded-xl object-cover"
+                className="absolute inset-0 rounded-xl object-cover opacity-60 mix-blend-overlay"
                 sizes="(max-width: 640px) 100vw, 512px"
                 quality={50}
                 priority={isPriority}
               />
             ) : null}
-            {/* Combined background overlay for images */}
-            {post.image ? (
-              <div
-                className="absolute inset-0 rounded-xl border border-white z-0"
-                style={{
-                  background:
-                    "linear-gradient(25deg, rgb(243 232 255) 0%, rgb(243 232 255 / 1.0) 30%, rgb(243 232 255 / 0.95) 60%, rgb(243 232 255 / 0.9) 85%)",
-                }}
-              />
-            ) : (
-              <div className="absolute inset-0 rounded-xl border border-white bg-white/20 -z-10" />
-            )}
 
             {/* Cursor Glow Effect - now above background but below content */}
             <GlowEffect className="absolute inset-0 z-10 pointer-events-none" />
+
             {/* Metadata tags and date - always top left */}
             <div
               className="z-10 w-full relative flex flex-wrap gap-2 self-start"
@@ -119,27 +112,19 @@ const ArticleItem = memo(
                   <span
                     key={type}
                     role="tag"
-                    className={`text-purple-950 min-w-fit w-fit h-10 px-3 py-2 rounded-full text-sm flex items-center ${
-                      post.image
-                        ? "bg-pink-200/80 backdrop-blur-sm"
-                        : "bg-pink-200/70"
-                    }`}
+                    className={`${theme.text} min-w-fit w-fit h-8 px-3 rounded-full text-xs font-medium uppercase tracking-wider flex items-center ${theme.pillBg} backdrop-blur-sm bg-opacity-70`}
                   >
                     {type}
                   </span>
                 ))}
                 <time
                   dateTime={post.date}
-                  className={`text-purple-950 min-w-fit w-fit h-10 px-3 py-2 rounded-full text-sm flex items-center ${
-                    post.image
-                      ? "bg-purple-50/80 backdrop-blur-sm"
-                      : "bg-purple-50"
-                  }`}
+                  className={`${theme.text} min-w-fit w-fit h-8 px-3 rounded-full text-xs font-medium uppercase tracking-wider flex items-center ${theme.pillBg} backdrop-blur-sm bg-opacity-70`}
                 >
                   {formatCustomDate(post.date)}
                 </time>
 
-                <div className="flex-1"/>
+                <div className="flex-1" />
 
                 {/* Right: links */}
                 {post.links &&
@@ -150,12 +135,10 @@ const ArticleItem = memo(
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-1 px-3 py-2 rounded-full align-right text-sm min-w-fit w-fit h-10 font-normal text-purple-950 bg-blue-100/80 hover:bg-blue-50 shadow-xl shadow-blue-900/10 transition-colors duration-200 border border-white box-border ${
-                        post.image ? "backdrop-blur-sm" : ""
-                      }`}
+                      className={`flex items-center gap-1 px-3 rounded-full align-right text-xs font-medium uppercase tracking-wider min-w-fit w-fit h-8 text-white ${theme.accent} ${theme.accentShadow} shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-white/20 box-border`}
                       style={{
                         textDecoration: "none",
-                        height: "2.5rem",
+                        height: "2rem",
                         boxSizing: "border-box",
                       }}
                       aria-label={`External link: ${link.title}`}
@@ -164,12 +147,12 @@ const ArticleItem = memo(
 
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
+                        width="14"
+                        height="14"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
-                        strokeWidth="2"
+                        strokeWidth="2.5"
                         className="ml-1"
                         style={{ display: "block" }}
                       >
@@ -186,9 +169,8 @@ const ArticleItem = memo(
 
             {/* Title - always after metadata with guaranteed gap */}
             <h2
-              className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl text-purple-950 text-balance ${
-                post.image ? "mt-12" : "mt-4"
-              }`}
+              className={`relative z-10 font-[family-name:var(--font-lastik)] font-bold text-3xl ${theme.text} text-balance ${post.image ? "mt-12" : "mt-6"
+                }`}
               tabIndex={isSelected ? 0 : -1}
               ref={(node) => {
                 if (node && isSelected) {
@@ -247,7 +229,7 @@ function CardDiv({
       isSelected
         ? "/things"
         : `/things/${post.slug}` +
-            (typeof window !== "undefined" ? window.location.search : ""),
+        (typeof window !== "undefined" ? window.location.search : ""),
       { scroll: false }
     );
   };
@@ -314,8 +296,8 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
   const filteredPosts =
     selectedTypes.length > 0
       ? initialPosts.filter((post) =>
-          selectedTypes.some((type) => post.type.includes(type))
-        )
+        selectedTypes.some((type) => post.type.includes(type))
+      )
       : initialPosts;
 
   return (
@@ -332,6 +314,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
           {filteredPosts.map((post, idx) => {
             const isSelected = post.slug === selectedSlug;
             const isPriority = idx < 5; // prioritize above-the-fold images
+            const theme = PLAYFUL_THEMES[idx % PLAYFUL_THEMES.length];
 
             return (
               <ArticleItem
@@ -341,6 +324,7 @@ export function ThingsList({ initialPosts, selectedSlug }: ThingsListProps) {
                 selectedPostRef={isSelected ? selectedPostRef : null}
                 glowHandlers={glowHandlers}
                 isPriority={isPriority}
+                theme={theme}
               />
             );
           })}

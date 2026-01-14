@@ -11,11 +11,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
+import { PLAYFUL_THEMES } from "@/utils/colorUtils";
+
 export default function Header() {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
   const [showContactPopup, setShowContactPopup] = useState(false);
+
+  // Use Lavender (index 3) as the default playful theme for the header
+  const theme = PLAYFUL_THEMES[3];
 
   // When the pathname changes, update the active section.
   useEffect(() => {
@@ -142,15 +147,15 @@ export default function Header() {
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
       <nav aria-label="Main navigation" className="relative">
         {/* Glass Container */}
-        <div className="relative flex items-center bg-transparent rounded-full overflow-visible flex-1 shadow-2xl shadow-pink-900/30 text-purple-950 transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,2.2)] mx-auto w-fit">
+        <div className={`relative flex items-center bg-transparent rounded-full overflow-visible flex-1 shadow-2xl ${theme.shadow} text-purple-950 transition-all duration-500 ease-[cubic-bezier(0.175,0.885,0.32,2.2)] mx-auto w-fit`}>
           {/* Glass Blur - CSS-only backdrop blur (removed SVG filter for performance) */}
           <div className="absolute inset-0 rounded-full z-0 backdrop-blur-[3px]"></div>
           {/* Glass Overlay - Semi-transparent background */}
-          <div className="absolute inset-0 rounded-full z-[1] bg-pink-200/70"></div>
+          <div className={`absolute inset-0 rounded-full z-[1] ${theme.pillBg} opacity-70`}></div>
           {/* Glass Specular - Edge highlight effect */}
           <div className="absolute inset-0 rounded-full z-[2] shadow-[inset_1px_1px_0_rgba(255,255,255,0.40),inset_0_0_5px_rgba(255,255,255,0.40)]"></div>
           {/* Cursor Glow Effect */}
-          <div 
+          <div
             className="absolute inset-0 rounded-full z-[1.5] pointer-events-none opacity-0 transition-opacity duration-300"
             style={{
               background: 'radial-gradient(circle 160px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 1.0) 25%, rgba(255, 255, 255, 0.5) 50%, transparent 80%)'
@@ -158,30 +163,29 @@ export default function Header() {
           ></div>
           {/* Glass Content - Actual nav items */}
           <ul className="relative z-[3] flex flex-1 items-center mx-auto py-1 px-2 w-fit h-12 justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle"
-              onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                const glowElement = e.currentTarget.parentElement?.querySelector('.absolute.inset-0.rounded-full.z-\\[1\\.5\\]') as HTMLElement;
-                if (glowElement) {
-                  glowElement.style.setProperty('--mouse-x', `${x}%`);
-                  glowElement.style.setProperty('--mouse-y', `${y}%`);
-                  glowElement.style.opacity = '1';
-                }
-              }}
-              onMouseLeave={(e) => {
-                const glowElement = e.currentTarget.parentElement?.querySelector('.absolute.inset-0.rounded-full.z-\\[1\\.5\\]') as HTMLElement;
-                if (glowElement) {
-                  glowElement.style.opacity = '0';
-                }
-              }}
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = ((e.clientX - rect.left) / rect.width) * 100;
+              const y = ((e.clientY - rect.top) / rect.height) * 100;
+              const glowElement = e.currentTarget.parentElement?.querySelector('.absolute.inset-0.rounded-full.z-\\[1\\.5\\]') as HTMLElement;
+              if (glowElement) {
+                glowElement.style.setProperty('--mouse-x', `${x}%`);
+                glowElement.style.setProperty('--mouse-y', `${y}%`);
+                glowElement.style.opacity = '1';
+              }
+            }}
+            onMouseLeave={(e) => {
+              const glowElement = e.currentTarget.parentElement?.querySelector('.absolute.inset-0.rounded-full.z-\\[1\\.5\\]') as HTMLElement;
+              if (glowElement) {
+                glowElement.style.opacity = '0';
+              }
+            }}
           >
             <li
-              className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${
-                activeSection === "about"
+              className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${activeSection === "about"
                   ? "w-0 ml-0 mr-0"
                   : "w-26 ml-2"
-              }`}
+                }`}
               style={{ minWidth: 0 }}
             >
               <Link
@@ -191,9 +195,8 @@ export default function Header() {
                 className="cursor-pointer rounded-full pr-2 py-1 transition-all h-8 flex items-center hover:text-black"
               >
                 <span
-                  className={`leading-[1.1] align-middle relative top-[2px] transition-opacity duration-700 ${
-                    activeSection === "about" ? "opacity-10" : "opacity-100"
-                  }`}
+                  className={`leading-[1.1] align-middle relative top-[2px] transition-opacity duration-700 ${activeSection === "about" ? "opacity-10" : "opacity-100"
+                    }`}
                   style={{ display: "inline-block", whiteSpace: "nowrap" }}
                 >
                   Jonothan
@@ -205,17 +208,15 @@ export default function Header() {
               <Link
                 href="/#work"
                 onClick={(e) => handleSectionClick(e, "work")}
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 h-8 hover:text-black ${
-                  activeSection === "work"
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer border-white/20 h-8 hover:text-black ${activeSection === "work"
                     ? "bg-purple-50/60 border px-3 shadow-xl shadow-purple-700/10"
                     : "px-2"
-                }`}
+                  }`}
                 aria-label="Navigate to work"
               >
                 <CodeBracketIcon
-                  className={`transition-all duration-300 ${
-                    activeSection === "work" ? "size-6" : "size-0"
-                  }`}
+                  className={`transition-all duration-300 ${activeSection === "work" ? "size-6" : "size-0"
+                    }`}
                 />
                 <span className="align-middle relative top-[2px]">Work</span>
               </Link>
@@ -224,17 +225,15 @@ export default function Header() {
             <li>
               <Link
                 href="/things"
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 hover:text-black ${
-                  activeSection === "blog"
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 hover:text-black ${activeSection === "blog"
                     ? "bg-purple-50/60 px-3 shadow-xl shadow-purple-700/10"
                     : "px-2"
-                }`}
+                  }`}
                 aria-label="Navigate to blog"
               >
                 <SparklesIcon
-                  className={`transition-all duration-300 ${
-                    activeSection === "blog" ? "size-6" : "size-0"
-                  }`}
+                  className={`transition-all duration-300 ${activeSection === "blog" ? "size-6" : "size-0"
+                    }`}
                 />
                 <span className="align-middle relative top-[2px]">Things</span>
               </Link>
@@ -251,27 +250,24 @@ export default function Header() {
                     !showContactPopup
                   ); // Debug log
                 }}
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 hover:text-black ${
-                  showContactPopup
+                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-8 hover:text-black ${showContactPopup
                     ? "bg-purple-50/60 px-3 ml-2 shadow-xl shadow-purple-700/10"
                     : "px-2 ml-0"
-                }`}
+                  }`}
                 aria-label="Contact"
               >
                 <AtSymbolIcon
-                  className={`transition-all duration-300 ${
-                    showContactPopup ? "size-6" : "size-0"
-                  }`}
+                  className={`transition-all duration-300 ${showContactPopup ? "size-6" : "size-0"
+                    }`}
                 />
                 <span className="align-middle relative top-[2px]">Contact</span>
               </button>
 
               <div
-                className={`absolute right-0 z-[100] flex items-center bg-purple-50/80 backdrop-blur-[6px] rounded-lg overflow-visible shadow-xl shadow-purple-700/20 transition-all duration-300 ${
-                  showContactPopup
+                className={`absolute right-0 z-[100] flex items-center bg-purple-50/80 backdrop-blur-[6px] rounded-lg overflow-visible shadow-xl shadow-purple-700/20 transition-all duration-300 ${showContactPopup
                     ? "top-12 opacity-100 pointer-events-auto translate-y-0"
                     : "top-16 opacity-0 pointer-events-none translate-y-1"
-                }`}
+                  }`}
               >
                 <div className="relative z-[3] flex gap-1 text-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)] font-normal">
                   <Link
