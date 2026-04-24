@@ -3,7 +3,6 @@ import { Canvas } from "@react-three/fiber";
 import VariableProximity from "../components/VariableProximity";
 import { Suspense, useRef, useState, useEffect } from "react";
 import Model from "../components/Model";
-import SplashCursor from "../components/SplashCursor";
 import LiveTicker from "../components/LiveTicker";
 import ErrorBoundary from "../components/ErrorBoundary";
 import {
@@ -13,27 +12,18 @@ import {
 import { EffectComposer, N8AO } from "@react-three/postprocessing";
 import Image from "next/image";
 import Link from "next/link";
-
-// GSAP imports
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import InfiniteScrollingLogosAnimation from "@/components/InfiniteScrollingLogosAnimation";
 import { createGlowEffect } from "@/utils/glowEffect";
-
-// Register the plugins
-gsap.registerPlugin(ScrollTrigger, SplitText);
 
 // WebGL detection utility
 const isWebGLAvailable = () => {
   try {
-    if (typeof window === 'undefined') return true; // SSR check
+    if (typeof window === "undefined") return true; // SSR check
 
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     return !!(
       window.WebGLRenderingContext &&
-      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+      (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
     );
   } catch {
     return false;
@@ -44,9 +34,17 @@ const isWebGLAvailable = () => {
 const WebGL3DFallback = () => (
   <div className="w-full h-[500px] flex items-center justify-center text-center p-4 bg-purple-50 rounded-lg">
     <div className="max-w-md">
-      <h2 className="text-xl font-semibold mb-2">3D Experience Not Available</h2>
-      <p className="mb-3">Your browser or device doesn&apos;t support WebGL, which is required for the 3D experience.</p>
-      <p>Try updating your graphics drivers or using a different browser like Chrome or Edge.</p>
+      <h2 className="text-xl font-semibold mb-2">
+        3D Experience Not Available
+      </h2>
+      <p className="mb-3">
+        Your browser or device doesn&apos;t support WebGL, which is required for
+        the 3D experience.
+      </p>
+      <p>
+        Try updating your graphics drivers or using a different browser like
+        Chrome or Edge.
+      </p>
     </div>
   </div>
 );
@@ -54,88 +52,79 @@ const WebGL3DFallback = () => (
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(true);
+  const [sceneReady, setSceneReady] = useState(false);
   const glowHandlers = createGlowEffect();
 
   useEffect(() => {
-    // Check WebGL support on client-side only
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setWebGLSupported(isWebGLAvailable());
     }
+    // Defer 3D scene mount by 300ms so route transition paints first
+    const id = setTimeout(() => setSceneReady(true), 300);
+    return () => clearTimeout(id);
   }, []);
 
-  // Create refs for all the elements you want to animate
-  const canvasRef = useRef(null);
-  const campaignRef = useRef(null);
-  const hsbcRef = useRef(null);
-  const tiktokRef = useRef(null);
-  const supermarketRef = useRef(null);
-  const magpieRef = useRef(null);
-  const awardsRef = useRef(null);
+  // Ref for the 3D canvas container (used by Model for scroll-based rotation)
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   // Ref for the text container to prevent FOUC
-  const textContainerRef = useRef(null);
+  const textContainerRef = useRef<HTMLDivElement>(null);
 
   // Main container ref for scoping animations
-  const mainRef = useRef(null);
+  const mainRef = useRef<HTMLElement>(null);
 
-  useGSAP(
-    () => {
-      // Prevent Flash of Unstyled Content (FOUC) by initially hiding the text container and then revealing it with GSAP.
-      gsap.set(textContainerRef.current, { autoAlpha: 1 });
+  useEffect(() => {
+    // Scroll-reveal for work cards via IntersectionObserver
+    const elements = mainRef.current?.querySelectorAll(".reveal-on-scroll");
+    if (!elements) return;
 
-      // Animate the work section elements into view as the user scrolls.
-      const elements = [
-        canvasRef.current,
-        campaignRef.current,
-        hsbcRef.current,
-        tiktokRef.current,
-        supermarketRef.current,
-        magpieRef.current,
-      ].filter(Boolean);
-
-      gsap.set(elements, {
-        y: 50,
-        opacity: 0,
-      });
-
-      elements.forEach((element) => {
-        gsap.to(element, {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: element,
-            start: "top bottom-=100",
-            end: "bottom top+=100",
-            toggleActions: "play none none reverse",
-            markers: false,
-          },
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+          } else {
+            entry.target.classList.remove("revealed");
+          }
         });
-      });
-    },
-    { scope: mainRef }
-  );
+      },
+      { rootMargin: "0px 0px -100px 0px" },
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
       <div className="relative font-[family-name:var(--font-hyperlegible)] text-purple-950 font-w-70">
         <div
-          className="absolute top-0 left-0 pointer-events-none w-full h-screen crosses"
+          className="absolute top-0 left-0 pointer-events-none w-full h-[80vh] overflow-hidden"
           aria-hidden="true"
-        ></div>
-        <SplashCursor />
+        >
+          <Image
+            src="/header.jpg"
+            alt=""
+            fill
+            priority
+            style={{ objectFit: "cover", objectPosition: "right" }}
+          />
+          <div className="dot-grid absolute inset-0" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fdf8f6]/95 from-40% via-[#fdf8f6]/75 via-60% to-transparent" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 50%, rgba(253,248,246,0.1) 60%, rgba(253,248,246,0.35) 70%, rgba(253,248,246,0.7) 82%, rgba(253,248,246,0.92) 92%, #fdf8f6 100%)" }} />
+        </div>
         <main ref={mainRef}>
           {/* About section */}
 
           <section
             id="about"
-            className="relative min-h-[calc(100vh-250px)] w-full flex flex-col items-center py-20 justify-center"
+            className="relative min-h-[calc(100vh-250px)] w-full flex flex-col items-center py-20 justify-center px-4"
           >
             <div className="h-12" />
+            <div className="relative max-w-6xl w-full mx-auto">
             <div
               ref={textContainerRef}
-              className="max-w-xl mx-6 flex flex-col gap-4 invisible"
+              className="max-w-[25rem] flex flex-col gap-4 pl-2"
             >
               <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col text-emerald-600">
                 <VariableProximity
@@ -159,15 +148,12 @@ export default function Home() {
               </h1>
               <p
                 id="paragraph"
-                className="text-2xl pr-0 md:pr-12 font-[family-name:var(--font-hyperlegible)] font-normal text-pretty text-sky-600"
+                className="text-2xl text-balance pr-0 font-[family-name:var(--font-hyperlegible)] font-normal text-sky-600"
               >
-                I&apos;m a creative technologist and developer creating innovative, award-winning
-                experiences for brands like HSBC and the NHS, directing Creative Innovation at VML in London, UK.
+                I&apos;m a creative technologist and developer. I lead Creative
+                Innovation at VML. Part of WPP Innovation.
               </p>
-              <div
-                ref={awardsRef}
-                className="w-full flex justify-start items-center gap-4 mt-4 font-w-70"
-              >
+              <div className="w-full flex justify-start items-center gap-4 mt-4 font-w-70">
                 <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
                   <Image
                     src="/images/logos/cannes_lions_logo.svg"
@@ -207,6 +193,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+            </div>
           </section>
 
           <section
@@ -239,7 +226,8 @@ export default function Home() {
                   </h3>
                   <p className="text-white text-lg max-w-96 text-pretty font-normal">
                     Book me for a talk or I&apos;m always down to chat about
-                    exciting projects, especially immersive web (WebGL, shaders), webAR and social effects
+                    exciting projects, especially immersive web (WebGL,
+                    shaders), webAR and social effects
                   </p>
                   <div className="flex items-center">
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
@@ -288,68 +276,78 @@ export default function Home() {
                 {/* Canvas */}
                 <div
                   ref={canvasRef}
-                  className="md:h-auto min-h-80 max-h-96 md:min-h-0 md:max-h-none col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip font-w-70"
+                  className="reveal-on-scroll md:h-auto min-h-80 max-h-96 md:min-h-0 md:max-h-none col-span-1 md:col-span-3 md:row-span-2 bg-gradient-to-b from-purple-900/50 to-blue-800/50 backdrop-blur-xl rounded-4xl overflow-clip font-w-70"
                   aria-label="Desk scene in 3D!"
                   role="img"
                 >
-                  {webGLSupported ? (
-                    <ErrorBoundary fallback={<WebGL3DFallback />}>
-                      <Canvas
-                        onCreated={({ gl }) => {
-                          // Add enhanced WebGL error handling
-                          const canvas = gl.domElement;
-                          canvas.addEventListener('webglcontextlost', (e: Event) => {
-                            e.preventDefault();
-                            // console.error('WebGL context lost');
-                            setWebGLSupported(false);
-                          });
-                        }}
-                        dpr={[1, 1]}
-                        orthographic
-                        camera={{
-                          zoom: 350,
-                          near: 0.1,
-                          far: 1000,
-                          position: [-1.65, 1.6, 3.5],
-                          rotation: [-0.42, -0.4, -0.1],
-                        }}
-                        gl={{
-                          alpha: true,
-                          antialias: true,
-                          premultipliedAlpha: false,
-                          failIfMajorPerformanceCaveat: false, // Try to render even with performance issues
-                          powerPreference: 'default', // Let browser decide best GPU
-                        }}
-                        style={{ background: "transparent" }}
-                        aria-hidden="true"
-                      >
-                        <Suspense fallback={null}>
-                          <color attach="background" args={["black"]} />
-                          <ambientLight intensity={0.1} />
-                          <directionalLight position={[0, 10, 5]} intensity={3.2} />
-                          <Model canvasRef={canvasRef} />
-                          <EffectComposer>
-                            <N8AO
-                              quality="performance"
-                              aoRadius={100}
-                              distanceFalloff={0.4}
-                              intensity={4}
-                              screenSpaceRadius
-                              color={[0.6, 0.0, 0.8]}
-                            />
-                          </EffectComposer>
-                        </Suspense>
-                      </Canvas>
-                    </ErrorBoundary>
-                  ) : (
-                    <WebGL3DFallback />
-                  )}
+                  <div
+                    className="w-full h-full transition-opacity duration-700"
+                    style={{ opacity: sceneReady ? 1 : 0 }}
+                  >
+                    {sceneReady &&
+                      (webGLSupported ? (
+                        <ErrorBoundary fallback={<WebGL3DFallback />}>
+                          <Canvas
+                            onCreated={({ gl }) => {
+                              const canvas = gl.domElement;
+                              canvas.addEventListener(
+                                "webglcontextlost",
+                                (e: Event) => {
+                                  e.preventDefault();
+                                  setWebGLSupported(false);
+                                },
+                              );
+                            }}
+                            dpr={[1, 1]}
+                            orthographic
+                            camera={{
+                              zoom: 350,
+                              near: 0.1,
+                              far: 1000,
+                              position: [-1.65, 1.6, 3.5],
+                              rotation: [-0.42, -0.4, -0.1],
+                            }}
+                            gl={{
+                              alpha: true,
+                              antialias: true,
+                              premultipliedAlpha: false,
+                              failIfMajorPerformanceCaveat: false,
+                              powerPreference: "default",
+                            }}
+                            style={{ background: "transparent" }}
+                            aria-hidden="true"
+                          >
+                            <Suspense fallback={null}>
+                              <color attach="background" args={["black"]} />
+                              <ambientLight intensity={0.1} />
+                              <directionalLight
+                                position={[0, 10, 5]}
+                                intensity={3.2}
+                              />
+                              <Model canvasRef={canvasRef} />
+                              <EffectComposer>
+                                <N8AO
+                                  quality="performance"
+                                  aoRadius={100}
+                                  distanceFalloff={0.4}
+                                  intensity={4}
+                                  screenSpaceRadius
+                                  color={[0.6, 0.0, 0.8]}
+                                />
+                              </EffectComposer>
+                            </Suspense>
+                          </Canvas>
+                        </ErrorBoundary>
+                      ) : (
+                        <WebGL3DFallback />
+                      ))}
+                  </div>
                 </div>
 
                 {/* Campaign (Now Creative Tech Stack) */}
-                <div ref={campaignRef} className="col-span-1 md:col-start-4 font-w-70">
+                <div className="reveal-on-scroll col-span-1 md:col-start-4 font-w-70">
                   <Link
-                    href="/things/creative-tech-stack"
+                    href="/blog/creative-tech-stack"
                     className="max-h-96 min-h-80 bg-purple-50 rounded-4xl md:aspect-square relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="creative-tech-stack-title"
                     {...glowHandlers}
@@ -357,7 +355,8 @@ export default function Home() {
                     <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
-                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                        background:
+                          "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)",
                       }}
                     />
                     <Image
@@ -386,10 +385,7 @@ export default function Home() {
                 </div>
 
                 {/* HSBC Vault (Now Waiting to Live) */}
-                <div
-                  ref={hsbcRef}
-                  className="col-span-1 md:col-start-4 md:row-start-2 font-w-70"
-                >
+                <div className="reveal-on-scroll col-span-1 md:col-start-4 md:row-start-2 font-w-70">
                   <Link
                     href="https://waitingtolive.org/"
                     target="_blank"
@@ -401,7 +397,8 @@ export default function Home() {
                     <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
-                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                        background:
+                          "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)",
                       }}
                     />
                     <Image
@@ -431,10 +428,7 @@ export default function Home() {
                 </div>
 
                 {/* TikTok Views Highlight */}
-                <div
-                  ref={tiktokRef}
-                  className="md:h-auto min-h-80 max-h-96 md:min-h-0 md:max-h-none col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3 font-w-70"
-                >
+                <div className="reveal-on-scroll md:h-auto min-h-80 max-h-96 md:min-h-0 md:max-h-none col-span-1 md:col-span-3 md:col-start-2 md:row-span-2 md:row-start-3 font-w-70">
                   <Link
                     href="https://vm.tiktok.com/ZNdr68mku/"
                     target="_blank"
@@ -446,7 +440,8 @@ export default function Home() {
                     <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
-                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                        background:
+                          "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)",
                       }}
                     />
                     <Image
@@ -474,16 +469,12 @@ export default function Home() {
                           className="inline-flex font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2"
                         />
                       </span>
-
                     </p>
                   </Link>
                 </div>
 
                 {/* Supermarket Scan (Now HSBC Vault) */}
-                <div
-                  ref={supermarketRef}
-                  className="col-span-1 md:col-start-1 md:row-start-3 font-w-70"
-                >
+                <div className="reveal-on-scroll col-span-1 md:col-start-1 md:row-start-3 font-w-70">
                   <Link
                     href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                     target="_blank"
@@ -495,7 +486,8 @@ export default function Home() {
                     <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
-                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                        background:
+                          "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)",
                       }}
                     />
                     <Image
@@ -525,7 +517,7 @@ export default function Home() {
                 </div>
 
                 {/* Magpie App */}
-                <div ref={magpieRef} className="col-span-1 md:row-start-4 font-w-70">
+                <div className="reveal-on-scroll col-span-1 md:row-start-4 font-w-70">
                   <Link
                     href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                     target="_blank"
@@ -537,7 +529,8 @@ export default function Home() {
                     <div
                       className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20"
                       style={{
-                        background: 'radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)'
+                        background:
+                          "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)",
                       }}
                     />
                     <Image
@@ -568,7 +561,6 @@ export default function Home() {
               </div>
             </div>
           </section>
-
         </main>
       </div>
     </>

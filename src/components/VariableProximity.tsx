@@ -13,7 +13,7 @@ interface VariableProximityProps extends HTMLAttributes<HTMLSpanElement> {
     style?: CSSProperties;
 }
 
-import { forwardRef, useMemo, useRef, useEffect, RefObject, CSSProperties, HTMLAttributes } from "react";
+import { forwardRef, useMemo, useRef, useEffect, useState, RefObject, CSSProperties, HTMLAttributes } from "react";
 import { motion } from "motion/react";
 
 
@@ -47,8 +47,9 @@ function useMousePositionRef(containerRef: RefObject<HTMLElement | null>) {
     return positionRef;
 }
 
-function useAnimationFrame(callback: () => void) {
+function useAnimationFrame(callback: () => void, enabled: boolean) {
     useEffect(() => {
+        if (!enabled) return;
         let frameId: number;
         const loop = () => {
             callback();
@@ -56,9 +57,7 @@ function useAnimationFrame(callback: () => void) {
         };
         frameId = requestAnimationFrame(loop);
         return () => cancelAnimationFrame(frameId);
-    }, [callback]);
-
-
+    }, [callback, enabled]);
 }
 
 const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((props, ref) => {
@@ -92,15 +91,11 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
     // Only enable proximity effect on non-touch devices (hover-capable)
 
     // Only disable proximity effect after a real touch event (so Apple Pencil hover works)
-    const hasTouchRef = useRef(false);
+    const [isTouch, setIsTouch] = useState(false);
     useEffect(() => {
-        const onTouch = () => {
-            hasTouchRef.current = true;
-        };
+        const onTouch = () => setIsTouch(true);
         window.addEventListener('touchstart', onTouch, { passive: true });
-        return () => {
-            window.removeEventListener('touchstart', onTouch);
-        };
+        return () => window.removeEventListener('touchstart', onTouch);
     }, []);
 
     const mousePositionRef = useMousePositionRef(containerRef);
@@ -157,15 +152,6 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
 
     useAnimationFrame(() => {
         if (!containerRef?.current) return;
-        if (hasTouchRef.current) {
-            // On touch devices, always use the default style
-            letterRefs.current.forEach((letterRef) => {
-                if (letterRef) {
-                    letterRef.style.fontVariationSettings = fromFontVariationSettings;
-                }
-            });
-            return;
-        }
         const { x, y } = mousePositionRef.current;
         if (lastPositionRef.current.x === x && lastPositionRef.current.y === y) {
             return;
@@ -209,7 +195,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
             interpolatedSettingsRef.current[index] = newSettings;
             letterRef.style.fontVariationSettings = newSettings;
         });
-    });
+    }, !isTouch);
 
     const words = label.split(" ");
     let letterIndex = 0;

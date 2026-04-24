@@ -6,6 +6,21 @@ const nextConfig = {
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
   // Optionally, add any other Next.js config below
 
+  async redirects() {
+    return [
+      {
+        source: "/things",
+        destination: "/blog",
+        permanent: true,
+      },
+      {
+        source: "/things/:slug*",
+        destination: "/blog/:slug*",
+        permanent: true,
+      },
+    ];
+  },
+
   // Add security headers to prevent unauthorized script loading and CORS issues
   async headers() {
     return [

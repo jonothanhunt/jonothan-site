@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 const CompanyLogoData: Array<{ src: string; alt: string }> = [
@@ -19,41 +18,33 @@ const CompanyLogoData: Array<{ src: string; alt: string }> = [
 const InfiniteScrollingLogosAnimation = () => {
   return (
     <div className="p-5 w-full">
-        <div 
-          className="flex relative overflow-hidden pointer-events-none select-none" 
-          style={{
-            WebkitMask: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)',
-            mask: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)'
-          }}
-        >
-          <motion.div
-            transition={{
-              duration: 60,
-              ease: 'linear',
-              repeat: Infinity,
-            }}
-            initial={{ translateX: 0 }}
-            animate={{ translateX: '-50%' }}
-            className="flex flex-none gap-12 pr-12"
-          >
-            {[...new Array(2)].fill(0).map((_, index) => (
-              <React.Fragment key={index}>
-                {CompanyLogoData.map(({ src, alt }) => (
-                  <div key={alt} className="relative h-8 w-24 flex-none ">
-                    <Image
-                      src={src}
-                      alt={alt}
-                      fill
-                      className="object-contain"
-                      sizes="96px"
-                    />
-                  </div>
-                ))}
-              </React.Fragment>
-            ))}
-          </motion.div>
+      <div
+        className="flex relative overflow-hidden pointer-events-none select-none"
+        style={{
+          WebkitMask: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)',
+          mask: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)',
+        }}
+      >
+        <div className="flex flex-none gap-12 pr-12 animate-logo-scroll">
+          {[...new Array(2)].fill(0).map((_, index) => (
+            <React.Fragment key={index}>
+              {CompanyLogoData.map(({ src, alt }) => (
+                <div key={alt} className="relative h-8 w-24 flex-none">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    className="object-contain"
+                    sizes="96px"
+                  />
+                </div>
+              ))}
+            </React.Fragment>
+          ))}
         </div>
       </div>
-  )};
+    </div>
+  );
+};
 
-  export default InfiniteScrollingLogosAnimation;
+export default InfiniteScrollingLogosAnimation;
