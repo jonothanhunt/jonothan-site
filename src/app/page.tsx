@@ -314,7 +314,7 @@ export default function Home() {
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/effects.jpeg" alt="Background showing TikTok effects" fill sizes="(max-width: 768px) 100vw, 66vw" style={{ objectFit: "cover", objectPosition: "center", opacity: 0.2 }} />
-                    <div className="absolute top-4 left-4 px-3 py-1 bg-purple-100/90 backdrop-blur-md rounded-xl text-sm font-normal">Latest</div>
+                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl text-sm font-normal uppercase">Latest</div>
                     <p id="tiktok-views-title" className="z-10 max-w-xl text-3xl md:text-5xl text-white font-[family-name:var(--font-lastik)] font-w-60">
                       Views of TikTok videos using my camera effects have reached{" "}
                       <LiveTicker initialValue={tiktokViews} className="inline-flex font-bold text-purple-950 bg-purple-50 rounded-md px-2 align-baseline" />
@@ -335,7 +335,7 @@ export default function Home() {
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/kitkat_tracker.webp" alt="The Stolen KitKat Tracker" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-red-100 via-70% to-red-100 z-10" />
-                    <div className="w-fit px-3 py-1 bg-red-600 text-white backdrop-blur-md rounded-xl text-sm font-normal">Campaign</div>
+                    <div className="w-fit px-4 py-2 bg-red-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">Campaign</div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p id="kitkat-tracker-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-red-800 font-w-70">The Stolen KitKat Tracker</p>
                       <p className="text-red-800 text-md font-normal leading-tight text-balance">Turning Sweet Disaster into Global Triumph</p>
@@ -356,7 +356,7 @@ export default function Home() {
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/magpie_app.webp" alt="Screenshot of the Magpie app showing mentor profiles." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "top" }} className="z-0" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-100 via-70% to-purple-100 z-10" />
-                    <div className="w-fit px-3 py-1 bg-purple-600 text-white backdrop-blur-md rounded-xl text-sm font-normal">App</div>
+                    <div className="w-fit px-4 py-2 bg-purple-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">App</div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p id="magpie-app-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-purple-800 font-w-70">Magpie: VML&apos;s award-winning mentorship app</p>
                       <p className="text-purple-800 text-md font-normal leading-tight text-balance">Mentorship app built for Microsoft Teams</p>
@@ -375,7 +375,7 @@ export default function Home() {
                       <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                       <Image src="/things-content/creative-tech-stack/images/creative-tech-stack.png" alt="Creative Tech Stack website screenshot" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-emerald-100 via-70% to-emerald-100 z-10" />
-                      <div className="w-fit px-3 py-1 bg-emerald-600 text-white backdrop-blur-md rounded-xl text-sm font-normal">SITE</div>
+                      <div className="w-fit px-4 py-2 bg-emerald-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">SITE</div>
                       <div className="z-10 flex flex-col gap-2 font-w-70">
                         <p id="creative-tech-stack-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-emerald-800 font-w-70">Creative Tech Stack</p>
                         <p className="text-emerald-800 text-md font-normal leading-tight text-balance">A tools database & blog for creative technologists</p>
@@ -396,7 +396,7 @@ export default function Home() {
                       <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                       <Image src="/images/home/waiting_to_live.webp" alt="The doll of Ralph sitting on a bench, waiting." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-100 via-70% to-orange-100 z-10" />
-                      <div className="w-fit px-3 py-1 bg-orange-600 text-white backdrop-blur-md rounded-xl text-sm font-normal">Campaign</div>
+                      <div className="w-fit px-4 py-2 bg-orange-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">CAMPAIGN</div>
                       <div className="z-10 flex flex-col gap-2 font-w-70">
                         <p id="waiting-to-live-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-orange-800 font-w-70">Waiting to Live</p>
                         <p className="text-orange-800 text-md font-normal leading-tight text-balance">Our campaign is raising awareness of organ donation for the NHS</p>
@@ -417,7 +417,7 @@ export default function Home() {
                       <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                       <Image src="/images/home/hsbc_vault.webp" alt="The HSBC Vault installation in waterloo station." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-sky-100 via-70% to-sky-100 z-10" />
-                      <div className="w-fit px-3 py-1 bg-sky-600 text-white backdrop-blur-md rounded-xl text-sm font-normal">Installation</div>
+                      <div className="w-fit px-4 py-2 bg-sky-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">INSTALLATION</div>
                       <div className="z-10 flex flex-col gap-2 font-w-70">
                         <p id="hsbc-vault-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-sky-800 font-w-70">HSBC Vault</p>
                         <p className="text-sky-800 text-md font-normal leading-tight text-balance">My team and I created the software running HSBC&apos;s Vault experience</p>
