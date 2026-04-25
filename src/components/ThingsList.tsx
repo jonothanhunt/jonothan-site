@@ -90,7 +90,6 @@ const ArticleItem = memo(
                 fill
                 className="absolute inset-0 rounded-xl object-cover opacity-60 mix-blend-overlay"
                 sizes="(max-width: 640px) 100vw, 512px"
-                quality={50}
                 priority={isPriority}
               />
             ) : null}
