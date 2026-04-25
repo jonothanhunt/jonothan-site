@@ -1,11 +1,9 @@
-import { FC } from 'react';
-
 interface YouTubeProps {
   url: string;
   startAt?: number;
 }
 
-const YouTube: FC<YouTubeProps> = ({ url, startAt }) => {
+export default function YouTube({ url, startAt }: YouTubeProps) {
   // Extract video ID from URL
   const getVideoId = (url: string): string => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -30,6 +28,4 @@ const YouTube: FC<YouTubeProps> = ({ url, startAt }) => {
       />
     </div>
   );
-};
-
-export default YouTube;
+}

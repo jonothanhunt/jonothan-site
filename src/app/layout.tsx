@@ -44,9 +44,30 @@ export const metadata: Metadata = {
     "Jono Hunt",
     "Jono VML",
   ],
-  // Add alternates for canonical URL
   alternates: {
     canonical: "https://jonothan.dev",
+  },
+  openGraph: {
+    title: "Jonothan Hunt",
+    description: "Creative developer creating innovative experiences for brands",
+    url: "https://jonothan.dev",
+    siteName: "Jonothan Hunt",
+    images: [
+      {
+        url: "https://jonothan.dev/images/jonothan_profile.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Jonothan Hunt",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jonothan Hunt",
+    description: "Creative developer creating innovative experiences for brands",
+    images: ["https://jonothan.dev/images/jonothan_profile.jpeg"],
+    creator: "@jonothan",
   },
 };
 
@@ -56,9 +77,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
-        {/* Add JSON-LD structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

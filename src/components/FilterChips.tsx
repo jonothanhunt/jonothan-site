@@ -26,10 +26,7 @@ export default function FilterChips({
           'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
       }}
     >
-      <span className="text-purple-950 text-sm font-semibold">
-        Filter:
-      </span>
-      {availableTypes.map((type, idx) => {
+{availableTypes.map((type, idx) => {
         const theme = PLAYFUL_THEMES[idx % PLAYFUL_THEMES.length];
         const isSelected = selectedTypes.includes(type);
 

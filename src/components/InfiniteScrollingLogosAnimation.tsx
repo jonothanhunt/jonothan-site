@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'next/image';
 
 const CompanyLogoData: Array<{ src: string; alt: string }> = [
@@ -26,10 +25,10 @@ const InfiniteScrollingLogosAnimation = () => {
         }}
       >
         <div className="flex flex-none gap-12 pr-12 animate-logo-scroll">
-          {[...new Array(2)].fill(0).map((_, index) => (
-            <React.Fragment key={index}>
+          {[0, 1].map((index) => (
+            <div key={index} className="contents">
               {CompanyLogoData.map(({ src, alt }) => (
-                <div key={alt} className="relative h-8 w-24 flex-none">
+                <div key={`${index}-${alt}`} className="relative h-8 w-24 flex-none">
                   <Image
                     src={src}
                     alt={alt}
@@ -39,7 +38,7 @@ const InfiniteScrollingLogosAnimation = () => {
                   />
                 </div>
               ))}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>

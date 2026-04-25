@@ -52,7 +52,7 @@ html::before {
 } */
 
 html {
-  background-color: #fdf2f8;
+  background-color: #fdfcfb;
 }
 
 .crosses {
@@ -98,6 +98,11 @@ html {
 .reveal-on-scroll.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+.reveal-on-scroll.exit-up {
+  opacity: 0;
+  transform: translateY(-50px);
 }
 
 @layer utilities {

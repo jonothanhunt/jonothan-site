@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Component, ReactNode } from 'react';
+import { Component, ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -21,9 +21,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("WebGL error caught by ErrorBoundary:", error, errorInfo);
-  }
+  componentDidCatch() {}
 
   render() {
     if (this.state.hasError) {
