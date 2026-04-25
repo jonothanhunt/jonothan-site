@@ -34,7 +34,7 @@ export default function FilterChips({
           <button
             key={type}
             onClick={() => onTypeSelect(type)}
-            className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${isSelected
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 border cursor-pointer ${isSelected
               ? `${theme.accent} text-white shadow-xl ${theme.shadow} translate-y-[2px] border-transparent`
               : `${theme.bg} ${theme.text} ${theme.border} hover:brightness-95 hover:-translate-y-0.5 hover:shadow-xl shadow-lg ${theme.shadow}`
               }`}
@@ -47,7 +47,7 @@ export default function FilterChips({
       {hasFilters && (
         <button
           onClick={onClearFilters}
-          className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-100 text-red-900 border border-red-200 text-sm font-medium shadow-sm hover:bg-red-200 transition-all duration-300 cursor-pointer"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-900 border border-red-200 text-xs font-medium shadow-sm hover:bg-red-200 transition-all duration-300 cursor-pointer"
         >
           <svg
             width="14"
