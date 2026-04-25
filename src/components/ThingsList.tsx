@@ -111,14 +111,14 @@ const ArticleItem = memo(
                   <span
                     key={type}
                     role="tag"
-                    className={`${theme.text} min-w-fit w-fit h-8 px-3 rounded-full text-xs font-medium uppercase tracking-wider flex items-center ${theme.pillBg} backdrop-blur-sm bg-opacity-70`}
+                    className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
                   >
                     {type}
                   </span>
                 ))}
                 <time
                   dateTime={post.date}
-                  className={`${theme.text} min-w-fit w-fit h-8 px-3 rounded-full text-xs font-medium uppercase tracking-wider flex items-center ${theme.pillBg} backdrop-blur-sm bg-opacity-70`}
+                  className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
                 >
                   {formatCustomDate(post.date)}
                 </time>
@@ -134,32 +134,13 @@ const ArticleItem = memo(
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-1 px-3 rounded-full align-right text-xs font-medium uppercase tracking-wider min-w-fit w-fit h-8 text-white ${theme.accent} ${theme.accentShadow} shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-white/20 box-border`}
-                      style={{
-                        textDecoration: "none",
-                        height: "2rem",
-                        boxSizing: "border-box",
-                      }}
+                      className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200 shadow-md ${theme.accentShadow}`}
+                      style={{ textDecoration: "none" }}
                       aria-label={`External link: ${link.title}`}
                     >
-                      <span className="">{link.title}</span>
-
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        className="ml-1"
-                        style={{ display: "block" }}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M7 17L17 7M7 7h10v10"
-                        />
+                      <span>{link.title}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="ml-1" style={{ display: "block" }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M7 7h10v10" />
                       </svg>
                     </Link>
                   ))}

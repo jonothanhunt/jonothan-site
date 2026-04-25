@@ -18,7 +18,7 @@ export default function FilterChips({
 
   return (
     <div
-      className="max-w-full flex gap-2 items-center px-5 py-10 w-fill sm:w-fit overflow-x-scroll no-scrollbar whitespace-nowrap"
+      className="max-w-full flex gap-3 items-center px-5 py-4 w-fill sm:w-fit overflow-x-scroll no-scrollbar whitespace-nowrap"
       style={{
         WebkitMaskImage:
           'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
