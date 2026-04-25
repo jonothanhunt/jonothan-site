@@ -90,8 +90,8 @@ html {
 /* Scroll-reveal: hidden until JS adds .revealed */
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(calc(30px + var(--stagger-offset, 0px)));
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(calc(40px + var(--stagger-offset, 0px)));
+  transition: opacity 0.8s cubic-bezier(0.12, 1, 0.15, 1), transform 0.8s cubic-bezier(0.12, 1, 0.15, 1);
   will-change: transform, opacity;
 }
 
