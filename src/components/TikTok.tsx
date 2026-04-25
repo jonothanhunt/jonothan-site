@@ -1,10 +1,8 @@
-import { FC } from 'react';
-
 interface TikTokProps {
   url: string;
 }
 
-const TikTok: FC<TikTokProps> = ({ url }) => {
+export default function TikTok({ url }: TikTokProps) {
   // Extract video ID from URL
   const getVideoId = (url: string): string => {
     const regExp = /\/video\/(\d+)/;
@@ -28,6 +26,4 @@ const TikTok: FC<TikTokProps> = ({ url }) => {
       </div>
     </div>
   );
-};
-
-export default TikTok;
+}

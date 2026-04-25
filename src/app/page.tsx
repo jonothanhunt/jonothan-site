@@ -92,19 +92,20 @@ export default function Home() {
           aria-hidden="true"
         >
           <Image
-            src="/header.jpg"
+            src="/header.webp"
             alt=""
             fill
             priority
+            sizes="100vw"
             style={{ objectFit: "cover", objectPosition: "right" }}
           />
           <div className="dot-grid absolute inset-0" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fdf2f8]/95 from-40% via-[#fdf2f8]/75 via-60% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fdfcfb]/95 from-40% via-[#fdfcfb]/75 via-60% to-transparent" />
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to bottom, transparent 50%, rgba(253,242,248,0.1) 60%, rgba(253,242,248,0.35) 70%, rgba(253,242,248,0.7) 82%, rgba(253,242,248,0.92) 92%, #fdf2f8 100%)",
+                "linear-gradient(to bottom, transparent 50%, rgba(253,252,251,0.1) 60%, rgba(253,252,251,0.35) 70%, rgba(253,252,251,0.7) 82%, rgba(253,252,251,0.92) 92%, #fdfcfb 100%)",
             }}
           />
         </div>
@@ -119,7 +120,7 @@ export default function Home() {
             <div className="relative max-w-6xl w-full mx-auto">
               <div
                 ref={textContainerRef}
-                className="max-w-[25rem] flex flex-col gap-4 pl-2"
+                className="max-w-[25rem] flex flex-col gap-4 pl-8 md:pl-10"
               >
                 <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col text-emerald-600">
                   <VariableProximity
@@ -146,45 +147,25 @@ export default function Home() {
                   className="text-2xl text-balance pr-0 font-[family-name:var(--font-hyperlegible)] font-normal text-sky-600"
                 >
                   I&apos;m a creative technologist and developer. I lead
-                  Creative Innovation at VML. Part of WPP Innovation.
+                  Creative Innovation at VML. Part of WPP Innovation
                 </p>
                 <div className="w-full flex justify-start items-center gap-4 mt-4 font-w-70">
                   <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
-                    <Image
-                      src="/images/logos/cannes_lions_logo.svg"
-                      alt="Cannes Lions logo"
-                      width={200}
-                      height={200}
-                      className="w-8"
-                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/logos/cannes_lions_logo.svg" alt="Cannes Lions logo" className="w-8 h-auto" />
                   </Link>
                   <Link
                     href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
                     className="relative w-8 mr-2"
                   >
-                    <Image
-                      src="/images/logos/newblood_white_pencil.svg"
-                      alt="D&AD New Blood White Pencil"
-                      width={200}
-                      height={200}
-                      className="w-7"
-                    />
-                    <Image
-                      src="/images/logos/dad_logo.svg"
-                      alt="D&AD logo"
-                      width={200}
-                      height={200}
-                      className="absolute -bottom-2 -right-2 w-6 z-10"
-                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/logos/newblood_white_pencil.svg" alt="D&AD New Blood White Pencil" className="w-7 h-auto" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/logos/dad_logo.svg" alt="D&AD logo" className="absolute -bottom-2 -right-2 w-6 h-auto z-10" />
                   </Link>
                   <Link href="https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie">
-                    <Image
-                      src="/images/logos/the_drum_logo.jpeg"
-                      alt="The Drum logo"
-                      width={200}
-                      height={200}
-                      className="w-8"
-                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/logos/the_drum_logo.jpeg" alt="The Drum logo" className="w-8 h-auto" />
                   </Link>
                 </div>
               </div>
@@ -210,14 +191,12 @@ export default function Home() {
                   <Image src="/images/home/work_with_me.webp" alt="" fill style={{ objectFit: "cover", objectPosition: "right" }} />
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent" />
                 </div>
-                <div className="relative z-10 flex flex-col justify-center gap-4 font-w-70 p-10 shrink-0">
-                  <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white font-w-70">
+                <div className={`relative z-10 flex flex-col justify-center font-w-70 p-8 md:py-10 md:pl-10 shrink-0 w-full md:w-auto ${webGLSupported ? 'md:pr-0' : 'md:pr-10'}`}>
+                  <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white font-w-70 mb-2">
                     Let&apos;s chat!
                   </h3>
-                  <p className="text-white text-lg max-w-96 text-pretty font-normal">
-                    Book me for a talk or I&apos;m always down to chat about
-                    exciting projects, especially immersive web (WebGL,
-                    shaders), webAR and social effects
+                  <p className="text-white text-lg max-w-96 text-pretty font-normal w-full mb-6">
+                    Book me for a talk, reach out for creative tech career advice, or let&apos;s chat about creative tech installations for museums and galleries
                   </p>
                   <div className="flex items-center">
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
@@ -236,7 +215,7 @@ export default function Home() {
                         }
                         className="inline-flex items-center justify-center bg-purple-50/90 backdrop-blur-[2px] px-3 py-2 transition-all cursor-pointer hover:bg-purple-50 active:bg-purple-50 font-w-70"
                         onClick={() => {
-                          navigator.clipboard.writeText("hey@jonothan.dev");
+                          navigator.clipboard.writeText("hey@jonothan.dev").catch(() => {});
                           setCopied(true);
                           setTimeout(() => {
                             setCopied(false);
@@ -334,13 +313,11 @@ export default function Home() {
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                    <Image src="/images/home/effects.jpeg" alt="Background showing TikTok effects" fill style={{ objectFit: "cover", objectPosition: "center", opacity: 0.2 }} />
+                    <Image src="/images/home/effects.jpeg" alt="Background showing TikTok effects" fill sizes="(max-width: 768px) 100vw, 66vw" style={{ objectFit: "cover", objectPosition: "center", opacity: 0.2 }} />
                     <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl font-normal">Latest</div>
                     <p id="tiktok-views-title" className="z-10 max-w-xl text-3xl md:text-5xl text-white font-[family-name:var(--font-lastik)] font-w-60">
                       Views of TikTok videos using my camera effects have reached{" "}
-                      <span className="inline-block">
-                        <LiveTicker initialValue={tiktokViews} className="inline-flex font-bold mt-2 text-purple-950 bg-purple-50 rounded-md px-2" />
-                      </span>
+                      <LiveTicker initialValue={tiktokViews} className="inline-flex font-bold text-purple-950 bg-purple-50 rounded-md px-2 align-baseline" />
                     </p>
                   </Link>
                 </div>
@@ -356,7 +333,7 @@ export default function Home() {
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                    <Image src="/images/home/kitkat_tracker.webp" alt="The Stolen KitKat Tracker" fill style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                    <Image src="/images/home/kitkat_tracker.webp" alt="The Stolen KitKat Tracker" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-red-100 via-70% to-red-100 z-10" />
                     <div className="w-fit px-4 py-2 bg-red-600 text-white backdrop-blur-md rounded-2xl font-normal">Campaign</div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
@@ -377,12 +354,12 @@ export default function Home() {
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                    <Image src="/images/home/magpie_app.webp" alt="Screenshot of the Magpie app showing mentor profiles." fill style={{ objectFit: "cover", objectPosition: "top" }} className="z-0" />
+                    <Image src="/images/home/magpie_app.webp" alt="Screenshot of the Magpie app showing mentor profiles." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "top" }} className="z-0" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-100 via-70% to-purple-100 z-10" />
                     <div className="w-fit px-4 py-2 bg-purple-600 text-white backdrop-blur-md rounded-2xl font-normal">App</div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
                       <p id="magpie-app-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-purple-800 font-w-70">Magpie: VML&apos;s award-winning mentorship app</p>
-                      <p className="text-purple-800 text-md font-normal leading-tight text-balance">Mentorship app built for Microsoft Teams.</p>
+                      <p className="text-purple-800 text-md font-normal leading-tight text-balance">Mentorship app built for Microsoft Teams</p>
                     </div>
                   </Link>
                 </div>
@@ -396,12 +373,12 @@ export default function Home() {
                       {...glowHandlers}
                     >
                       <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                      <Image src="/things-content/creative-tech-stack/images/creative-tech-stack.png" alt="Creative Tech Stack website screenshot" fill style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                      <Image src="/things-content/creative-tech-stack/images/creative-tech-stack.png" alt="Creative Tech Stack website screenshot" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-emerald-100 via-70% to-emerald-100 z-10" />
                       <div className="w-fit px-4 py-2 bg-emerald-600 text-white backdrop-blur-md rounded-2xl font-normal">Web</div>
                       <div className="z-10 flex flex-col gap-2 font-w-70">
                         <p id="creative-tech-stack-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-emerald-800 font-w-70">Creative Tech Stack</p>
-                        <p className="text-emerald-800 text-md font-normal leading-tight text-balance">A tools database & blog for creative technologists.</p>
+                        <p className="text-emerald-800 text-md font-normal leading-tight text-balance">A tools database & blog for creative technologists</p>
                       </div>
                     </Link>
                   </div>
@@ -417,12 +394,12 @@ export default function Home() {
                       {...glowHandlers}
                     >
                       <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                      <Image src="/images/home/waiting_to_live.webp" alt="The doll of Ralph sitting on a bench, waiting." fill style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                      <Image src="/images/home/waiting_to_live.webp" alt="The doll of Ralph sitting on a bench, waiting." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-100 via-70% to-orange-100 z-10" />
                       <div className="w-fit px-4 py-2 bg-orange-600 text-white backdrop-blur-md rounded-2xl font-normal">Campaign</div>
                       <div className="z-10 flex flex-col gap-2 font-w-70">
                         <p id="waiting-to-live-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-orange-800 font-w-70">Waiting to Live</p>
-                        <p className="text-orange-800 text-md font-normal leading-tight text-balance">Our campaign is raising awareness of organ donation for the NHS.</p>
+                        <p className="text-orange-800 text-md font-normal leading-tight text-balance">Our campaign is raising awareness of organ donation for the NHS</p>
                       </div>
                     </Link>
                   </div>
@@ -438,12 +415,12 @@ export default function Home() {
                       {...glowHandlers}
                     >
                       <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                      <Image src="/images/home/hsbc_vault.webp" alt="The HSBC Vault installation in waterloo station." fill style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                      <Image src="/images/home/hsbc_vault.webp" alt="The HSBC Vault installation in waterloo station." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-sky-100 via-70% to-sky-100 z-10" />
                       <div className="w-fit px-4 py-2 bg-sky-600 text-white backdrop-blur-md rounded-2xl font-normal">Installation</div>
                       <div className="z-10 flex flex-col gap-2 font-w-70">
                         <p id="hsbc-vault-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-sky-800 font-w-70">HSBC Vault</p>
-                        <p className="text-sky-800 text-md font-normal leading-tight text-balance">My team and I created the software running HSBC&apos;s Vault experience.</p>
+                        <p className="text-sky-800 text-md font-normal leading-tight text-balance">My team and I created the software running HSBC&apos;s Vault experience</p>
                       </div>
                     </Link>
                   </div>

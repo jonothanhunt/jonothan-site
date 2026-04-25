@@ -37,8 +37,7 @@ let loadedItems = 0;
 let progressCallback = null;
 
 // Configure loading manager
-loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-  console.log(`Started loading: ${url}`);
+loadingManager.onStart = (_url, _itemsLoaded, itemsTotal) => {
   totalItems = Math.max(totalItems, itemsTotal);
 };
 
@@ -53,9 +52,7 @@ loadingManager.onLoad = () => {
   if (progressCallback) progressCallback(100);
 };
 
-loadingManager.onError = (url) => {
-  console.error(`Error loading: ${url}`);
-};
+loadingManager.onError = () => {};
 
 // Texture paths configuration
 const TEXTURE_PATHS = {

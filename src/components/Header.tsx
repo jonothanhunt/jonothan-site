@@ -17,6 +17,16 @@ export default function Header() {
   useEffect(() => {
     if (pathname === "/") {
       updateActiveSection();
+      if (window.location.hash) {
+        const id = window.location.hash.substring(1);
+        const element = document.getElementById(id);
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: "smooth" });
+            setActiveSection(id as "home" | "about" | "work");
+          }, 10);
+        }
+      }
     } else if (pathname.startsWith("/blog")) {
       setActiveSection("blog");
     }
@@ -55,20 +65,6 @@ export default function Header() {
     };
   }, [showContactPopup, copied]);
 
-  useEffect(() => {
-    if (pathname === "/" && window.location.hash) {
-      const id = window.location.hash.substring(1);
-      const element = document.getElementById(id);
-
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth" });
-          setActiveSection(id as "home" | "about" | "work");
-        }, 10);
-      }
-    }
-  }, [pathname]);
-
   const updateActiveSection = () => {
     const sections = ["home", "about", "work"];
     const scrollPosition = window.scrollY;
@@ -81,12 +77,15 @@ export default function Header() {
 
         if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
           setActiveSection(section);
+          const hash = section === "about" ? "/" : `/#${section}`;
+          window.history.replaceState(null, "", hash);
           return;
         }
       }
     }
 
     setActiveSection("about");
+    window.history.replaceState(null, "", "/");
   };
 
   useEffect(() => {
@@ -116,7 +115,7 @@ export default function Header() {
   return (
     <header className="p-4 fixed w-full top-0 z-50" role="banner">
       <nav aria-label="Main navigation" className="relative">
-        <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-50/90 backdrop-blur-md shadow-2xl shadow-purple-900/50 text-purple-950">
+        <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-50/90 backdrop-blur-md shadow-2xl shadow-purple-900/20 text-purple-950">
           <ul className="flex flex-1 items-center mx-auto py-2 px-2 w-fit justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle">
             <li
               className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${
@@ -205,8 +204,8 @@ export default function Header() {
               <div
                 className={`absolute right-0 z-[100] flex items-center bg-rose-50 rounded-lg overflow-visible shadow-xl shadow-rose-900/20 transition-all duration-300 ${
                   showContactPopup
-                    ? "top-12 opacity-100 pointer-events-auto translate-y-0"
-                    : "top-16 opacity-0 pointer-events-none translate-y-1"
+                    ? "top-[calc(100%+16px)] opacity-100 pointer-events-auto translate-y-0"
+                    : "top-[calc(100%+24px)] opacity-0 pointer-events-none translate-y-1"
                 }`}
               >
                 <div className="relative z-[3] flex gap-1 text-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)] font-normal">
@@ -226,7 +225,7 @@ export default function Header() {
                     className="inline-flex items-center justify-center px-3 py-2 transition-all hover:brightness-105 active:brightness-95 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigator.clipboard.writeText("hey@jonothan.dev");
+                      navigator.clipboard.writeText("hey@jonothan.dev").catch(() => {});
                       setCopied(true);
 
                       setTimeout(() => {
