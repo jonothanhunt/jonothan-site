@@ -84,7 +84,6 @@ const ArticleItem = memo(
                 fill
                 className="absolute inset-0 object-cover z-0"
                 sizes="(max-width: 640px) 100vw, 512px"
-                quality={30}
                 priority={isPriority}
               />
               <div className="absolute inset-0 z-10" style={{ background: `linear-gradient(to bottom, transparent 0%, rgba(${theme.bgRgb}, 0.5) 35%, rgba(${theme.bgRgb}, 0.85) 60%, rgb(${theme.bgRgb}) 100%)` }} />
