@@ -62,8 +62,6 @@ const TEXTURE_PATHS = {
   effectHouse: "/images/desk/effect_house.png",
   reactLogo: "/images/desk/react_logo.png",
   nextjsLogo: "/images/desk/nextjs_logo.png",
-  threeLogo: "/images/desk/touchdesigner_logo.png",
-  touchdesignerLogo: "/images/desk/touchdesigner_logo.png",
   blenderBadge: "/images/desk/blender_badge.png",
 };
 
@@ -94,7 +92,7 @@ void main() {
     float pattern = step(0.6, mod((1.0 - vZ * 2.0) * frequency * vZ + uTime * speed, 1.0));
     gl_FragColor = vec4(uColour, pattern);
 }
-`
+`,
 );
 
 const ScreenMaterial = shaderMaterial(
@@ -208,7 +206,7 @@ void main() {
 
   gl_FragColor = mix(color1, color2, (stepped + strength));
 }
-`
+`,
 );
 
 // Extend materials for use in Three.js
@@ -450,7 +448,7 @@ export function Model(props) {
 
   // Check WebGL availability on component mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setWebGLAvailable(isWebGLAvailable());
     }
   }, []);
@@ -458,28 +456,34 @@ export function Model(props) {
   // If WebGL is not available, show a fallback
   if (!webGLAvailable) {
     return (
-      <div style={{ 
-        height: '100%', 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'center',
-        padding: '20px',
-        textAlign: 'center'
-      }}>
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: 'rgba(0,0,0,0.05)', 
-          borderRadius: '8px',
-          maxWidth: '600px'
-        }}>
-          <h2 style={{ marginBottom: '1rem' }}>3D Experience Not Available</h2>
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            padding: "20px",
+            backgroundColor: "rgba(0,0,0,0.05)",
+            borderRadius: "8px",
+            maxWidth: "600px",
+          }}
+        >
+          <h2 style={{ marginBottom: "1rem" }}>3D Experience Not Available</h2>
           <p>
-            Your browser or device doesn't support WebGL, which is required for the 3D experience.
-            This could be due to outdated graphics drivers or hardware limitations.
+            Your browser or device doesn't support WebGL, which is required for
+            the 3D experience. This could be due to outdated graphics drivers or
+            hardware limitations.
           </p>
-          <p style={{ marginTop: '1rem' }}>
-            Try updating your graphics drivers or using a different browser like Chrome or Edge.
+          <p style={{ marginTop: "1rem" }}>
+            Try updating your graphics drivers or using a different browser like
+            Chrome or Edge.
           </p>
         </div>
       </div>
@@ -504,7 +508,7 @@ export function Model(props) {
   const targetScrollRotationX = useRef(0);
 
   // Three.js hooks
-  const { viewport } = useThree();
+  const { viewport, size, camera } = useThree();
   const { nodes, materials } = useGLTF("/desk.glb");
 
   // Memoized values
@@ -545,8 +549,8 @@ export function Model(props) {
           Math.min(
             1,
             (scrollTop + winHeight - canvasTop) /
-              (canvasRect.height + winHeight)
-          )
+              (canvasRect.height + winHeight),
+          ),
         );
 
         targetScrollRotationX.current = (scrollProgress - 0.5) * 0.3; // -0.15 to 0.15
@@ -574,19 +578,19 @@ export function Model(props) {
       smoothMouseX.current = THREE.MathUtils.lerp(
         smoothMouseX.current,
         state.pointer.x * 0.1,
-        0.08
+        0.08,
       );
       smoothMouseY.current = THREE.MathUtils.lerp(
         smoothMouseY.current,
         -state.pointer.y * 0.05,
-        0.08
+        0.08,
       );
 
       // Add smooth interpolation for scroll rotation
       scrollRotationX.current = THREE.MathUtils.lerp(
         scrollRotationX.current,
         targetScrollRotationX.current,
-        0.05
+        0.05,
       );
 
       sceneRef.current.rotation.y = smoothMouseX.current;
@@ -594,8 +598,10 @@ export function Model(props) {
       sceneRef.current.rotation.x =
         smoothMouseY.current + scrollRotationX.current;
 
-      const responsiveScale = Math.min(viewport.width / 4, 0.5) * baseScale;
-      sceneRef.current.scale.setScalar(responsiveScale);
+      camera.zoom = size.width * 0.22;
+      camera.updateProjectionMatrix();
+
+      sceneRef.current.scale.setScalar(baseScale);
     }
 
     // Printer animations
@@ -613,16 +619,15 @@ export function Model(props) {
   // Memoized sticker components
   const StickerFloat = useMemo(
     () =>
-      ({ position, rotation, texture, size = [0.3, 0.3] }) =>
-        (
-          <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
-            <mesh position={position} rotation={rotation}>
-              <planeGeometry args={size} />
-              <meshBasicMaterial transparent map={texture} alphaTest={0.5} />
-            </mesh>
-          </Float>
-        ),
-    []
+      ({ position, rotation, texture, size = [0.3, 0.3] }) => (
+        <Float speed={1} rotationIntensity={0.4} floatIntensity={0.4}>
+          <mesh position={position} rotation={rotation}>
+            <planeGeometry args={size} />
+            <meshBasicMaterial transparent map={texture} alphaTest={0.5} />
+          </mesh>
+        </Float>
+      ),
+    [],
   );
 
   // Return statement of the Model component
@@ -637,8 +642,6 @@ export function Model(props) {
           dispose={null}
         >
           <group position={[0, -0.2, 0]}>
-            <Floor position={[0, -0.9, -1.0]} />
-
             {/* Stickers */}
             <StickerFloat
               position={[1.1, -0.3, -0.9]}
@@ -652,25 +655,14 @@ export function Model(props) {
               texture={textures.effectHouse}
             />
             <StickerFloat
-              position={[0.3, -0.3, 0.5]}
-              rotation={[-Math.PI / 3, -0.2, 0.8]}
-              texture={textures.touchdesignerLogo}
-              size={[0.26, 0.26]}
-            />
-            <StickerFloat
-              position={[-0.6, -0.3, 0.5]}
-              rotation={[-Math.PI / 2.2, 0, 0]}
-              texture={textures.reactLogo}
-            />
-            <StickerFloat
-              position={[-1.0, -0.3, -0.1]}
+              position={[-0.85, -0.3, -0.35]}
               rotation={[-Math.PI / 2.2, 0, 0]}
               texture={textures.nextjsLogo}
             />
             <StickerFloat
-              position={[-0.6, -0.3, -0.8]}
+              position={[-0.35, -0.3, -1.3]}
               rotation={[-Math.PI / 2.2, 0, 0]}
-              texture={textures.threeLogo}
+              texture={textures.reactLogo}
             />
 
             {/* Table */}

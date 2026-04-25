@@ -52,7 +52,7 @@ html::before {
 } */
 
 html {
-  background-color: #fdf8f6;
+  background-color: #fdf2f8;
 }
 
 .crosses {
@@ -90,11 +90,14 @@ html {
 /* Scroll-reveal: hidden until JS adds .revealed */
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(50px);
+  transform: translateY(calc(50px + var(--stagger-offset, 0px)));
+  transition: opacity 0.8s cubic-bezier(0.33, 1, 0.68, 1), transform 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform, opacity;
 }
 
 .reveal-on-scroll.revealed {
-  animation: fade-up-in 0.8s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @layer utilities {
