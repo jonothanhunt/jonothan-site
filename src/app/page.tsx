@@ -147,7 +147,7 @@ export default function Home() {
                   className="text-2xl text-balance pr-0 font-[family-name:var(--font-hyperlegible)] font-normal text-sky-600"
                 >
                   I&apos;m a creative technologist and developer. I lead
-                  Creative Innovation at VML UK. Part of WPP Innovation
+                  Creative Innovation at <a href="https://www.vml.com/united-kingdom">VML UK</a>. Part of <a href="https://www.wpp.com">WPP</a> Innovation
                 </p>
                 <div className="w-full flex justify-start items-center gap-4 mt-4 font-w-70">
                   <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
@@ -196,7 +196,7 @@ export default function Home() {
                     Let&apos;s chat!
                   </h3>
                   <p className="text-white text-lg max-w-96 text-pretty font-normal w-full mb-6">
-                    Book me for a talk, reach out for creative tech career advice, or let&apos;s chat about creative tech installations for museums and galleries
+                    Book me for a talk, reach out for creative tech career advice, or we can explore creative tech installations for museums and galleries
                   </p>
                   <div className="flex items-center">
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
