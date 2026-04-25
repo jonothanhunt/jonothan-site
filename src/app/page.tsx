@@ -195,8 +195,8 @@ export default function Home() {
                   <h3 className="font-[family-name:var(--font-lastik)] text-4xl text-white font-w-70 mb-2">
                     Let&apos;s chat!
                   </h3>
-                  <p className="text-white text-lg max-w-96 text-pretty font-normal w-full mb-6">
-                    Book me for a talk, reach out for creative tech career advice, or we can explore creative tech installations for museums and galleries
+                  <p className="text-white text-lg max-w-84 text-pretty font-normal w-full mb-6">
+                    Book me for a talk, reach out for creative tech career advice, or we can explore installations for museums and galleries
                   </p>
                   <div className="flex items-center">
                     <div className="flex rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)]">
