@@ -1,10 +1,10 @@
 "use client";
 import React, {
   useRef,
-  useMemo,
   useEffect,
   useState,
   useLayoutEffect,
+  useMemo,
 } from "react";
 import { useFrame, extend, useThree, useLoader } from "@react-three/fiber";
 import {
@@ -508,9 +508,13 @@ export function Model(props) {
   const { viewport, size, camera } = useThree();
   const { nodes, materials } = useGLTF("/desk.glb");
 
+  // Update camera zoom only when size changes, not every frame
+  useEffect(() => {
+    camera.zoom = size.width * 0.22;
+    camera.updateProjectionMatrix();
+  }, [size.width, camera]);
+
   // Memoized values
-  const startTime = useMemo(() => Date.now(), []);
-  const baseScale = 2;
 
   // Loading management
   useEffect(() => {
@@ -563,8 +567,8 @@ export function Model(props) {
   }, []);
 
   // Animation frame updates
-  useFrame((state, delta) => {
-    const time = (Date.now() - startTime) / 1000;
+  useFrame((state) => {
+    const time = state.clock.elapsedTime;
 
     // Update shader materials
     if (gravityRef.current) gravityRef.current.uTime = time;
@@ -594,11 +598,6 @@ export function Model(props) {
       // Combine the mouse Y rotation with the scroll-based rotation
       sceneRef.current.rotation.x =
         smoothMouseY.current + scrollRotationX.current;
-
-      camera.zoom = size.width * 0.22;
-      camera.updateProjectionMatrix();
-
-      sceneRef.current.scale.setScalar(baseScale);
     }
 
     // Printer animations
@@ -636,6 +635,7 @@ export function Model(props) {
           ref={sceneRef}
           {...otherProps}
           position={[0, 0.17, 0]}
+          scale={2}
           dispose={null}
         >
           <group position={[0, -0.2, 0]}>

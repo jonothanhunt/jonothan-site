@@ -6,13 +6,14 @@ import {
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
   const [showContactPopup, setShowContactPopup] = useState(false);
+  const lastUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (pathname === "/") {
@@ -77,15 +78,22 @@ export default function Header() {
 
         if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
           setActiveSection(section);
-          const hash = section === "about" ? "/" : `/#${section}`;
-          window.history.replaceState(null, "", hash);
+          const newUrl = section === "about" ? "/" : `/#${section}`;
+          if (lastUrlRef.current !== newUrl) {
+            lastUrlRef.current = newUrl;
+            window.history.replaceState(null, "", newUrl);
+          }
           return;
         }
       }
     }
 
     setActiveSection("about");
-    window.history.replaceState(null, "", "/");
+    const fallbackUrl = "/";
+    if (lastUrlRef.current !== fallbackUrl) {
+      lastUrlRef.current = fallbackUrl;
+      window.history.replaceState(null, "", fallbackUrl);
+    }
   };
 
   useEffect(() => {
@@ -113,9 +121,9 @@ export default function Header() {
   };
 
   return (
-    <header className="p-4 fixed w-full top-0 z-50" role="banner">
+    <header className="p-4 fixed w-full top-0 z-50" style={{ willChange: "transform" }} role="banner">
       <nav aria-label="Main navigation" className="relative">
-        <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-50/90 backdrop-blur-md shadow-2xl shadow-purple-900/20 text-purple-950">
+        <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-50/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] shadow-2xl shadow-purple-900/20 text-purple-950" style={{ transform: "translateZ(0)" }}>
           <ul className="flex flex-1 items-center mx-auto py-2 px-2 w-fit justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle">
             <li
               className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${

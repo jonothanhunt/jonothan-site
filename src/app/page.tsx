@@ -77,7 +77,7 @@ export default function Home() {
           }
         });
       },
-      { rootMargin: "0px 0px -100px 0px" },
+      { rootMargin: "0px 0px 0px 0px" },
     );
 
     elements.forEach((el) => observer.observe(el));
@@ -246,7 +246,7 @@ export default function Home() {
                     (webGLSupported ? (
                       <ErrorBoundary fallback={null}>
                         <Canvas
-                          onCreated={({ gl }) => {
+                          onCreated={({ gl, advance }) => {
                             const canvas = gl.domElement;
                             canvas.addEventListener(
                               "webglcontextlost",
@@ -255,6 +255,17 @@ export default function Home() {
                                 setWebGLSupported(false);
                               },
                             );
+                            const observer = new IntersectionObserver(
+                              ([entry]) => {
+                                if (entry.isIntersecting) {
+                                  gl.setAnimationLoop((t) => advance(t));
+                                } else {
+                                  gl.setAnimationLoop(null);
+                                }
+                              },
+                              { threshold: 0 },
+                            );
+                            observer.observe(canvas);
                           }}
                           dpr={[1, 1]}
                           orthographic
@@ -266,7 +277,7 @@ export default function Home() {
                           }}
                           gl={{
                             alpha: true,
-                            antialias: true,
+                            antialias: false,
                             premultipliedAlpha: false,
                             failIfMajorPerformanceCaveat: false,
                             powerPreference: "default",
