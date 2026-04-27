@@ -53,7 +53,7 @@ type Params = Promise<{ slug?: string[] }>;
 export async function generateMetadata({ params }: { params: Params }) {
   const { slug } = await params;
   if (!slug) {
-    return { title: "Blog", description: "My blog." };
+    return { title: "Jonothan Hunt's Blog", description: "My blog." };
   }
 
   const currentSlug = slug[0];
