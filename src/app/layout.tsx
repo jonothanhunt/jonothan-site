@@ -7,13 +7,15 @@ import { Analytics } from "@vercel/analytics/next";
 const lastik = localFont({
   variable: "--font-lastik",
   src: "./fonts/LastikVariable-Variable.woff2",
-  display: "swap",
+  display: "block",
+  weight: "50 100",
 });
 
 const atkinsonHyperlegible = localFont({
   variable: "--font-hyperlegible",
   src: "./fonts/AtkinsonHyperlegibleNext-VariableFont_wght.ttf",
-  display: "swap",
+  display: "block",
+  weight: "100 1000",
 });
 
 // JSON-LD structured data

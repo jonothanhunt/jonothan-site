@@ -14,7 +14,6 @@ interface VariableProximityProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 import { forwardRef, useMemo, useRef, useEffect, useState, RefObject, CSSProperties, HTMLAttributes } from "react";
-import { motion } from "motion/react";
 
 
 function useMousePositionRef(containerRef: RefObject<HTMLElement | null>) {
@@ -207,7 +206,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
             onClick={onClick}
             style={{
                 display: "inline",
-                fontFamily: "'LastikVariable', var(--font-lastik), sans-serif",
+                fontFamily: "var(--font-lastik), sans-serif",
                 ...style,
             }}
             className={className}
@@ -222,7 +221,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
                         const currentLetterIndex = letterIndex++;
                         // Always set the initial style to fromFontVariationSettings to prevent FOUC
                         return (
-                            <motion.span
+                            <span
                                 key={currentLetterIndex}
                                 ref={(el) => { letterRefs.current[currentLetterIndex] = el; }}
                                 style={{
@@ -233,7 +232,7 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>((p
                                 aria-hidden="true"
                             >
                                 {letter}
-                            </motion.span>
+                            </span>
                         );
                     })}
                     {wordIndex < words.length - 1 && (

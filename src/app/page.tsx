@@ -96,7 +96,7 @@ export default function Home() {
             alt=""
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 768px) 1vw, 100vw"
             style={{ objectFit: "cover", objectPosition: "right" }}
           />
           <div className="dot-grid absolute inset-0" />
@@ -152,20 +152,20 @@ export default function Home() {
                 <div className="w-full flex justify-start items-center gap-4 mt-4 font-w-70">
                   <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/images/logos/cannes_lions_logo.svg" alt="Cannes Lions logo" className="w-8 h-auto" />
+                    <Image src="/images/logos/cannes_lions_logo.svg" alt="Cannes Lions logo" width={32} height={32} priority className="w-8 h-auto" />
                   </Link>
                   <Link
                     href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
                     className="relative w-8 mr-2"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/images/logos/newblood_white_pencil.svg" alt="D&AD New Blood White Pencil" className="w-7 h-auto" />
+                    <Image src="/images/logos/newblood_white_pencil.svg" alt="D&AD New Blood White Pencil" width={28} height={28} priority className="w-7 h-auto" />
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/images/logos/dad_logo.svg" alt="D&AD logo" className="absolute -bottom-2 -right-2 w-6 h-auto z-10" />
+                    <Image src="/images/logos/dad_logo.svg" alt="D&AD logo" width={24} height={24} priority className="absolute -bottom-2 -right-2 w-6 h-auto z-10" />
                   </Link>
                   <Link href="https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/images/logos/the_drum_logo.jpeg" alt="The Drum logo" className="w-8 h-auto" />
+                    <Image src="/images/logos/the_drum_logo.jpeg" alt="The Drum logo" width={32} height={32} priority className="w-8 h-auto rounded-sm" />
                   </Link>
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function Home() {
               <div className="h-72 bg-purple-50 md:bg-gradient-to-b md:from-purple-900/50 md:to-blue-800/50 rounded-4xl relative flex flex-row overflow-clip">
                 {/* Mobile background image (hidden on md+) */}
                 <div className="md:hidden absolute inset-0">
-                  <Image src="/images/home/work_with_me.webp" alt="" fill style={{ objectFit: "cover", objectPosition: "right" }} />
+                  <Image src="/images/home/work_with_me.webp" alt="" fill priority sizes="(max-width: 768px) 95vw, 1px" style={{ objectFit: "cover", objectPosition: "right" }} />
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent" />
                 </div>
                 <div className={`relative z-10 flex flex-col justify-center font-w-70 p-8 md:py-10 md:pl-10 shrink-0 w-full md:w-auto ${webGLSupported ? 'md:pr-0' : 'md:pr-10'}`}>

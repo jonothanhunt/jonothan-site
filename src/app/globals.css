@@ -2,16 +2,8 @@
 
 @import "./font-weights.css";
 
-/* Variable font-face for LastikVariable */
-@font-face {
-  font-family: 'LastikVariable';
-  src: url('./fonts/LastikVariable-Variable.woff2') format('woff2-variations');
-  font-weight: 50 100;
-  font-display: swap;
-  font-style: normal;
-}
-
-/* @theme {
+/* 
+  PLAYFUL THEME REFERENCE
   --color-purple: oklch(0.72 0.11 178);
 } */
 
@@ -81,6 +73,11 @@ html {
 @keyframes fade-up-in {
   from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-logo-scroll {
