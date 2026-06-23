@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progressive Blur with Scroll Fade</title>
+
+    <link rel="stylesheet" href="styles.css" />
+
+    <style>
+      /* Simple progressive blur: stacked strips with increasing blur (no overlap or mask) */
+      .blur-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        overflow: hidden;
+        z-index: 10;
+      }
+      .strips-container {
+        display: flex;
+        flex-direction: column;
+      }
+      .strip {
+        height: 15px;
+        width: 100%;
+      }
+      .strip:nth-child(1) {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+      .strip:nth-child(2) {
+        backdrop-filter: blur(6.5px);
+        -webkit-backdrop-filter: blur(6.5px);
+      }
+      .strip:nth-child(3) {
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+      }
+      .strip:nth-child(4) {
+        backdrop-filter: blur(3.5px);
+        -webkit-backdrop-filter: blur(3.5px);
+      }
+      .strip:nth-child(5) {
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
+      .strip:nth-child(6) {
+        backdrop-filter: blur(1.5px);
+        -webkit-backdrop-filter: blur(1.5px);
+      }
+      .strip:nth-child(7) {
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
+      }
+      .strip:nth-child(8) {
+        backdrop-filter: blur(0.5px);
+        -webkit-backdrop-filter: blur(0.5px);
+      }
+      .strip:nth-child(9) {
+        backdrop-filter: blur(0.25px);
+        -webkit-backdrop-filter: blur(0.25px);
+      }
+      .strip:nth-child(10) {
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Simple progressive blur: stacked strips with increasing blur (no overlap or mask) -->
+    <header class="blur-header">
+      <div class="strips-container">
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+        <div class="strip"></div>
+      </div>
+    </header>
+
+    <main class="content-container">
+      <div class="content-inner">
+        <h1>Progressive blur & fade</h1>
+        <p>
+          This is a basic progressive blur: stacked strips with increasing blur, no overlap or mask. Bands may appear between layers.
+        </p>
+        <!-- Example content below is unrelated to the blur technique -->
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.</p>
+        <p>Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh.</p>
+        <p>Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam. Cras dolor dolor, tempus hon, dapibus, vel, orci. Praesent dapibus. Aenean id metus id velit ullamcorper pulvinar. Vestibulum fermentum tortor id mi. Pellentesque ipsum. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem.</p>
+      </div>
+    </main>
+  </body>
+</html>

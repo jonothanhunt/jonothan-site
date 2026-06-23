@@ -1,0 +1,14 @@
+@layer utilities {
+  .font-w-70 {
+    font-weight: 70;
+  }
+  .font-w-80 {
+    font-weight: 80;
+  }
+  .font-w-90 {
+    font-weight: 90;
+  }
+  .font-w-100 {
+    font-weight: 100;
+  }
+}
