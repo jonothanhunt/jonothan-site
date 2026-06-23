@@ -18,6 +18,11 @@ const nextConfig = {
         destination: "/blog/:slug*",
         permanent: true,
       },
+      {
+        source: "/things-content/:path*",
+        destination: "/blog-content/:path*",
+        permanent: true,
+      },
     ];
   },
 
