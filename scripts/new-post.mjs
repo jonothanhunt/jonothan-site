@@ -21,8 +21,8 @@ const slug = title
 const date = new Date().toISOString().split('T')[0];
 
 // Define paths
-const mdxPath = path.join(process.cwd(), `src/content/things/${slug}.mdx`);
-const imagesDir = path.join(process.cwd(), `public/things-content/${slug}/images`);
+const mdxPath = path.join(process.cwd(), `src/content/blog/${slug}.mdx`);
+const imagesDir = path.join(process.cwd(), `public/blog-content/${slug}/images`);
 
 // Ensure we don't overwrite an existing post
 if (fs.existsSync(mdxPath)) {
@@ -40,9 +40,9 @@ date: "${date}"
 Write your post content here...
 
 ## Images
-You can add images by putting them in the \`public/things-content/${slug}/images\` folder, and referencing them like this:
+You can add images by putting them in the \`public/blog-content/${slug}/images\` folder, and referencing them like this:
 
-![Alt text](/things-content/${slug}/images/your-image.png)
+![Alt text](/blog-content/${slug}/images/your-image.png)
 `;
 
 // Write the MDX file

@@ -16,7 +16,7 @@ function findPostWithSlugVariations(posts: { slug: string; [key: string]: unknow
 }
 
 async function getBlogPosts() {
-  const postsDirectory = path.join(process.cwd(), "src/content/things");
+  const postsDirectory = path.join(process.cwd(), "src/content/blog");
   const filenames = fs.readdirSync(postsDirectory);
 
   const posts = await Promise.all(
@@ -25,7 +25,7 @@ async function getBlogPosts() {
       .map(async (filename) => {
         const slug = filename.replace(/\.(mdx|md)$/, "");
         try {
-          const { metadata } = await import(`@/content/things/${slug}.mdx`);
+          const { metadata } = await import(`@/content/blog/${slug}.mdx`);
           return { slug, ...metadata };
         } catch (error) {
           console.error(`Error importing ${slug}:`, error);
@@ -38,7 +38,7 @@ async function getBlogPosts() {
 }
 
 export async function generateStaticParams() {
-  const postsDirectory = path.join(process.cwd(), "src/content/things");
+  const postsDirectory = path.join(process.cwd(), "src/content/blog");
   const filenames = fs.readdirSync(postsDirectory);
 
   return filenames
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: { params: Params }) {
 
   const currentSlug = slug[0];
   try {
-    const { metadata } = await import(`@/content/things/${currentSlug}.mdx`);
+    const { metadata } = await import(`@/content/blog/${currentSlug}.mdx`);
     const description = metadata.excerpt || "";
     const ogImage = metadata.image
       ? `https://jonothan.dev${metadata.image}`
@@ -90,7 +90,7 @@ export async function generateMetadata({ params }: { params: Params }) {
     if (currentSlug.includes('_')) {
       const dashSlug = currentSlug.replace(/_/g, '-');
       try {
-        await import(`@/content/things/${dashSlug}.mdx`);
+        await import(`@/content/blog/${dashSlug}.mdx`);
         redirect(`/blog/${dashSlug}`);
       } catch {
         redirect("/blog");

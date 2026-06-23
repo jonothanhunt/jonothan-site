@@ -384,7 +384,7 @@ export default function Home() {
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                    <Image src="/things-content/creative-tech-stack/images/creative-tech-stack.png" alt="Creative Tech Stack website screenshot" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                    <Image src="/blog-content/creative-tech-stack/images/creative-tech-stack.png" alt="Creative Tech Stack website screenshot" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-emerald-100 via-70% to-emerald-100 z-10" />
                     <div className="w-fit px-4 py-2 bg-emerald-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">SITE</div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
