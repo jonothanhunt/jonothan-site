@@ -73,7 +73,7 @@ async function processMdxFile(filePath) {
     title,
     createdAt: new Date(date).toISOString(),
     content: markdownBody,
-    site: SITE_URL,
+    site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
     path: `/blog/${slug}`
   };
 
