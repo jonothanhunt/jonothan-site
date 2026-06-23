@@ -112,21 +112,10 @@ export default async function Page({ params }: { params: Params }) {
     if (!post) redirect("/blog");
     else if (shouldRedirect && redirectSlug) redirect(`/blog/${redirectSlug}`);
     
-    let tid = selectedSlug;
-    try {
-      const tidsPath = path.join(process.cwd(), 'src/data/atproto-tids.json');
-      if (fs.existsSync(tidsPath)) {
-        const tids = JSON.parse(fs.readFileSync(tidsPath, 'utf8'));
-        if (tids[selectedSlug]) tid = tids[selectedSlug];
-      }
-    } catch (e) {
-      console.error("Failed to load AT Protocol TIDs", e);
-    }
-
     // Output standard.site link tags which Next.js will automatically hoist to the <head>
     return (
       <>
-        <link rel="site.standard.document" href={`at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.document/${tid}`} />
+        <link rel="site.standard.document" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${selectedSlug}`} />
         <BlogList initialPosts={posts} selectedSlug={selectedSlug} />
       </>
     );
