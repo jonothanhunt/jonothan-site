@@ -48,12 +48,6 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://jonothan.dev",
-    types: {
-      'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
-    }
-  },
-  other: {
-    'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
   },
   openGraph: {
     title: "Jonothan Hunt",
@@ -87,6 +81,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
+        <link rel="site.standard.publication" href={`at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -112,7 +112,37 @@ async function main() {
         $type: 'site.standard.publication',
         url: SITE_URL,
         name: 'Jonothan Hunt',
-        description: 'Jonothan Hunt\'s Blog'
+        description: 'Jonothan Hunt\'s Blog',
+        preferences: {
+          showInDiscover: true
+        },
+        basicTheme: {
+          $type: 'site.standard.theme.basic',
+          accent: {
+            b: 255,
+            g: 255,
+            r: 255,
+            $type: 'site.standard.theme.color#rgb'
+          },
+          background: {
+            b: 0,
+            g: 0,
+            r: 0,
+            $type: 'site.standard.theme.color#rgb'
+          },
+          foreground: {
+            b: 255,
+            g: 255,
+            r: 255,
+            $type: 'site.standard.theme.color#rgb'
+          },
+          accentForeground: {
+            b: 0,
+            g: 0,
+            r: 0,
+            $type: 'site.standard.theme.color#rgb'
+          }
+        }
       }
     });
     console.log(`✅ Successfully published publication record`);
