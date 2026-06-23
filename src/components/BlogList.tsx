@@ -169,7 +169,10 @@ const ArticleItem = memo(
           </div>
         </CardDiv>
         {isSelected && (
-          <section aria-label="Blog post content">
+          <section 
+            aria-label="Blog post content"
+            style={{ '--article-accent': theme.accentColorHex } as React.CSSProperties}
+          >
             <DynamicMDXContent slug={post.slug} />
           </section>
         )}
