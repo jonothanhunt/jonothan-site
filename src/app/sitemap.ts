@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 async function getBlogSlugs(): Promise<string[]> {
-  const postsDirectory = path.join(process.cwd(), "src/content/things");
+  const postsDirectory = path.join(process.cwd(), "src/content/blog");
   try {
     const filenames = fs.readdirSync(postsDirectory);
     return filenames

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, Suspense, memo } from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ThingMetadata, ThingType } from "@/types/thing";
-import { formatCustomDate, getYear } from "@/utils/formatDate";
+import { formatCustomDate } from "@/utils/formatDate";
 import { DynamicMDXContent } from "@/components/DynamicMDXContent";
 import { BlogListFilters } from "@/components/BlogListFilters";
 import { createGlowEffect, GlowEffect } from "@/utils/glowEffect";
@@ -70,61 +69,88 @@ const ArticleItem = memo(
         <CardDiv
           post={post}
           isSelected={isSelected}
-          ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${post.title}`}
-          className={`relative block rounded-4xl cursor-pointer group overflow-clip transition-all duration-300 ${theme.bg} hover:brightness-95 ${post.image ? "min-h-48" : ""}`}
+          ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${post.title
+            }`}
+          className={
+            post.image
+              ? `relative block rounded-xl cursor-pointer group shadow-xl ${theme.shadow} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${theme.bg} ${theme.border} border`
+              : `block rounded-xl cursor-pointer group shadow-xl ${theme.shadow} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${theme.bg} ${theme.border} border`
+          }
           {...glowHandlers}
         >
-          {/* Background image with gradient overlay, matching bento style */}
-          {post.image && (
-            <>
+          <div
+            className={`relative flex flex-col p-6 ${post.image ? "min-h-42" : ""
+              }`}
+          >
+            {post.image ? (
               <Image
                 src={post.image}
                 alt=""
                 aria-hidden="true"
                 fill
-                className="absolute inset-0 object-cover z-0"
+                className="absolute inset-0 rounded-xl object-cover opacity-60 mix-blend-overlay"
                 sizes="(max-width: 640px) 100vw, 512px"
                 priority={isPriority}
               />
-              <div className="absolute inset-0 z-10" style={{ background: `linear-gradient(to bottom, transparent 0%, rgba(${theme.bgRgb}, 0.5) 35%, rgba(${theme.bgRgb}, 0.85) 60%, rgb(${theme.bgRgb}) 100%)` }} />
-            </>
-          )}
+            ) : null}
 
-          <GlowEffect className="absolute inset-0 z-20 pointer-events-none" />
+            {/* Cursor Glow Effect - now above background but below content */}
+            <GlowEffect className="absolute inset-0 z-10 pointer-events-none" />
 
-          <div className={`relative z-30 flex flex-col justify-between p-4 ${post.image ? "min-h-48" : ""}`}>
-            {/* Top: date pill + links */}
-            <div className="flex flex-wrap justify-start items-start gap-2 w-full" aria-label="Post metadata">
-              <time
-                dateTime={post.date}
-                className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
+            {/* Metadata tags and date - always top left */}
+            <div
+              className="z-10 w-full relative flex flex-wrap gap-2 self-start"
+              aria-label="Post metadata"
+            >
+              <div
+                className="z-10 relative flex flex-wrap justify-start items-start gap-2 w-full"
+                aria-label="Post metadata"
               >
-                {formatCustomDate(post.date)}
-              </time>
-
-              <div className="flex-1" />
-
-              {post.links && post.links.length > 0 && post.links.map((link) => (
-                <Link
-                  key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200`}
-                  style={{ textDecoration: "none" }}
-                  aria-label={`External link: ${link.title}`}
+                {/* Left: tags and date */}
+                {post.type.map((type) => (
+                  <span
+                    key={type}
+                    role="tag"
+                    className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
+                  >
+                    {type}
+                  </span>
+                ))}
+                <time
+                  dateTime={post.date}
+                  className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
                 >
-                  <span>{link.title}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="ml-1" style={{ display: "block" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M7 7h10v10" />
-                  </svg>
-                </Link>
-              ))}
+                  {formatCustomDate(post.date)}
+                </time>
+
+                <div className="flex-1" />
+
+                {/* Right: links */}
+                {post.links &&
+                  post.links.length > 0 &&
+                  post.links.map((link) => (
+                    <Link
+                      key={link.url}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200 shadow-md ${theme.accentShadow}`}
+                      style={{ textDecoration: "none" }}
+                      aria-label={`External link: ${link.title}`}
+                    >
+                      <span>{link.title}</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="ml-1" style={{ display: "block" }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M7 7h10v10" />
+                      </svg>
+                    </Link>
+                  ))}
+              </div>
             </div>
 
-            {/* Bottom: title */}
+            {/* Title - always after metadata with guaranteed gap */}
             <h2
-              className={`font-[family-name:var(--font-lastik)] font-w-70 text-2xl ${theme.text} text-balance mt-6`}
+              className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl ${theme.text} text-balance ${post.image ? "mt-12" : "mt-6"
+                }`}
               tabIndex={isSelected ? 0 : -1}
               ref={(node) => {
                 if (node && isSelected) {
@@ -196,16 +222,8 @@ function CardDiv({
       style={style}
       onClick={handleClick}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          router.push(
-            isSelected
-              ? "/blog"
-              : `/blog/${post.slug}` +
-              (typeof window !== "undefined" ? window.location.search : ""),
-            { scroll: false }
-          );
-        }
+        if (e.key === "Enter" || e.key === " ")
+          handleClick(e as unknown as React.MouseEvent);
       }}
       {...rest}
     >
@@ -214,9 +232,7 @@ function CardDiv({
   );
 }
 
-export function BlogList({ initialPosts }: BlogListProps) {
-  const pathname = usePathname();
-  const selectedSlug = pathname.startsWith("/blog/") ? pathname.slice("/blog/".length) : undefined;
+export function BlogList({ initialPosts, selectedSlug }: BlogListProps) {
   const selectedPostRef = useRef<HTMLDivElement>(null);
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
   const glowHandlersRef = useRef<ReturnType<typeof createGlowEffect> | null>(
@@ -228,8 +244,6 @@ export function BlogList({ initialPosts }: BlogListProps) {
   }
 
   const glowHandlers = glowHandlersRef.current;
-
-  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedSlug && selectedPostRef.current) {
@@ -266,104 +280,32 @@ export function BlogList({ initialPosts }: BlogListProps) {
       )
       : initialPosts;
 
-  const revealedElements = useRef<Set<Element>>(new Set());
-
-  useEffect(() => {
-    const elements = listRef.current?.querySelectorAll(".reveal-on-scroll");
-    if (!elements) return;
-
-    // Restore revealed state for already-seen elements, pre-mark visible ones
-    elements.forEach((el) => {
-      if (revealedElements.current.has(el)) {
-        el.classList.add("revealed");
-        el.classList.remove("exit-up");
-        return;
-      }
-      const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        el.classList.add("revealed");
-        revealedElements.current.add(el);
-      }
-    });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("revealed");
-            entry.target.classList.remove("exit-up");
-            revealedElements.current.add(entry.target);
-          } else {
-            entry.target.classList.remove("revealed");
-            if (entry.boundingClientRect.top < 0) {
-              entry.target.classList.add("exit-up");
-            } else {
-              entry.target.classList.remove("exit-up");
-            }
-          }
-        });
-      },
-      { rootMargin: "0px 0px 0px 0px" },
-    );
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [filteredPosts]);
-
   return (
-    <main ref={listRef} className="blog-list" role="main" aria-label="Blog posts">
+    <main className="blog-list" role="main" aria-label="Blog posts">
       <div className="h-24" />
-      <Suspense fallback={<div className="h-12" />}>
-        <div className="reveal-on-scroll" suppressHydrationWarning>
-          <BlogListFilters
-            availableTypes={availableTypes}
-            onFiltersChange={setSelectedTypes}
-          />
-        </div>
+      <Suspense>
+        <BlogListFilters
+          availableTypes={availableTypes}
+          onFiltersChange={setSelectedTypes}
+        />
       </Suspense>
       <div className="container max-w-3xl mx-auto pb-8 px-4 font-[family-name:var(--font-hyperlegible)]">
         <div className="space-y-8" role="feed" aria-label="Blog posts list">
           {filteredPosts.map((post, idx) => {
             const isSelected = post.slug === selectedSlug;
-            const isPriority = idx < 5;
+            const isPriority = idx < 5; // prioritize above-the-fold images
             const theme = PLAYFUL_THEMES[idx % PLAYFUL_THEMES.length];
-            const year = getYear(post.date);
-            const prevYear = idx > 0 ? getYear(filteredPosts[idx - 1].date) : null;
-            const showYearDivider = prevYear !== null && year !== prevYear;
-
-            const showTopYear = idx === 0;
 
             return (
-              <div key={post.slug} className="reveal-on-scroll" suppressHydrationWarning>
-                {(showTopYear || showYearDivider) && (
-                  <div className="pt-4 pb-8 flex items-center gap-4">
-                    <svg className={`flex-1 ${theme.accentText} opacity-50`} height="24" xmlns="http://www.w3.org/2000/svg" style={{ transform: "scaleX(-1)" }}>
-                      <defs>
-                        <pattern id={`squiggle-l-${year}-${idx}`} x="0" y="0" width="28" height="24" patternUnits="userSpaceOnUse">
-                          <path d="M0 12 Q7 3 14 12 Q21 21 28 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                        </pattern>
-                      </defs>
-                      <rect width="100%" height="24" fill={`url(#squiggle-l-${year}-${idx})`} />
-                    </svg>
-                    <span className={`${theme.accentText} text-xl font-medium uppercase shrink-0`}>{year}</span>
-                    <svg className={`flex-1 ${theme.accentText} opacity-50`} height="24" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <pattern id={`squiggle-r-${year}-${idx}`} x="0" y="0" width="28" height="24" patternUnits="userSpaceOnUse">
-                          <path d="M0 12 Q7 3 14 12 Q21 21 28 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                        </pattern>
-                      </defs>
-                      <rect width="100%" height="24" fill={`url(#squiggle-r-${year}-${idx})`} />
-                    </svg>
-                  </div>
-                )}
-                <ArticleItem
-                  post={post}
-                  isSelected={isSelected}
-                  selectedPostRef={isSelected ? selectedPostRef : null}
-                  glowHandlers={glowHandlers}
-                  isPriority={isPriority}
-                  theme={theme}
-                />
-              </div>
+              <ArticleItem
+                key={post.slug}
+                post={post}
+                isSelected={isSelected}
+                selectedPostRef={isSelected ? selectedPostRef : null}
+                glowHandlers={glowHandlers}
+                isPriority={isPriority}
+                theme={theme}
+              />
             );
           })}
         </div>

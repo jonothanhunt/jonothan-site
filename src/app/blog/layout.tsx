@@ -3,7 +3,7 @@ import path from "path";
 import { BlogList } from "@/components/BlogList";
 
 async function getBlogPosts() {
-  const postsDirectory = path.join(process.cwd(), "src/content/things");
+  const postsDirectory = path.join(process.cwd(), "src/content/blog");
   const filenames = fs.readdirSync(postsDirectory);
 
   const posts = await Promise.all(
@@ -12,7 +12,7 @@ async function getBlogPosts() {
       .map(async (filename) => {
         const slug = filename.replace(/\.(mdx|md)$/, "");
         try {
-          const { metadata } = await import(`@/content/things/${slug}.mdx`);
+          const { metadata } = await import(`@/content/blog/${slug}.mdx`);
           return { slug, ...metadata };
         } catch {
           return { slug, title: slug, date: new Date().toISOString(), excerpt: "", type: "Post" };
