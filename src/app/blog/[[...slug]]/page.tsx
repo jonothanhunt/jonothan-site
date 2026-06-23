@@ -30,7 +30,7 @@ async function getBlogPosts() {
           return { slug, ...metadata };
         } catch (error) {
           console.error(`Error importing ${slug}:`, error);
-          return { slug, title: slug, date: new Date().toISOString(), excerpt: "", type: "Post" };
+          return { slug, title: slug, date: new Date().toISOString(), excerpt: "", type: ["Post"] };
         }
       })
   );
