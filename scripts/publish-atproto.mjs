@@ -72,7 +72,9 @@ async function processMdxFile(filePath) {
     $type: 'site.standard.document',
     title,
     createdAt: new Date(date).toISOString(),
-    content: markdownBody
+    content: markdownBody,
+    site: SITE_URL,
+    path: `/blog/${slug}`
   };
 
   return standardSitePayload;
@@ -96,6 +98,25 @@ async function main() {
   } catch (e) {
     console.error("Failed to login to AT Protocol:", e.message);
     return;
+  }
+
+  // Publish publication record
+  try {
+    console.log(`Publishing standard.site publication record...`);
+    await agent.com.atproto.repo.putRecord({
+      repo: agent.session.did,
+      collection: 'site.standard.publication',
+      rkey: 'main',
+      record: {
+        $type: 'site.standard.publication',
+        url: SITE_URL,
+        name: 'Jonothan Hunt',
+        description: 'Jonothan Hunt\'s Blog'
+      }
+    });
+    console.log(`✅ Successfully published publication record`);
+  } catch (e) {
+    console.error(`❌ Error publishing publication record:`, e.message || e);
   }
 
   // Get all existing records from PDS
