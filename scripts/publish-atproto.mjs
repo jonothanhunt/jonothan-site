@@ -72,7 +72,12 @@ async function processMdxFile(filePath) {
     $type: 'site.standard.document',
     title,
     publishedAt: new Date(date).toISOString(),
-    textContent: markdownBody,
+    content: [
+      {
+        $type: 'site.standard.block.markdown',
+        value: markdownBody
+      }
+    ],
     description: markdownBody.slice(0, 200).replace(/\n/g, ' ') + '...',
     site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
     path: `/blog/${slug}`
@@ -110,7 +115,7 @@ async function main() {
       rkey: 'main',
       record: {
         $type: 'site.standard.publication',
-        url: SITE_URL,
+        url: `${SITE_URL}/blog`,
         name: 'Jonothan Hunt',
         description: 'Jonothan Hunt\'s Blog',
         preferences: {
