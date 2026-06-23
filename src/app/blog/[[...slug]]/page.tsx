@@ -67,7 +67,17 @@ export async function generateMetadata({ params }: { params: Params }) {
       title: `${metadata.title} — Jonothan Hunt`,
       description,
       keywords: ["Jonothan Hunt Blog", "Jonathan Hunt Blog"],
-      alternates: { canonical: `https://jonothan.dev/blog/${currentSlug}` },
+      alternates: { 
+        canonical: `https://jonothan.dev/blog/${currentSlug}`,
+        types: {
+          'site.standard.document': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${currentSlug}`,
+          'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
+        }
+      },
+      other: {
+        'site.standard.document': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${currentSlug}`,
+        'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
+      },
       openGraph: {
         title: metadata.title,
         description,
@@ -112,13 +122,13 @@ export default async function Page({ params }: { params: Params }) {
     // Output standard.site link tags which Next.js will automatically hoist to the <head>
     return (
       <>
-        <link rel="site.standard.document" href={`at://jonothan.dev/site.standard.document/${selectedSlug}`} />
-        <link rel="site.standard.publication" href="at://jonothan.dev/site.standard.publication/main" />
+        <link rel="site.standard.document" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${selectedSlug}`} />
+        <link rel="site.standard.publication" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`} />
       </>
     );
   }
 
   return (
-    <link rel="site.standard.publication" href="at://jonothan.dev/site.standard.publication/main" />
+    <link rel="site.standard.publication" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`} />
   );
 }
