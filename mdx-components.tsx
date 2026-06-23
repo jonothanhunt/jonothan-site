@@ -67,6 +67,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {children}
       </pre>
     ),
+    blockquote: ({ children }) => (
+      <blockquote 
+        className="border-l-[6px] pl-6 py-2 italic my-6 text-gray-700 font-medium text-xl" 
+        style={{ borderColor: 'var(--article-accent, #6b7280)' }}
+      >
+        {children}
+      </blockquote>
+    ),
     // Custom MDX component for Sandpack embeds
     SandpackEmbed,
     Gif,
