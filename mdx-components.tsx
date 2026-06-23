@@ -5,7 +5,8 @@ import Image from "next/image";
 
 import React from "react";
 import Gif from "./src/components/Gif";
-
+import YouTube from "./src/components/YouTube";
+import TikTok from "./src/components/TikTok";
 import { SandpackEmbed } from "./src/components/SandpackEmbed";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -46,16 +47,21 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </ol>
     ),
     li: ({ children }) => <li className="pl-1 text-lg">{children}</li>,
-    img: (props) => (
-      <Image
-        width={1200}
-        height={0}
-        sizes="100vw"
-        style={{ width: "100%", height: "auto" }}
-        alt={props.alt || ""}
-        {...props}
-      />
-    ),
+    img: (props) => {
+      if (typeof props.src === 'string' && props.src.endsWith('.gif')) {
+        return <Gif src={props.src} alt={props.alt || ""} />;
+      }
+      return (
+        <Image
+          width={1200}
+          height={0}
+          sizes="100vw"
+          style={{ width: "100%", height: "auto" }}
+          alt={props.alt || ""}
+          {...props}
+        />
+      );
+    },
     pre: ({ children }) => (
       <pre className="p-4 bg-gray-100 dark:bg-gray-800 rounded-md overflow-auto">
         {children}
@@ -64,6 +70,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     // Custom MDX component for Sandpack embeds
     SandpackEmbed,
     Gif,
+    YouTube,
+    TikTok,
     ...components,
   };
 }

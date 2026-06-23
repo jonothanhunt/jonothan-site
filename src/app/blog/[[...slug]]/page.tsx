@@ -108,7 +108,17 @@ export default async function Page({ params }: { params: Params }) {
     const { post, shouldRedirect, redirectSlug } = findPostWithSlugVariations(posts, selectedSlug);
     if (!post) redirect("/blog");
     else if (shouldRedirect && redirectSlug) redirect(`/blog/${redirectSlug}`);
+    
+    // Output standard.site link tags which Next.js will automatically hoist to the <head>
+    return (
+      <>
+        <link rel="site.standard.document" href={`at://jonothan.dev/site.standard.document/${selectedSlug}`} />
+        <link rel="site.standard.publication" href="at://jonothan.dev/site.standard.publication/main" />
+      </>
+    );
   }
 
-  return null;
+  return (
+    <link rel="site.standard.publication" href="at://jonothan.dev/site.standard.publication/main" />
+  );
 }

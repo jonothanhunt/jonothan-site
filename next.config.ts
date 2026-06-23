@@ -74,8 +74,13 @@ const nextConfig = {
   },
 };
 
+import path from "path";
+
 const withMDX = createMDX({
-  // Add markdown plugins here, as desired
+  options: {
+    remarkPlugins: [[path.join(process.cwd(), "src/utils/remark-media-embeds.mjs"), {}]],
+    rehypePlugins: [],
+  },
 });
 
 // Merge MDX config with Next.js config
