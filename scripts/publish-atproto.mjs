@@ -245,31 +245,55 @@ async function main() {
   }
 
   const localSlugs = new Set();
+  const localTids = new Set();
+  
+  const tidsPath = path.join(process.cwd(), 'src/data/atproto-tids.json');
+  let tids = {};
+  if (fs.existsSync(tidsPath)) {
+    tids = JSON.parse(fs.readFileSync(tidsPath, 'utf8'));
+  }
 
   for (const file of files) {
     const slug = path.basename(file, '.mdx');
     localSlugs.add(slug);
     try {
       const payload = await processMdxFile(file);
-      
+      const existingTid = tids[slug];
+
       console.log(`Publishing standard.site document for: ${slug}...`);
-      await agent.com.atproto.repo.putRecord({
-        repo: agent.session.did,
-        collection: 'site.standard.document',
-        rkey: slug,
-        record: payload
-      });
-      console.log(`✅ Successfully published: ${slug}`);
+      if (existingTid) {
+        await agent.com.atproto.repo.putRecord({
+          repo: agent.session.did,
+          collection: 'site.standard.document',
+          rkey: existingTid,
+          record: payload
+        });
+        localTids.add(existingTid);
+        console.log(`✅ Successfully updated: ${slug} (TID: ${existingTid})`);
+      } else {
+        const res = await agent.com.atproto.repo.createRecord({
+          repo: agent.session.did,
+          collection: 'site.standard.document',
+          record: payload
+        });
+        const newTid = res.data.uri.split('/').pop();
+        tids[slug] = newTid;
+        localTids.add(newTid);
+        console.log(`✅ Successfully created: ${slug} (TID: ${newTid})`);
+      }
     } catch (e) {
       console.error(`❌ Error publishing ${slug}:`, e.message || e);
     }
   }
+  
+  fs.mkdirSync(path.dirname(tidsPath), { recursive: true });
+  fs.writeFileSync(tidsPath, JSON.stringify(tids, null, 2));
 
   // Delete orphaned records
   let deletedCount = 0;
   for (const record of existingRecords) {
     const rkey = record.uri.split('/').pop();
-    if (!localSlugs.has(rkey)) {
+    if (!localTids.has(rkey)) {
       console.log(`Deleting orphaned document from AT Protocol: ${rkey}...`);
       try {
         await agent.com.atproto.repo.deleteRecord({
