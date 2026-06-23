@@ -81,7 +81,7 @@ async function processMdxFile(filePath) {
     ],
     description: markdownBody.slice(0, 200).replace(/\n/g, ' ') + '...',
     site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
-    path: `/${slug}`
+    path: `/blog/${slug}`
   };
 
   return standardSitePayload;
