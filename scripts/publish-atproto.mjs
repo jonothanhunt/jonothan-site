@@ -10,7 +10,7 @@ import { AtpAgent } from '@atproto/api';
 dotenv.config({ path: '.env.local' });
 
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
-const SITE_URL = 'https://www.jonothan.dev';
+const SITE_URL = 'https://jonothan.dev';
 
 async function processMdxFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
