@@ -30,16 +30,6 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Cache Next.js static assets aggressively
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
         // Cache public static assets aggressively (images, fonts, icons)
         source: '/:all*(svg|jpg|jpeg|png|webp|gif|ico|woff2|ttf)',
         headers: [
