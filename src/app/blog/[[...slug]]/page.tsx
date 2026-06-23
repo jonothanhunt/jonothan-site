@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { redirect } from "next/navigation";
+import { BlogList } from "@/components/BlogList";
 
 function findPostWithSlugVariations(posts: { slug: string; [key: string]: unknown }[], requestedSlug: string) {
   let post = posts.find((post) => post.slug === requestedSlug);
@@ -113,9 +114,12 @@ export default async function Page({ params }: { params: Params }) {
     
     // Output standard.site link tags which Next.js will automatically hoist to the <head>
     return (
-      <link rel="site.standard.document" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${selectedSlug}`} />
+      <>
+        <link rel="site.standard.document" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${selectedSlug}`} />
+        <BlogList initialPosts={posts} selectedSlug={selectedSlug} />
+      </>
     );
   }
 
-  return null;
+  return <BlogList initialPosts={posts} />;
 }
