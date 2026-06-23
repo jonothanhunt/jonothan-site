@@ -11,6 +11,7 @@ export interface Theme {
     accentShadow: string;
     accentText: string;
     bgRgb: string; // raw RGB for gradient overlays
+    accentColorHex: string;
 }
 
 export const PLAYFUL_THEMES: Theme[] = [
@@ -27,6 +28,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         accentShadow: "shadow-emerald-600/25",
         accentText: "text-emerald-600",
         bgRgb: "209, 250, 229",
+        accentColorHex: "#059669",
     },
     {
         name: "Peach",
@@ -41,6 +43,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         accentShadow: "shadow-orange-600/25",
         accentText: "text-orange-600",
         bgRgb: "255, 237, 213",
+        accentColorHex: "#ea580c",
     },
     {
         name: "Sky",
@@ -55,6 +58,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         accentShadow: "shadow-sky-600/25",
         accentText: "text-sky-600",
         bgRgb: "224, 242, 254",
+        accentColorHex: "#0284c7",
     },
     {
         name: "Lavender",
@@ -69,6 +73,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         accentShadow: "shadow-purple-600/25",
         accentText: "text-purple-600",
         bgRgb: "243, 232, 255",
+        accentColorHex: "#9333ea",
     },
     {
         name: "Lemon",
@@ -83,6 +88,7 @@ export const PLAYFUL_THEMES: Theme[] = [
         accentShadow: "shadow-yellow-600/25",
         accentText: "text-yellow-700",
         bgRgb: "254, 249, 195",
+        accentColorHex: "#ca8a04",
     },
     {
         name: "Rose",
@@ -97,5 +103,6 @@ export const PLAYFUL_THEMES: Theme[] = [
         accentShadow: "shadow-rose-600/25",
         accentText: "text-rose-600",
         bgRgb: "255, 228, 230",
+        accentColorHex: "#e11d48",
     },
 ];
