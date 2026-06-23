@@ -30,12 +30,17 @@ if (fs.existsSync(mdxPath)) {
   process.exit(1);
 }
 
-// Create the MDX content with frontmatter
-const mdxContent = `---
-title: "${title}"
-description: ""
-date: "${date}"
----
+// Create the MDX content with metadata export
+const mdxContent = `export const metadata = {
+  title: "${title}",
+  date: "${date}",
+  excerpt: "",
+  type: ["Post"],
+  image: "/blog-content/${slug}/images/cover.png",
+  links: [
+    { title: "Example Link", url: "https://example.com" }
+  ]
+};
 
 Write your post content here...
 
