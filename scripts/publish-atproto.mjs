@@ -6,6 +6,7 @@ import { visit } from 'unist-util-visit';
 import * as dotenv from 'dotenv';
 import sharp from 'sharp';
 import { AtpAgent } from '@atproto/api';
+import { TID } from '@atproto/common-web';
 
 dotenv.config({ path: '.env.local' });
 
@@ -13,6 +14,39 @@ import { toString } from 'mdast-util-to-string';
 
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
 const SITE_URL = 'https://jonothan.dev';
+const ATPROTO_DID = process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw';
+
+// The standard.site lexicons declare `key: tid`, so every record key (rkey) MUST be a
+// valid Timestamp Identifier — NOT a slug or a literal like "main". We keep a persistent
+// slug -> TID map so each document/publication keeps a stable record key across runs (and
+// so the site's <link> tags and the published records always agree).
+const TIDS_PATH = path.join(process.cwd(), 'src/data/atproto-tids.json');
+const PUBLICATION_KEY = '__publication__';
+
+function loadTids() {
+  try {
+    return JSON.parse(fs.readFileSync(TIDS_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function saveTids(tids) {
+  fs.mkdirSync(path.dirname(TIDS_PATH), { recursive: true });
+  fs.writeFileSync(TIDS_PATH, JSON.stringify(tids, null, 2) + '\n');
+}
+
+const tids = loadTids();
+
+// Returns the stable TID for a key, generating and persisting a new one on first sight.
+function getTid(key) {
+  if (!tids[key]) {
+    tids[key] = TID.nextStr();
+    saveTids(tids);
+    console.log(`Generated new TID for "${key}": ${tids[key]}`);
+  }
+  return tids[key];
+}
 
 async function processMdxFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -100,7 +134,7 @@ async function processMdxFile(filePath) {
     ],
     textContent: markdownBody,
     description: desc || plainTextDesc,
-    site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
+    site: `at://${ATPROTO_DID}/site.standard.publication/${getTid(PUBLICATION_KEY)}`,
     path: `/blog/${slug}`
   };
 
@@ -156,7 +190,7 @@ async function main() {
     await agent.com.atproto.repo.putRecord({
       repo: agent.session.did,
       collection: 'site.standard.publication',
-      rkey: 'main',
+      rkey: getTid(PUBLICATION_KEY),
 
       record: {
         $type: 'site.standard.publication',
@@ -202,6 +236,29 @@ async function main() {
     console.error(`❌ Error publishing publication record:`, e.message || e);
   }
 
+  // Clean up stale publication records (e.g. the old "main" rkey from before TIDs).
+  try {
+    const pubRes = await agent.com.atproto.repo.listRecords({
+      repo: agent.session.did,
+      collection: 'site.standard.publication',
+      limit: 100
+    });
+    for (const record of pubRes.data.records) {
+      const rkey = record.uri.split('/').pop();
+      if (rkey !== getTid(PUBLICATION_KEY)) {
+        console.log(`Deleting stale publication record: ${rkey}...`);
+        await agent.com.atproto.repo.deleteRecord({
+          repo: agent.session.did,
+          collection: 'site.standard.publication',
+          rkey
+        });
+        console.log(`✅ Deleted stale publication record: ${rkey}`);
+      }
+    }
+  } catch (e) {
+    console.error(`❌ Error cleaning up stale publication records:`, e.message || e);
+  }
+
   // Get all existing records from PDS
   let existingRecords = [];
   try {
@@ -244,19 +301,22 @@ async function main() {
     return;
   }
 
-  const localSlugs = new Set();
+  // TID rkeys of documents we publish this run; anything else on the PDS is an orphan
+  // (this includes the old slug-keyed records, which get cleaned up below).
+  const publishedTids = new Set();
 
   for (const file of files) {
     const slug = path.basename(file, '.mdx');
-    localSlugs.add(slug);
+    const rkey = getTid(slug);
+    publishedTids.add(rkey);
     try {
       const payload = await processMdxFile(file);
-      
-      console.log(`Publishing standard.site document for: ${slug}...`);
+
+      console.log(`Publishing standard.site document for: ${slug} (${rkey})...`);
       await agent.com.atproto.repo.putRecord({
         repo: agent.session.did,
         collection: 'site.standard.document',
-        rkey: slug,
+        rkey,
         record: payload
       });
       console.log(`✅ Successfully published: ${slug}`);
@@ -265,11 +325,11 @@ async function main() {
     }
   }
 
-  // Delete orphaned records
+  // Delete orphaned records (old slug-keyed records and removed posts)
   let deletedCount = 0;
   for (const record of existingRecords) {
     const rkey = record.uri.split('/').pop();
-    if (!localSlugs.has(rkey)) {
+    if (!publishedTids.has(rkey)) {
       console.log(`Deleting orphaned document from AT Protocol: ${rkey}...`);
       try {
         await agent.com.atproto.repo.deleteRecord({
@@ -285,7 +345,7 @@ async function main() {
     }
   }
 
-  console.log(`\nSync complete! Published ${localSlugs.size} records, Deleted ${deletedCount} orphaned records.`);
+  console.log(`\nSync complete! Published ${publishedTids.size} records, Deleted ${deletedCount} orphaned records.`);
 }
 
 main().catch(console.error);
