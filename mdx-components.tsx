@@ -69,7 +69,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     blockquote: ({ children }) => (
       <blockquote 
-        className="border-l-[3px] pl-6 py-2 my-6" 
+        className="border-l-[3px] pl-6 py-2 my-6 [&>p:last-child]:pb-0" 
         style={{ borderColor: 'var(--article-accent, #6b7280)' }}
       >
         {children}
