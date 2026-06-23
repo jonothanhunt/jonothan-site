@@ -68,15 +68,7 @@ export async function generateMetadata({ params }: { params: Params }) {
       description,
       keywords: ["Jonothan Hunt Blog", "Jonathan Hunt Blog"],
       alternates: { 
-        canonical: `https://jonothan.dev/blog/${currentSlug}`,
-        types: {
-          'site.standard.document': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${currentSlug}`,
-          'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
-        }
-      },
-      other: {
-        'site.standard.document': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${currentSlug}`,
-        'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
+        canonical: `https://jonothan.dev/blog/${currentSlug}`
       },
       openGraph: {
         title: metadata.title,
