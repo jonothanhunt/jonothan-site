@@ -10,7 +10,7 @@ import { AtpAgent } from '@atproto/api';
 dotenv.config({ path: '.env.local' });
 
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
-const SITE_URL = 'https://jonothan.dev';
+const SITE_URL = 'https://www.jonothan.dev';
 
 async function processMdxFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -81,7 +81,7 @@ async function processMdxFile(filePath) {
     ],
     description: markdownBody.slice(0, 200).replace(/\n/g, ' ') + '...',
     site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
-    path: `/blog/${slug}`
+    path: `/${slug}`
   };
 
   return standardSitePayload;
