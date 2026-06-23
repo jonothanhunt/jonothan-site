@@ -5,7 +5,7 @@ import { getTerminalProfileLines } from './utils/terminalProfile';
 // Helper to pause execution
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || '';
     const isTerminal = userAgent.toLowerCase().includes('curl') ||
         userAgent.toLowerCase().includes('wget') ||
