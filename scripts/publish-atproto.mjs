@@ -18,9 +18,11 @@ async function processMdxFile(filePath) {
   
   const titleMatch = content.match(/title:\s*"([^"]+)"/);
   const dateMatch = content.match(/date:\s*"([^"]+)"/);
+  const descMatch = content.match(/description:\s*"([^"]+)"/);
   
   const title = titleMatch ? titleMatch[1] : slug;
   const date = dateMatch ? dateMatch[1] : new Date().toISOString();
+  const desc = descMatch ? descMatch[1] : '';
 
   const fileUrl = `${SITE_URL}/blog/${slug}`;
 
@@ -80,7 +82,7 @@ async function processMdxFile(filePath) {
       }
     ],
     textContent: markdownBody,
-    description: markdownBody.slice(0, 200).replace(/\n/g, ' ') + '...',
+    description: desc || markdownBody.slice(0, 200).replace(/\n/g, ' ') + '...',
     site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
     path: `/blog/${slug}`
   };
