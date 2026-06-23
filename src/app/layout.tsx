@@ -3,6 +3,9 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Header from "../components/Header";
 import { Analytics } from "@vercel/analytics/next";
+import atprotoTids from "@/data/atproto-tids.json";
+
+const ATPROTO_DID = process.env.ATPROTO_DID || "did:plc:3su63qgei4gylhflvwqj54lw";
 
 const lastik = localFont({
   variable: "--font-lastik",
@@ -81,7 +84,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
-        <link rel="site.standard.publication" href={`at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`} />
+        <link rel="site.standard.publication" href={`at://${ATPROTO_DID}/site.standard.publication/${atprotoTids.__publication__}`} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
