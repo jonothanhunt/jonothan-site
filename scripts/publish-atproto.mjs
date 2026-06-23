@@ -9,6 +9,8 @@ import { AtpAgent } from '@atproto/api';
 
 dotenv.config({ path: '.env.local' });
 
+import { toString } from 'mdast-util-to-string';
+
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
 const SITE_URL = 'https://jonothan.dev';
 
@@ -26,6 +28,8 @@ async function processMdxFile(filePath) {
 
   const fileUrl = `${SITE_URL}/blog/${slug}`;
 
+  let plainTextDesc = '';
+
   // Process the Markdown AST
   const processor = remark().use(remarkMdx).use(() => (tree) => {
     // Remove the export metadata block from the output text
@@ -33,6 +37,19 @@ async function processMdxFile(filePath) {
       parent.children.splice(index, 1);
       return [visit.SKIP, index];
     });
+
+    // Create a plain text description from the tree by ignoring images and jsx
+    const descTree = JSON.parse(JSON.stringify(tree));
+    visit(descTree, ['image', 'mdxJsxFlowElement', 'mdxJsxTextElement', 'html'], (node, index, parent) => {
+      if (parent) {
+        parent.children.splice(index, 1);
+        return [visit.SKIP, index];
+      }
+    });
+    plainTextDesc = toString(descTree).trim().replace(/\s+/g, ' ');
+    if (plainTextDesc.length > 200) {
+      plainTextDesc = plainTextDesc.slice(0, 200) + '...';
+    }
 
     // Handle SandpackEmbed fallbacks
     visit(tree, 'mdxJsxFlowElement', (node, index, parent) => {
@@ -82,7 +99,7 @@ async function processMdxFile(filePath) {
       }
     ],
     textContent: markdownBody,
-    description: desc || markdownBody.slice(0, 200).replace(/\n/g, ' ') + '...',
+    description: desc || plainTextDesc,
     site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
     path: `/blog/${slug}`
   };
