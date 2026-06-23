@@ -48,6 +48,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://jonothan.dev",
+    types: {
+      'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
+    }
+  },
+  other: {
+    'site.standard.publication': `at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.publication/main`
   },
   openGraph: {
     title: "Jonothan Hunt",
