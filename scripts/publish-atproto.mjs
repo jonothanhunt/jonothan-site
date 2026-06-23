@@ -122,16 +122,15 @@ async function processMdxFile(filePath) {
   const markdownBody = String(result).trim();
 
   // Construct the Standard.site Document payload
+  // NOTE: Do NOT add a `content` field. The standard.site `content` union has no
+  // published block lexicons (e.g. `site.standard.block.markdown` does not exist), so
+  // including it makes Bluesky's card service (cardyb) reject the record and fall back to
+  // a plain OpenGraph preview. The known-working publishers (standard.site, atproto.com)
+  // publish metadata only; `textContent` is enough for the reading-time estimate.
   const standardSitePayload = {
     $type: 'site.standard.document',
     title,
     publishedAt: new Date(date).toISOString(),
-    content: [
-      {
-        $type: 'site.standard.block.markdown',
-        value: markdownBody
-      }
-    ],
     textContent: markdownBody,
     description: desc || plainTextDesc,
     site: `at://${ATPROTO_DID}/site.standard.publication/${getTid(PUBLICATION_KEY)}`,
