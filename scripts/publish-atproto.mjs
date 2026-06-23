@@ -4,12 +4,9 @@ import { remark } from 'remark';
 import remarkMdx from 'remark-mdx';
 import { visit } from 'unist-util-visit';
 import * as dotenv from 'dotenv';
-import sharp from 'sharp';
 import { AtpAgent } from '@atproto/api';
 
 dotenv.config({ path: '.env.local' });
-
-import { toString } from 'mdast-util-to-string';
 
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
 const SITE_URL = 'https://jonothan.dev';
@@ -20,15 +17,11 @@ async function processMdxFile(filePath) {
   
   const titleMatch = content.match(/title:\s*"([^"]+)"/);
   const dateMatch = content.match(/date:\s*"([^"]+)"/);
-  const descMatch = content.match(/description:\s*"([^"]+)"/);
   
   const title = titleMatch ? titleMatch[1] : slug;
   const date = dateMatch ? dateMatch[1] : new Date().toISOString();
-  const desc = descMatch ? descMatch[1] : '';
 
   const fileUrl = `${SITE_URL}/blog/${slug}`;
-
-  let plainTextDesc = '';
 
   // Process the Markdown AST
   const processor = remark().use(remarkMdx).use(() => (tree) => {
@@ -37,19 +30,6 @@ async function processMdxFile(filePath) {
       parent.children.splice(index, 1);
       return [visit.SKIP, index];
     });
-
-    // Create a plain text description from the tree by ignoring images and jsx
-    const descTree = JSON.parse(JSON.stringify(tree));
-    visit(descTree, ['image', 'mdxJsxFlowElement', 'mdxJsxTextElement', 'html'], (node, index, parent) => {
-      if (parent) {
-        parent.children.splice(index, 1);
-        return [visit.SKIP, index];
-      }
-    });
-    plainTextDesc = toString(descTree).trim().replace(/\s+/g, ' ');
-    if (plainTextDesc.length > 200) {
-      plainTextDesc = plainTextDesc.slice(0, 200) + '...';
-    }
 
     // Handle SandpackEmbed fallbacks
     visit(tree, 'mdxJsxFlowElement', (node, index, parent) => {
@@ -91,15 +71,8 @@ async function processMdxFile(filePath) {
   const standardSitePayload = {
     $type: 'site.standard.document',
     title,
-    publishedAt: new Date(date).toISOString(),
-    content: [
-      {
-        $type: 'site.standard.block.markdown',
-        value: markdownBody
-      }
-    ],
-    textContent: markdownBody,
-    description: desc || plainTextDesc,
+    createdAt: new Date(date).toISOString(),
+    content: markdownBody,
     site: `at://${process.env.ATPROTO_DID || 'did:plc:3su63qgei4gylhflvwqj54lw'}/site.standard.publication/main`,
     path: `/blog/${slug}`
   };
@@ -127,74 +100,18 @@ async function main() {
     return;
   }
 
-  
-  let iconBlobRef = null;
-  const iconPath = path.join(process.cwd(), 'src/app/icon.svg');
-  if (fs.existsSync(iconPath)) {
-    console.log("Found site icon, converting to PNG and uploading to AT Protocol...");
-    try {
-      const pngBuffer = await sharp(iconPath)
-        .resize(512, 512)
-        .png()
-        .toBuffer();
-      
-      const uploadRes = await agent.com.atproto.repo.uploadBlob(pngBuffer, {
-        encoding: 'image/png'
-      });
-      
-      iconBlobRef = uploadRes.data.blob;
-      console.log("✅ Successfully uploaded site icon blob");
-    } catch (e) {
-      console.error("❌ Failed to upload site icon:", e.message);
-    }
-  }
-
   // Publish publication record
-
   try {
     console.log(`Publishing standard.site publication record...`);
     await agent.com.atproto.repo.putRecord({
       repo: agent.session.did,
       collection: 'site.standard.publication',
       rkey: 'main',
-
       record: {
         $type: 'site.standard.publication',
-        ...(iconBlobRef ? { icon: iconBlobRef } : {}),
-
         url: SITE_URL,
         name: 'Jonothan Hunt',
-        description: 'Jonothan Hunt\'s Blog',
-        preferences: {
-          showInDiscover: true
-        },
-        basicTheme: {
-          $type: 'site.standard.theme.basic',
-          accent: {
-            b: 255,
-            g: 255,
-            r: 255,
-            $type: 'site.standard.theme.color#rgb'
-          },
-          background: {
-            b: 0,
-            g: 0,
-            r: 0,
-            $type: 'site.standard.theme.color#rgb'
-          },
-          foreground: {
-            b: 255,
-            g: 255,
-            r: 255,
-            $type: 'site.standard.theme.color#rgb'
-          },
-          accentForeground: {
-            b: 0,
-            g: 0,
-            r: 0,
-            $type: 'site.standard.theme.color#rgb'
-          }
-        }
+        description: 'Jonothan Hunt\'s Blog'
       }
     });
     console.log(`✅ Successfully published publication record`);
