@@ -2,6 +2,9 @@ import fs from "fs";
 import path from "path";
 import { redirect } from "next/navigation";
 import { BlogList } from "@/components/BlogList";
+import atprotoTids from "@/data/atproto-tids.json";
+
+const ATPROTO_DID = process.env.ATPROTO_DID || "did:plc:3su63qgei4gylhflvwqj54lw";
 
 function findPostWithSlugVariations(posts: { slug: string; [key: string]: unknown }[], requestedSlug: string) {
   let post = posts.find((post) => post.slug === requestedSlug);
@@ -112,10 +115,15 @@ export default async function Page({ params }: { params: Params }) {
     if (!post) redirect("/blog");
     else if (shouldRedirect && redirectSlug) redirect(`/blog/${redirectSlug}`);
     
-    // Output standard.site link tags which Next.js will automatically hoist to the <head>
+    // Output standard.site link tags which Next.js will automatically hoist to the <head>.
+    // The rkey must be the document's TID (the lexicon declares `key: tid`), looked up from
+    // the persistent slug -> TID map written by scripts/publish-atproto.mjs.
+    const documentTid = atprotoTids[selectedSlug as keyof typeof atprotoTids];
     return (
       <>
-        <link rel="site.standard.document" href={`at://${process.env.ATPROTO_DID || 'jonothan.dev'}/site.standard.document/${selectedSlug}`} />
+        {documentTid && (
+          <link rel="site.standard.document" href={`at://${ATPROTO_DID}/site.standard.document/${documentTid}`} />
+        )}
         <BlogList initialPosts={posts} selectedSlug={selectedSlug} />
       </>
     );
