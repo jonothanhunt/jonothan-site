@@ -4,6 +4,7 @@ import { remark } from 'remark';
 import remarkMdx from 'remark-mdx';
 import { visit } from 'unist-util-visit';
 import * as dotenv from 'dotenv';
+import sharp from 'sharp';
 import { AtpAgent } from '@atproto/api';
 
 dotenv.config({ path: '.env.local' });
@@ -106,15 +107,41 @@ async function main() {
     return;
   }
 
+  
+  let iconBlobRef = null;
+  const iconPath = path.join(process.cwd(), 'src/app/icon.svg');
+  if (fs.existsSync(iconPath)) {
+    console.log("Found site icon, converting to PNG and uploading to AT Protocol...");
+    try {
+      const pngBuffer = await sharp(iconPath)
+        .resize(512, 512)
+        .png()
+        .toBuffer();
+      
+      const uploadRes = await agent.com.atproto.repo.uploadBlob(pngBuffer, {
+        encoding: 'image/png'
+      });
+      
+      iconBlobRef = uploadRes.data.blob;
+      console.log("✅ Successfully uploaded site icon blob");
+    } catch (e) {
+      console.error("❌ Failed to upload site icon:", e.message);
+    }
+  }
+
   // Publish publication record
+
   try {
     console.log(`Publishing standard.site publication record...`);
     await agent.com.atproto.repo.putRecord({
       repo: agent.session.did,
       collection: 'site.standard.publication',
       rkey: 'main',
+
       record: {
         $type: 'site.standard.publication',
+        ...(iconBlobRef ? { icon: iconBlobRef } : {}),
+
         url: `${SITE_URL}/blog`,
         name: 'Jonothan Hunt',
         description: 'Jonothan Hunt\'s Blog',
