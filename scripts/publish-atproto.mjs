@@ -142,7 +142,7 @@ async function main() {
         $type: 'site.standard.publication',
         ...(iconBlobRef ? { icon: iconBlobRef } : {}),
 
-        url: SITE_URL,
+        url: `${SITE_URL}/blog`,
         name: 'Jonothan Hunt',
         description: 'Jonothan Hunt\'s Blog',
         preferences: {
