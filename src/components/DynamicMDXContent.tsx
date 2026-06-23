@@ -17,7 +17,7 @@ export function DynamicMDXContent({ slug }: { slug: string }) {
     setComponent(null);
     setLoadState("loading");
 
-    import(`@/content/things/${slug}.mdx`)
+    import(`@/content/blog/${slug}.mdx`)
       .then((mod) => {
         if (typeof mod.default !== "function" && typeof mod.default !== "object") {
           setLoadState("error");

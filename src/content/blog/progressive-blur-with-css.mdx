@@ -3,7 +3,7 @@ export const metadata = {
   date: "2025-07-16",
   excerpt: "A quick demo and explanation of how to create a progressive blur effect using only CSS.",
   type: ["Post", "SITE", "Code"],
-  image: "/things-content/progressive-blur-with-css/images/progressive_blur_example.jpeg",
+  image: "/blog-content/progressive-blur-with-css/images/progressive_blur_example.jpeg",
 };
 
 Progressive blur is all the rage.
@@ -13,7 +13,7 @@ But I'm not a fan of how I usually see it implemented on the web.
 Have a scroll in this example:
 
 <SandpackEmbed
-  basePath="/things-content/progressive-blur-with-css/code/progressive-blur-comparison/"
+  basePath="/blog-content/progressive-blur-with-css/code/progressive-blur-comparison/"
   files={[{file: "index.html"}, {file: "styles.css", visible: false}]}
   template="static"
   view="preview"
@@ -22,7 +22,7 @@ Have a scroll in this example:
 
 See the lovely *progressive* blur on the left?
 
-![image render of progressive backdrop blur on the left and a simpler blur with mask over the top](/things-content/progressive-blur-with-css/images/progressive_blur_example.jpeg)
+![image render of progressive backdrop blur on the left and a simpler blur with mask over the top](/blog-content/progressive-blur-with-css/images/progressive_blur_example.jpeg)
 
 
 Why does it look better?
@@ -35,7 +35,7 @@ Here's how I made progressive blur with CSS:
 **Attempt 1:** I thought, why not just stack lots of divs with increasing amounts of backdrop blur?
 
 <SandpackEmbed
-  basePath="/things-content/progressive-blur-with-css/code/progressive-blur-simple/"
+  basePath="/blog-content/progressive-blur-with-css/code/progressive-blur-simple/"
   files={[{file: "index.html"}, {file: "styles.css", visible: false}]}
   template="static"
 />
@@ -47,7 +47,7 @@ It looks cool, but the clear difference between the blur levels isn't the smooth
 **Attempt 2:** Overlap them and give each one a gradient mask:
 
 <SandpackEmbed
-  basePath="/things-content/progressive-blur-with-css/code/progressive-blur-demo/"
+  basePath="/blog-content/progressive-blur-with-css/code/progressive-blur-demo/"
   files={[{file: "index.html"}, {file: "styles.css", visible: false}]}
   template="static"
 />
