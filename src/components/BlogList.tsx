@@ -73,8 +73,8 @@ const ArticleItem = memo(
             }`}
           className={
             post.image
-              ? `relative block rounded-xl cursor-pointer group shadow-xl ${theme.shadow} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${theme.bg} ${theme.border} border`
-              : `block rounded-xl cursor-pointer group shadow-xl ${theme.shadow} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ${theme.bg} ${theme.border} border`
+              ? `relative block rounded-xl cursor-pointer group overflow-hidden transition-all duration-300 ${theme.bg}`
+              : `relative block rounded-xl cursor-pointer group overflow-hidden transition-all duration-300 ${theme.bg}`
           }
           {...glowHandlers}
         >
@@ -83,15 +83,19 @@ const ArticleItem = memo(
               }`}
           >
             {post.image ? (
-              <Image
-                src={post.image}
-                alt=""
-                aria-hidden="true"
-                fill
-                className="absolute inset-0 rounded-xl object-cover opacity-60 mix-blend-overlay"
-                sizes="(max-width: 640px) 100vw, 512px"
-                priority={isPriority}
-              />
+              <>
+                <Image
+                  src={post.image}
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                  style={{ objectFit: "cover", objectPosition: "center" }}
+                  className="z-0"
+                  sizes="(max-width: 640px) 100vw, 512px"
+                  priority={isPriority}
+                />
+                <div className={`absolute top-0 left-0 w-full h-full bg-gradient-to-b ${theme.gradientOverlay} z-10 pointer-events-none`} />
+              </>
             ) : null}
 
             {/* Cursor Glow Effect - now above background but below content */}
@@ -111,14 +115,14 @@ const ArticleItem = memo(
                   <span
                     key={type}
                     role="tag"
-                    className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
+                    className={`${theme.cardText} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
                   >
                     {type}
                   </span>
                 ))}
                 <time
                   dateTime={post.date}
-                  className={`${theme.text} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
+                  className={`${theme.cardText} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
                 >
                   {formatCustomDate(post.date)}
                 </time>
@@ -134,7 +138,7 @@ const ArticleItem = memo(
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200 shadow-md ${theme.accentShadow}`}
+                      className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200`}
                       style={{ textDecoration: "none" }}
                       aria-label={`External link: ${link.title}`}
                     >
@@ -149,7 +153,7 @@ const ArticleItem = memo(
 
             {/* Title - always after metadata with guaranteed gap */}
             <h2
-              className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl ${theme.text} text-balance ${post.image ? "mt-12" : "mt-6"
+              className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl ${theme.cardText} text-balance ${post.image ? "mt-12" : "mt-6"
                 }`}
               tabIndex={isSelected ? 0 : -1}
               ref={(node) => {

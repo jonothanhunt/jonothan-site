@@ -64,7 +64,7 @@ export function BlogListFilters({ availableTypes, onFiltersChange }: BlogListFil
   };
 
   return (
-    <div className="max-w-3xl mx-auto pb-8 font-[family-name:var(--font-hyperlegible)]">
+    <div className="container max-w-3xl mx-auto pb-8 font-[family-name:var(--font-hyperlegible)]">
       <FilterChips
         selectedTypes={selectedTypes}
         availableTypes={availableTypes}

@@ -152,7 +152,7 @@ export default function Home() {
                 <div className="w-full flex justify-start items-center gap-4 mt-4 font-w-70">
                   <Link href="https://www.lovethework.com/directory/individuals/jono-hunt-750043">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <Image src="/images/logos/cannes_lions_logo.svg" alt="Cannes Lions logo" width={32} height={32} priority className="w-8 h-auto" />
+                    <Image src="/images/logos/grand-prix.png" alt="Cannes Lions logo" width={40} height={40} priority className="w-10 h-auto" />
                   </Link>
                   <Link
                     href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
@@ -333,23 +333,23 @@ export default function Home() {
                   </Link>
                 </div>
 
-                {/* KitKat Tracker — col 3, row 1 */}
+                {/* KitKat Heist — col 3, row 1 */}
                 <div className="reveal-on-scroll col-span-1 md:col-start-3 md:row-start-1 font-w-70" style={{ ["--stagger-offset" as string]: "30px" }}>
                   <Link
-                    href="https://www.famouscampaigns.com/2026/04/case-study-how-kitkat-turned-a-theft-into-a-chocolate-hunt/"
+                    href="https://www.vml.com/work/kitkat-heist"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full min-h-80 bg-red-50 rounded-4xl relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-red-950 focus-visible:outline-offset-4 hover:cursor-pointer"
-                    aria-labelledby="kitkat-tracker-title"
+                    aria-labelledby="kitkat-heist-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                    <Image src="/images/home/kitkat_tracker.webp" alt="The Stolen KitKat Tracker" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                    <Image src="/images/home/kitkat-heist.webp" alt="The KitKat Heist" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-red-100 via-70% to-red-100 z-10" />
                     <div className="w-fit px-4 py-2 bg-red-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">CAMPAIGN</div>
                     <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p id="kitkat-tracker-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-red-800 font-w-70">The Stolen KitKat Tracker</p>
-                      <p className="text-red-800 text-md font-normal leading-tight text-balance">Turning Sweet Disaster into Global Triumph</p>
+                      <p id="kitkat-heist-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-red-800 font-w-70">The KitKat Heist</p>
+                      <p className="text-red-800 text-md font-normal leading-tight text-balance">Award-winning campaign tracking stolen KitKats</p>
                     </div>
                   </Link>
                 </div>

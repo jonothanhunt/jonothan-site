@@ -18,7 +18,7 @@ export default function FilterChips({
 
   return (
     <div
-      className="max-w-full flex gap-3 items-center px-5 py-4 w-fill sm:w-fit overflow-x-scroll no-scrollbar whitespace-nowrap"
+      className="max-w-full flex gap-3 items-center px-4 py-4 w-fill sm:w-fit overflow-x-scroll no-scrollbar whitespace-nowrap"
       style={{
         WebkitMaskImage:
           'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
@@ -34,9 +34,9 @@ export default function FilterChips({
           <button
             key={type}
             onClick={() => onTypeSelect(type)}
-            className={`px-4 py-2 rounded-2xl text-sm font-normal uppercase transition-all duration-300 border cursor-pointer ${isSelected
-              ? `${theme.accent} text-white shadow-xl ${theme.shadow} translate-y-[2px] border-transparent`
-              : `${theme.bg} ${theme.text} ${theme.border} hover:brightness-95 hover:-translate-y-0.5 hover:shadow-xl shadow-lg ${theme.shadow}`
+            className={`px-4 py-2 rounded-2xl text-sm font-normal uppercase transition-all duration-300 cursor-pointer ${isSelected
+              ? `${theme.accent} text-white`
+              : `${theme.bg} ${theme.text} hover:brightness-95`
               }`}
           >
             {type}
@@ -47,7 +47,7 @@ export default function FilterChips({
       {hasFilters && (
         <button
           onClick={onClearFilters}
-          className="flex items-center gap-1 px-4 py-2 rounded-2xl bg-red-100 text-red-900 border border-red-200 text-sm font-normal uppercase shadow-sm hover:bg-red-200 transition-all duration-300 cursor-pointer"
+          className="flex items-center gap-1 px-4 py-2 rounded-2xl bg-red-100 text-red-900 text-sm font-normal uppercase hover:bg-red-200 transition-all duration-300 cursor-pointer"
         >
           <svg
             width="14"

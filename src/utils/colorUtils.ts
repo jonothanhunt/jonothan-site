@@ -3,6 +3,8 @@ export interface Theme {
     bg: string;
     border: string;
     text: string;
+    cardText: string;
+    gradientOverlay: string;
     pillBg: string;
     accent: string;
     lightAccent: string;
@@ -20,6 +22,8 @@ export const PLAYFUL_THEMES: Theme[] = [
         bg: "bg-emerald-100",
         border: "border-emerald-200",
         text: "text-emerald-950",
+        cardText: "text-emerald-800",
+        gradientOverlay: "from-transparent via-emerald-100 via-70% to-emerald-100",
         pillBg: "bg-emerald-200",
         accent: "bg-emerald-600",
         lightAccent: "bg-emerald-50",
@@ -35,6 +39,8 @@ export const PLAYFUL_THEMES: Theme[] = [
         bg: "bg-orange-100",
         border: "border-orange-200",
         text: "text-orange-950",
+        cardText: "text-orange-800",
+        gradientOverlay: "from-transparent via-orange-100 via-70% to-orange-100",
         pillBg: "bg-orange-200",
         accent: "bg-orange-600",
         lightAccent: "bg-orange-50",
@@ -50,6 +56,8 @@ export const PLAYFUL_THEMES: Theme[] = [
         bg: "bg-sky-100",
         border: "border-sky-200",
         text: "text-sky-950",
+        cardText: "text-sky-800",
+        gradientOverlay: "from-transparent via-sky-100 via-70% to-sky-100",
         pillBg: "bg-sky-200",
         accent: "bg-sky-600",
         lightAccent: "bg-sky-50",
@@ -65,6 +73,8 @@ export const PLAYFUL_THEMES: Theme[] = [
         bg: "bg-purple-100",
         border: "border-purple-200",
         text: "text-purple-950",
+        cardText: "text-purple-800",
+        gradientOverlay: "from-transparent via-purple-100 via-70% to-purple-100",
         pillBg: "bg-purple-200",
         accent: "bg-purple-600",
         lightAccent: "bg-purple-50",
@@ -80,6 +90,8 @@ export const PLAYFUL_THEMES: Theme[] = [
         bg: "bg-yellow-100",
         border: "border-yellow-200",
         text: "text-yellow-950",
+        cardText: "text-yellow-800",
+        gradientOverlay: "from-transparent via-yellow-100 via-70% to-yellow-100",
         pillBg: "bg-yellow-200",
         accent: "bg-yellow-600",
         lightAccent: "bg-yellow-50",
@@ -95,6 +107,8 @@ export const PLAYFUL_THEMES: Theme[] = [
         bg: "bg-rose-100",
         border: "border-rose-200",
         text: "text-rose-950",
+        cardText: "text-rose-800",
+        gradientOverlay: "from-transparent via-rose-100 via-70% to-rose-100",
         pillBg: "bg-rose-200",
         accent: "bg-rose-600",
         lightAccent: "bg-rose-50",
