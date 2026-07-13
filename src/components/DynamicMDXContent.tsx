@@ -46,7 +46,7 @@ export function DynamicMDXContent({ slug }: { slug: string }) {
 
   if (loadState === "error") {
     return (
-      <div className="px-5 py-4 text-purple-700 text-sm">
+      <div className="px-5 py-4 text-purple-800 text-sm">
         This post couldn&apos;t be loaded. Please try refreshing the page.
       </div>
     );
