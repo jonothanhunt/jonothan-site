@@ -330,7 +330,7 @@ export default function Home() {
                     <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
                       <p id="tiktok-views-title" className="max-w-xl text-3xl md:text-5xl text-purple-800 font-[family-name:var(--font-lastik)] text-balance font-w-70">
                         Videos using my TikTok effects have reached{" "}
-                        <LiveTicker initialValue={tiktokViews} formatAsBillions={true} className="inline-flex items-baseline align-baseline font-w-70 font-[family-name:var(--font-lastik)] text-purple-100 bg-purple-800 rounded-lg md:rounded-xl px-1.5 md:px-2.5 pt-0.5 md:pt-1 pb-0 -my-0.5 md:-my-1 shadow-sm" />
+                        <LiveTicker initialValue={tiktokViews} formatAsBillions={true} className="inline-flex items-baseline align-baseline font-w-70 font-[family-name:var(--font-lastik)] text-purple-100 bg-purple-800 rounded-lg md:rounded-xl px-1.5 md:px-2.5 pt-0 md:pt-1 pb-0.5 md:pb-0 -my-0.5 md:-my-1 shadow-sm" />
                         {" "}billion views
                       </p>
                     </div>

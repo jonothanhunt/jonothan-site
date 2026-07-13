@@ -33,7 +33,7 @@ export default function LiveTicker({
     if (!mounted) {
         return (
             <span className={className}>
-                <span className="relative top-[0.25px] md:top-[0.5px]">{formattedValue}</span>
+                <span className="relative -top-[0.5px] md:top-[0.5px]">{formattedValue}</span>
             </span>
         );
     }
@@ -43,7 +43,7 @@ export default function LiveTicker({
             value={formattedValue}
             animateOnVisible={{ triggerOnce: false }}
             containerClassName={className}
-            charClassName="font-inherit px-0.5 inline-block leading-none py-1 -my-1 align-baseline relative top-[0.25px] md:top-[0.5px]"
+            charClassName="font-inherit px-0.5 inline-block leading-none py-1 -my-1 align-baseline relative -top-[0.5px] md:top-[0.5px]"
         />
     );
 }
