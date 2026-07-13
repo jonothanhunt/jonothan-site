@@ -110,24 +110,21 @@ export default async function Page({ params }: { params: Params }) {
   const selectedSlug = slug?.[0];
   const posts = await getBlogPosts();
 
+  let documentTid: string | undefined = undefined;
   if (selectedSlug) {
     const { post, shouldRedirect, redirectSlug } = findPostWithSlugVariations(posts, selectedSlug);
     if (!post) redirect("/blog");
     else if (shouldRedirect && redirectSlug) redirect(`/blog/${redirectSlug}`);
     
-    // Output standard.site link tags which Next.js will automatically hoist to the <head>.
-    // The rkey must be the document's TID (the lexicon declares `key: tid`), looked up from
-    // the persistent slug -> TID map written by scripts/publish-atproto.mjs.
-    const documentTid = atprotoTids[selectedSlug as keyof typeof atprotoTids];
-    return (
-      <>
-        {documentTid && (
-          <link rel="site.standard.document" href={`at://${ATPROTO_DID}/site.standard.document/${documentTid}`} />
-        )}
-        <BlogList initialPosts={posts} selectedSlug={selectedSlug} />
-      </>
-    );
+    documentTid = atprotoTids[selectedSlug as keyof typeof atprotoTids];
   }
 
-  return <BlogList initialPosts={posts} />;
+  return (
+    <>
+      {documentTid ? (
+        <link rel="site.standard.document" href={`at://${ATPROTO_DID}/site.standard.document/${documentTid}`} />
+      ) : null}
+      <BlogList initialPosts={posts} selectedSlug={selectedSlug} />
+    </>
+  );
 }

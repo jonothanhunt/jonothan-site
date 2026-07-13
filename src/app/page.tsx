@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import InfiniteScrollingLogosAnimation from "@/components/InfiniteScrollingLogosAnimation";
 import { createGlowEffect } from "@/utils/glowEffect";
+import { ProgressiveBlur } from "@/components/ProgressiveBlur";
 
 // WebGL detection utility
 const isWebGLAvailable = () => {
@@ -319,17 +320,21 @@ export default function Home() {
                     href="https://vm.tiktok.com/ZNdr68mku/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-full min-h-80 bg-purple-950 rounded-4xl relative flex p-4 flex-col justify-center items-center overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="h-full min-h-80 bg-purple-50 rounded-4xl relative flex p-4 flex-col justify-end overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="tiktok-views-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
-                    <Image src="/images/home/effects.jpeg" alt="Background showing TikTok effects" fill sizes="(max-width: 768px) 100vw, 66vw" style={{ objectFit: "cover", objectPosition: "center", opacity: 0.2 }} />
-                    <div className="absolute top-4 left-4 px-4 py-2 bg-purple-100/90 backdrop-blur-md rounded-2xl text-sm font-normal uppercase">LATEST</div>
-                    <p id="tiktok-views-title" className="z-10 max-w-xl text-3xl md:text-5xl text-white font-[family-name:var(--font-lastik)] font-w-60">
-                      Views of TikTok videos using my camera effects have reached{" "}
-                      <LiveTicker initialValue={tiktokViews} className="inline-flex font-bold text-purple-950 bg-purple-50 rounded-md px-2 align-baseline" />
-                    </p>
+                    <Image src="/images/home/effects.jpeg" alt="Background showing TikTok effects" fill sizes="(max-width: 768px) 100vw, 66vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
+                    <ProgressiveBlur className="top-[48%] md:top-[61%]" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-100/60 via-50% to-purple-100/90 z-10" />
+                    <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+                      <p id="tiktok-views-title" className="max-w-xl text-3xl md:text-5xl text-purple-800 font-[family-name:var(--font-lastik)] text-balance font-w-70">
+                        Videos using my TikTok effects have reached{" "}
+                        <LiveTicker initialValue={tiktokViews} formatAsBillions={true} className="inline-flex items-baseline align-baseline font-w-70 font-[family-name:var(--font-lastik)] text-purple-100 bg-purple-800 rounded-lg md:rounded-xl px-1.5 md:px-2.5 pt-0.5 md:pt-1 pb-0 -my-0.5 md:-my-1 shadow-sm" />
+                        {" "}billion views
+                      </p>
+                    </div>
                   </Link>
                 </div>
 
@@ -339,17 +344,17 @@ export default function Home() {
                     href="https://www.vml.com/work/kitkat-heist"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full min-h-80 bg-red-50 rounded-4xl relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-red-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="w-full min-h-80 bg-red-50 rounded-4xl relative p-4 flex flex-col justify-end overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-red-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="kitkat-heist-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/kitkat-heist.webp" alt="The KitKat Heist" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-red-100 via-70% to-red-100 z-10" />
-                    <div className="w-fit px-4 py-2 bg-red-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">CAMPAIGN</div>
-                    <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p id="kitkat-heist-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-red-800 font-w-70">The KitKat Heist</p>
-                      <p className="text-red-800 text-md font-normal leading-tight text-balance">Award-winning campaign tracking stolen KitKats</p>
+                    <ProgressiveBlur />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-red-100/60 via-50% to-red-100/90 z-10" />
+                    <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+                      <p className="text-red-800 text-sm font-normal uppercase">CAMPAIGN</p>
+                      <p id="kitkat-heist-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-red-800 font-w-70">The KitKat Heist campaign wins a Grand Prix at Cannes</p>
                     </div>
                   </Link>
                 </div>
@@ -360,17 +365,17 @@ export default function Home() {
                     href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full min-h-80 bg-purple-50 rounded-4xl relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="w-full min-h-80 bg-purple-50 rounded-4xl relative flex p-4 flex-col justify-end items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="magpie-app-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/magpie_app.webp" alt="Screenshot of the Magpie app showing mentor profiles." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "top" }} className="z-0" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-100 via-70% to-purple-100 z-10" />
-                    <div className="w-fit px-4 py-2 bg-purple-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">APP</div>
-                    <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p id="magpie-app-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-purple-800 font-w-70">Magpie: VML&apos;s award-winning mentorship app</p>
-                      <p className="text-purple-800 text-md font-normal leading-tight text-balance">Mentorship app built for Microsoft Teams</p>
+                    <ProgressiveBlur />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-purple-100/60 via-50% to-purple-100/90 z-10" />
+                    <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+                      <p className="text-purple-800 text-sm font-normal uppercase">APP</p>
+                      <p id="magpie-app-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-purple-800 font-w-70">Magpie mentorship app wins at The Drum awards</p>
                     </div>
                   </Link>
                 </div>
@@ -379,17 +384,17 @@ export default function Home() {
                 <div className="reveal-on-scroll">
                   <Link
                     href="/blog/creative-tech-stack"
-                    className="min-h-80 bg-purple-50 rounded-4xl relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="min-h-80 bg-purple-50 rounded-4xl relative p-4 flex flex-col justify-end overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="creative-tech-stack-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/blog-content/creative-tech-stack/images/creative-tech-stack.png" alt="Creative Tech Stack website screenshot" fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-emerald-100 via-70% to-emerald-100 z-10" />
-                    <div className="w-fit px-4 py-2 bg-emerald-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">SITE</div>
-                    <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p id="creative-tech-stack-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-emerald-800 font-w-70">Creative Tech Stack</p>
-                      <p className="text-emerald-800 text-md font-normal leading-tight text-balance">A tools database & blog for creative technologists</p>
+                    <ProgressiveBlur />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-emerald-100/60 via-50% to-emerald-100/90 z-10" />
+                    <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+                      <p className="text-emerald-800 text-sm font-normal uppercase">SITE</p>
+                      <p id="creative-tech-stack-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-emerald-800 font-w-70">Creative Tech Stack: tools database &amp; blog for creatives</p>
                     </div>
                   </Link>
                 </div>
@@ -400,17 +405,17 @@ export default function Home() {
                     href="https://www.nhsbt.nhs.uk/news/more-than-half-the-children-transformed-into-dolls-as-part-of-an-award-winning-national-organ-donation-campaign-have-now-received-a-lifesaving-transplant-in-time-for-christmas/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="min-h-80 bg-purple-50 rounded-4xl relative p-4 flex flex-col justify-between overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="min-h-80 bg-purple-50 rounded-4xl relative p-4 flex flex-col justify-end overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="waiting-to-live-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/waiting_to_live.webp" alt="The doll of Ralph sitting on a bench, waiting." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-100 via-70% to-orange-100 z-10" />
-                    <div className="w-fit px-4 py-2 bg-orange-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">CAMPAIGN</div>
-                    <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p id="waiting-to-live-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-orange-800 font-w-70">Waiting to Live</p>
-                      <p className="text-orange-800 text-md font-normal leading-tight text-balance">Our campaign is raising awareness of organ donation for the NHS</p>
+                    <ProgressiveBlur />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-100/60 via-50% to-orange-100/90 z-10" />
+                    <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+                      <p className="text-orange-800 text-sm font-normal uppercase">CAMPAIGN</p>
+                      <p id="waiting-to-live-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-orange-800 font-w-70">Waiting to Live NHS campaign gains 5000+ donor registrations in 3 months</p>
                     </div>
                   </Link>
                 </div>
@@ -421,17 +426,17 @@ export default function Home() {
                     href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="min-h-80 bg-purple-50 rounded-4xl relative flex p-4 flex-col justify-between items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
+                    className="min-h-80 bg-purple-50 rounded-4xl relative flex p-4 flex-col justify-end items-start overflow-clip transition-all outline-2 outline-transparent outline-offset-0 focus-visible:outline-purple-950 focus-visible:outline-offset-4 hover:cursor-pointer"
                     aria-labelledby="hsbc-vault-title"
                     {...glowHandlers}
                   >
                     <div className="glow-effect absolute inset-0 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 z-20" style={{ background: "radial-gradient(circle var(--glow-size, 400px) at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)" }} />
                     <Image src="/images/home/hsbc_vault.webp" alt="The HSBC Vault installation in waterloo station." fill sizes="(max-width: 768px) 100vw, 33vw" style={{ objectFit: "cover", objectPosition: "center" }} className="z-0" />
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-sky-100 via-70% to-sky-100 z-10" />
-                    <div className="w-fit px-4 py-2 bg-sky-600 text-white backdrop-blur-md rounded-2xl text-sm font-normal uppercase">INSTALLATION</div>
-                    <div className="z-10 flex flex-col gap-2 font-w-70">
-                      <p id="hsbc-vault-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-sky-800 font-w-70">HSBC Vault</p>
-                      <p className="text-sky-800 text-md font-normal leading-tight text-balance">My team and I created the software running HSBC&apos;s Vault experience</p>
+                    <ProgressiveBlur />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-sky-100/60 via-50% to-sky-100/90 z-10" />
+                    <div className="z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+                      <p className="text-sky-800 text-sm font-normal uppercase">INSTALLATION</p>
+                      <p id="hsbc-vault-title" className="font-[family-name:var(--font-lastik)] text-2xl text-balance text-sky-800 font-w-70">Big prizes won as HSBC&apos;s vault installation tours the UK</p>
                     </div>
                   </Link>
                 </div>
