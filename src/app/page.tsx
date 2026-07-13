@@ -100,7 +100,6 @@ export default function Home() {
             sizes="(max-width: 768px) 1vw, 100vw"
             style={{ objectFit: "cover", objectPosition: "right" }}
           />
-          <div className="dot-grid absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#fdfcfb]/95 from-40% via-[#fdfcfb]/75 via-60% to-transparent" />
           <div
             className="absolute inset-0"
@@ -123,7 +122,7 @@ export default function Home() {
                 ref={textContainerRef}
                 className="max-w-[25rem] flex flex-col gap-4 pl-8 md:pl-10"
               >
-                <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col text-emerald-600">
+                <h1 className="font-[family-name:var(--font-lastik)] text-7xl flex flex-col text-emerald-800">
                   <VariableProximity
                     label={"Hey, I'm"}
                     className="inline-block cursor-default select-none"
@@ -145,7 +144,7 @@ export default function Home() {
                 </h1>
                 <p
                   id="paragraph"
-                  className="text-2xl text-balance pr-0 font-[family-name:var(--font-hyperlegible)] font-normal text-sky-600"
+                  className="text-2xl text-balance pr-0 font-[family-name:var(--font-hyperlegible)] font-normal text-sky-800"
                 >
                   I&apos;m a creative technologist and developer. I lead
                   Creative Innovation at <a href="https://www.vml.com/united-kingdom">VML UK</a>. Part of <a href="https://www.wpp.com">WPP</a> Innovation
@@ -189,7 +188,7 @@ export default function Home() {
               <div className="h-72 bg-purple-50 md:bg-gradient-to-b md:from-purple-900/50 md:to-blue-800/50 rounded-4xl relative flex flex-row overflow-clip">
                 {/* Mobile background image (hidden on md+) */}
                 <div className="md:hidden absolute inset-0">
-                  <Image src="/images/home/work_with_me.webp" alt="" fill priority sizes="(max-width: 768px) 95vw, 1px" style={{ objectFit: "cover", objectPosition: "right" }} />
+                  <Image src="/header-cropped.jpg" alt="" fill priority sizes="(max-width: 768px) 95vw, 1px" style={{ objectFit: "cover", objectPosition: "center" }} />
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-950/80 via-purple-950/80 to-transparent" />
                 </div>
                 <div className={`relative z-10 flex flex-col justify-center font-w-70 p-8 md:py-10 md:pl-10 shrink-0 w-full md:w-auto ${webGLSupported ? 'md:pr-0' : 'md:pr-10'}`}>

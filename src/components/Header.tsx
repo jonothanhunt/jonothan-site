@@ -155,7 +155,7 @@ export default function Header() {
     <header className="p-4 fixed w-full top-0 z-50" style={{ willChange: "transform" }} role="banner">
       <nav aria-label="Main navigation" className="relative flex flex-col items-center">
         <div className="relative w-fit">
-          <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-100/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] shadow-2xl shadow-purple-900/20 text-purple-950" style={{ transform: "translateZ(0)" }}>
+          <div className="relative flex items-center rounded-full mx-auto w-fit bg-[#faf5fd]/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] shadow-2xl shadow-purple-900/20 text-purple-950" style={{ transform: "translateZ(0)" }}>
             <ul className="flex flex-1 items-center mx-auto py-2 px-2 w-fit justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle">
               <li
                 className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${
@@ -167,7 +167,7 @@ export default function Header() {
                   href="/#about"
                   onClick={(e) => handleSectionClick(e, "about")}
                   aria-label="Navigate to home"
-                  className="cursor-pointer rounded-full pr-2 py-1 transition-colors flex items-center hover:text-emerald-800 text-emerald-600"
+                  className="cursor-pointer rounded-full pr-2 py-1 transition-colors flex items-center hover:text-emerald-900 text-emerald-800"
                 >
                   <span
                     className={`leading-[1.1] align-middle relative top-[2px] transition-opacity duration-700 ${
@@ -187,7 +187,7 @@ export default function Header() {
                   className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-orange-800 ${
                     effectiveSection === "work"
                       ? "bg-orange-100 px-4 text-orange-800"
-                      : "px-3 text-orange-600"
+                      : "px-3 text-orange-800"
                   }`}
                   aria-label="Navigate to work"
                 >
@@ -201,7 +201,7 @@ export default function Header() {
                   className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-sky-800 ${
                     effectiveSection === "blog"
                       ? "bg-sky-100 px-4 text-sky-800"
-                      : "px-3 text-sky-600"
+                      : "px-3 text-sky-800"
                   }`}
                   aria-label="Navigate to blog"
                 >
@@ -219,7 +219,7 @@ export default function Header() {
                   className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-rose-800 ${
                     showContactPopup
                       ? "bg-rose-100 px-4 ml-2 text-rose-800"
-                      : "px-3 ml-0 text-rose-600"
+                      : "px-3 ml-0 text-rose-800"
                   }`}
                   aria-label="Contact"
                 >
@@ -230,7 +230,7 @@ export default function Header() {
           </div>
 
           <div
-            className={`absolute right-0 z-[100] flex items-center bg-purple-100/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/40 transition-all duration-300 ${
+            className={`absolute right-0 z-[100] flex items-center bg-[#faf5fd]/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/40 transition-all duration-300 ${
               showContactPopup
                 ? "top-[calc(100%+8px)] opacity-100 pointer-events-auto translate-y-0"
                 : "top-[calc(100%+14px)] opacity-0 pointer-events-none translate-y-1"

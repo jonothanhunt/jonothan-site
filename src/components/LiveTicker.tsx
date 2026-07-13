@@ -43,7 +43,7 @@ export default function LiveTicker({
             value={formattedValue}
             animateOnVisible={{ triggerOnce: false }}
             containerClassName={className}
-            charClassName="font-inherit px-0.5 inline-block leading-none align-baseline relative top-[1.5px] md:top-[3px]"
+            charClassName="font-inherit px-0.5 inline-block leading-none py-0.5 -my-0.5 align-baseline relative top-[1.5px] md:top-[3px]"
         />
     );
 }
