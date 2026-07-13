@@ -6,11 +6,15 @@ import SlotCounter from "react-slot-counter";
 interface LiveTickerProps {
     initialValue: number;
     className?: string;
+    formatAsBillions?: boolean;
+    suffix?: string;
 }
 
 export default function LiveTicker({
     initialValue,
     className = "",
+    formatAsBillions = false,
+    suffix = "",
 }: LiveTickerProps) {
     const [mounted, setMounted] = useState(false);
 
@@ -22,12 +26,14 @@ export default function LiveTicker({
         maximumFractionDigits: 0,
     });
 
-    const formattedValue = formatter.format(Math.floor(initialValue));
+    const formattedValue = formatAsBillions
+        ? `${(initialValue / 1_000_000_000).toFixed(1)}${suffix}`
+        : `${formatter.format(Math.floor(initialValue))}${suffix}`;
 
     if (!mounted) {
         return (
             <span className={className}>
-                {formattedValue}
+                <span className="relative top-[1.5px] md:top-[3px]">{formattedValue}</span>
             </span>
         );
     }
@@ -37,7 +43,7 @@ export default function LiveTicker({
             value={formattedValue}
             animateOnVisible={{ triggerOnce: false }}
             containerClassName={className}
-            charClassName="font-inherit tracking-[-5%] pt-1 pb-0.5"
+            charClassName="font-inherit px-0.5 inline-block leading-none align-baseline relative top-[1.5px] md:top-[3px]"
         />
     );
 }

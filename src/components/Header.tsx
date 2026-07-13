@@ -12,21 +12,73 @@ export default function Header() {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
+  const effectiveSection = pathname.startsWith("/blog") ? "blog" : activeSection;
   const [showContactPopup, setShowContactPopup] = useState(false);
   const lastUrlRef = useRef<string | null>(null);
+  const isScrollingToHashRef = useRef(false);
+  const pendingHashRef = useRef<string | null>(null);
+
+  const updateActiveSection = () => {
+    if (typeof window !== "undefined" && window.location.pathname !== "/") return;
+    if (isScrollingToHashRef.current) return;
+
+    const sections = ["home", "about", "work"];
+    const scrollPosition = window.scrollY;
+
+    for (const section of sections) {
+      const element = document.getElementById(section);
+      if (element) {
+        const offsetTop = element.offsetTop - 100;
+        const offsetBottom = offsetTop + element.offsetHeight;
+
+        if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+          setActiveSection(section);
+          const newUrl = section === "about" ? "/" : `/#${section}`;
+          if (lastUrlRef.current !== newUrl) {
+            lastUrlRef.current = newUrl;
+            window.history.replaceState(null, "", newUrl);
+          }
+          return;
+        }
+      }
+    }
+
+    setActiveSection("about");
+    const fallbackUrl = "/";
+    if (lastUrlRef.current !== fallbackUrl) {
+      lastUrlRef.current = fallbackUrl;
+      window.history.replaceState(null, "", fallbackUrl);
+    }
+  };
 
   useEffect(() => {
     if (pathname === "/") {
-      updateActiveSection();
-      if (window.location.hash) {
-        const id = window.location.hash.substring(1);
-        const element = document.getElementById(id);
-        if (element) {
-          setTimeout(() => {
+      const targetSection = pendingHashRef.current || (window.location.hash ? window.location.hash.substring(1) : null);
+      if (targetSection) {
+        isScrollingToHashRef.current = true;
+        setActiveSection(targetSection);
+
+        let attempts = 0;
+        const scrollToElement = () => {
+          const element = document.getElementById(targetSection);
+          if (element) {
             element.scrollIntoView({ behavior: "smooth" });
-            setActiveSection(id as "home" | "about" | "work");
-          }, 10);
-        }
+            setTimeout(() => {
+              isScrollingToHashRef.current = false;
+              pendingHashRef.current = null;
+              updateActiveSection();
+            }, 1000);
+          } else if (attempts < 30) {
+            attempts++;
+            setTimeout(scrollToElement, 50);
+          } else {
+            isScrollingToHashRef.current = false;
+            pendingHashRef.current = null;
+          }
+        };
+        setTimeout(scrollToElement, 20);
+      } else {
+        updateActiveSection();
       }
     } else if (pathname.startsWith("/blog")) {
       setActiveSection("blog");
@@ -66,36 +118,6 @@ export default function Header() {
     };
   }, [showContactPopup, copied]);
 
-  const updateActiveSection = () => {
-    const sections = ["home", "about", "work"];
-    const scrollPosition = window.scrollY;
-
-    for (const section of sections) {
-      const element = document.getElementById(section);
-      if (element) {
-        const offsetTop = element.offsetTop - 100;
-        const offsetBottom = offsetTop + element.offsetHeight;
-
-        if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
-          setActiveSection(section);
-          const newUrl = section === "about" ? "/" : `/#${section}`;
-          if (lastUrlRef.current !== newUrl) {
-            lastUrlRef.current = newUrl;
-            window.history.replaceState(null, "", newUrl);
-          }
-          return;
-        }
-      }
-    }
-
-    setActiveSection("about");
-    const fallbackUrl = "/";
-    if (lastUrlRef.current !== fallbackUrl) {
-      lastUrlRef.current = fallbackUrl;
-      window.history.replaceState(null, "", fallbackUrl);
-    }
-  };
-
   useEffect(() => {
     if (pathname !== "/") return;
 
@@ -113,145 +135,142 @@ export default function Header() {
       e.preventDefault();
       const element = document.getElementById(sectionId);
       if (element) {
+        isScrollingToHashRef.current = true;
         element.scrollIntoView({ behavior: "smooth" });
         setActiveSection(sectionId);
         window.history.pushState(null, "", `/#${sectionId}`);
+        setTimeout(() => {
+          isScrollingToHashRef.current = false;
+          updateActiveSection();
+        }, 1000);
       }
+    } else {
+      isScrollingToHashRef.current = true;
+      pendingHashRef.current = sectionId;
+      setActiveSection(sectionId);
     }
   };
 
   return (
     <header className="p-4 fixed w-full top-0 z-50" style={{ willChange: "transform" }} role="banner">
-      <nav aria-label="Main navigation" className="relative">
-        <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-50/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] shadow-2xl shadow-purple-900/20 text-purple-950" style={{ transform: "translateZ(0)" }}>
-          <ul className="flex flex-1 items-center mx-auto py-2 px-2 w-fit justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle">
-            <li
-              className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${
-                activeSection === "about" ? "w-0 ml-0 mr-0" : "w-26 ml-2"
-              }`}
-              style={{ minWidth: 0 }}
-            >
-              <Link
-                href="/#about"
-                onClick={(e) => handleSectionClick(e, "about")}
-                aria-label="Navigate to home"
-                className="cursor-pointer rounded-full pr-2 py-1 transition-colors flex items-center hover:text-emerald-800 text-emerald-600"
+      <nav aria-label="Main navigation" className="relative flex flex-col items-center">
+        <div className="relative w-fit">
+          <div className="relative flex items-center rounded-full mx-auto w-fit bg-purple-100/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] shadow-2xl shadow-purple-900/20 text-purple-950" style={{ transform: "translateZ(0)" }}>
+            <ul className="flex flex-1 items-center mx-auto py-2 px-2 w-fit justify-center font-[family-name:var(--font-lastik)] font-w-70 text-purple-950 align-middle">
+              <li
+                className={`overflow-hidden transition-[width,margin] duration-700 text-2xl ${
+                  effectiveSection === "about" && pathname === "/" ? "w-0 ml-0 mr-0" : "w-26 ml-2"
+                }`}
+                style={{ minWidth: 0 }}
               >
-                <span
-                  className={`leading-[1.1] align-middle relative top-[2px] transition-opacity duration-700 ${
-                    activeSection === "about" ? "opacity-10" : "opacity-100"
-                  }`}
-                  style={{ display: "inline-block", whiteSpace: "nowrap" }}
+                <Link
+                  href="/#about"
+                  onClick={(e) => handleSectionClick(e, "about")}
+                  aria-label="Navigate to home"
+                  className="cursor-pointer rounded-full pr-2 py-1 transition-colors flex items-center hover:text-emerald-800 text-emerald-600"
                 >
-                  Jonothan
-                </span>
-              </Link>
-            </li>
+                  <span
+                    className={`leading-[1.1] align-middle relative top-[2px] transition-opacity duration-700 ${
+                      effectiveSection === "about" && pathname === "/" ? "opacity-10" : "opacity-100"
+                    }`}
+                    style={{ display: "inline-block", whiteSpace: "nowrap" }}
+                  >
+                    Jonothan
+                  </span>
+                </Link>
+              </li>
 
-            <li>
-              <Link
-                href="/#work"
-                onClick={(e) => handleSectionClick(e, "work")}
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-orange-800 ${
-                  activeSection === "work"
-                    ? "bg-orange-50 px-4 shadow-lg shadow-orange-900/10 text-orange-800"
-                    : "px-3 text-orange-600"
-                }`}
-                aria-label="Navigate to work"
-              >
-                {/* <CodeBracketIcon
-                  className={`transition-all duration-300 ${
-                    activeSection === "work" ? "size-6" : "size-0"
+              <li>
+                <Link
+                  href="/#work"
+                  onClick={(e) => handleSectionClick(e, "work")}
+                  className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-orange-800 ${
+                    effectiveSection === "work"
+                      ? "bg-orange-100 px-4 text-orange-800"
+                      : "px-3 text-orange-600"
                   }`}
-                /> */}
-                <span className="align-middle relative top-[2px]">Work</span>
-              </Link>
-            </li>
+                  aria-label="Navigate to work"
+                >
+                  <span className="align-middle relative top-[2px]">Work</span>
+                </Link>
+              </li>
 
-            <li>
-              <Link
-                href="/blog"
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-sky-800 ${
-                  activeSection === "blog"
-                    ? "bg-sky-50 px-4 shadow-lg shadow-sky-900/10 text-sky-800"
-                    : "px-3 text-sky-600"
-                }`}
-                aria-label="Navigate to blog"
-              >
-                {/* <SparklesIcon
-                  className={`transition-all duration-300 ${
-                    activeSection === "blog" ? "size-6" : "size-0"
+              <li>
+                <Link
+                  href="/blog"
+                  className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-sky-800 ${
+                    effectiveSection === "blog"
+                      ? "bg-sky-100 px-4 text-sky-800"
+                      : "px-3 text-sky-600"
                   }`}
-                /> */}
-                <span className="align-middle relative top-[2px]">Blog</span>
-              </Link>
-            </li>
+                  aria-label="Navigate to blog"
+                >
+                  <span className="align-middle relative top-[2px]">Blog</span>
+                </Link>
+              </li>
 
-            <li className="relative">
+              <li className="relative">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowContactPopup(!showContactPopup);
+                  }}
+                  className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-rose-800 ${
+                    showContactPopup
+                      ? "bg-rose-100 px-4 ml-2 text-rose-800"
+                      : "px-3 ml-0 text-rose-600"
+                  }`}
+                  aria-label="Contact"
+                >
+                  <span className="align-middle relative top-[2px]">Contact</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            className={`absolute right-0 z-[100] flex items-center bg-purple-100/90 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/40 transition-all duration-300 ${
+              showContactPopup
+                ? "top-[calc(100%+8px)] opacity-100 pointer-events-auto translate-y-0"
+                : "top-[calc(100%+14px)] opacity-0 pointer-events-none translate-y-1"
+            }`}
+            style={{ transform: "translateZ(0)" }}
+          >
+            <div className="relative z-[3] flex rounded-xl overflow-hidden font-[family-name:var(--font-hyperlegible)] font-normal">
+              <Link
+                href="mailto:hey@jonothan.dev"
+                className="inline-flex items-center text-rose-800 bg-transparent hover:bg-purple-100/70 active:bg-purple-100 text-base px-3 py-2 transition-all cursor-pointer"
+                aria-label="Email me at hey@jonothan.dev"
+              >
+                hey@jonothan.dev
+              </Link>
               <button
+                aria-label={
+                  copied
+                    ? "Email copied to clipboard"
+                    : "Copy my email to clipboard"
+                }
+                className="inline-flex items-center justify-center bg-transparent hover:bg-purple-100/70 active:bg-purple-100 px-3 py-2 transition-all cursor-pointer font-w-70"
                 onClick={(e) => {
-                  e.preventDefault();
                   e.stopPropagation();
-                  setShowContactPopup(!showContactPopup);
+                  navigator.clipboard.writeText("hey@jonothan.dev").catch(() => {});
+                  setCopied(true);
+
+                  setTimeout(() => {
+                    setCopied(false);
+                    setShowContactPopup(false);
+                  }, 1000);
                 }}
-                className={`flex gap-1 items-center py-1 rounded-full transition-all duration-300 cursor-pointer h-9 hover:text-rose-800 ${
-                  showContactPopup
-                    ? "bg-rose-50 px-4 ml-2 shadow-lg shadow-rose-900/10 text-rose-800"
-                    : "px-3 ml-0 text-rose-600"
-                }`}
-                aria-label="Contact"
               >
-                {/* <AtSymbolIcon
-                  className={`transition-all duration-300 ${
-                    showContactPopup ? "size-6" : "size-0"
-                  }`}
-                /> */}
-                <span className="align-middle relative top-[2px]">Contact</span>
+                {copied ? (
+                  <ClipboardDocumentCheckIcon className="h-5 w-5 text-rose-800" />
+                ) : (
+                  <ClipboardIcon className="h-5 w-5 text-rose-800" />
+                )}
               </button>
-
-              <div
-                className={`absolute right-0 z-[100] flex items-center bg-rose-50 rounded-lg overflow-visible shadow-xl shadow-rose-900/20 transition-all duration-300 ${
-                  showContactPopup
-                    ? "top-[calc(100%+16px)] opacity-100 pointer-events-auto translate-y-0"
-                    : "top-[calc(100%+24px)] opacity-0 pointer-events-none translate-y-1"
-                }`}
-              >
-                <div className="relative z-[3] flex gap-1 text-xl rounded-lg overflow-hidden font-[family-name:var(--font-hyperlegible)] font-normal">
-                  <Link
-                    href="mailto:hey@jonothan.dev"
-                    className="inline-flex items-center text-rose-800 text-base px-3 py-2 transition-all hover:brightness-105 active:brightness-95 cursor-pointer"
-                    aria-label="Email me at hey@jonothan.dev"
-                  >
-                    hey@jonothan.dev
-                  </Link>
-                  <button
-                    aria-label={
-                      copied
-                        ? "Email copied to clipboard"
-                        : "Copy my email to clipboard"
-                    }
-                    className="inline-flex items-center justify-center px-3 py-2 transition-all hover:brightness-105 active:brightness-95 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigator.clipboard.writeText("hey@jonothan.dev").catch(() => {});
-                      setCopied(true);
-
-                      setTimeout(() => {
-                        setCopied(false);
-                        setShowContactPopup(false);
-                      }, 1000);
-                    }}
-                  >
-                    {copied ? (
-                      <ClipboardDocumentCheckIcon className="h-5 w-5 text-rose-800" />
-                    ) : (
-                      <ClipboardIcon className="h-5 w-5 text-rose-800" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
       </nav>
     </header>

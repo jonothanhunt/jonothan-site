@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, Suspense, memo } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense, memo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ThingMetadata, ThingType } from "@/types/thing";
@@ -9,29 +10,206 @@ import { DynamicMDXContent } from "@/components/DynamicMDXContent";
 import { BlogListFilters } from "@/components/BlogListFilters";
 import { createGlowEffect, GlowEffect } from "@/utils/glowEffect";
 import { PLAYFUL_THEMES, Theme } from "@/utils/colorUtils";
+import { ProgressiveBlur } from "@/components/ProgressiveBlur";
 
 interface BlogListProps {
   initialPosts: (ThingMetadata & { slug: string })[];
   selectedSlug?: string;
 }
 
-// Custom comparison function to prevent unnecessary re-renders
+const areCardHeaderPropsEqual = (
+  prevProps: {
+    post: ThingMetadata & { slug: string };
+    glowHandlers: ReturnType<typeof createGlowEffect>;
+    isPriority: boolean;
+    theme: Theme;
+    onTogglePost: (slug: string) => void;
+  },
+  nextProps: {
+    post: ThingMetadata & { slug: string };
+    glowHandlers: ReturnType<typeof createGlowEffect>;
+    isPriority: boolean;
+    theme: Theme;
+    onTogglePost: (slug: string) => void;
+  }
+) => {
+  return (
+    prevProps.post.slug === nextProps.post.slug &&
+    prevProps.glowHandlers === nextProps.glowHandlers &&
+    prevProps.isPriority === nextProps.isPriority &&
+    prevProps.theme.name === nextProps.theme.name &&
+    prevProps.onTogglePost === nextProps.onTogglePost
+  );
+};
+
+const CardHeader = memo(
+  ({
+    post,
+    glowHandlers,
+    isPriority,
+    theme,
+    onTogglePost,
+  }: {
+    post: ThingMetadata & { slug: string };
+    glowHandlers: ReturnType<typeof createGlowEffect>;
+    isPriority: boolean;
+    theme: Theme;
+    onTogglePost: (slug: string) => void;
+  }) => {
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      if (cardRef.current && cardRef.current.dataset.hovered === "true") {
+        const glowElement = cardRef.current.querySelector(".glow-effect") as HTMLElement;
+        if (glowElement && glowElement.style.opacity !== "1") {
+          glowElement.style.opacity = "1";
+        }
+      }
+    });
+
+    const handleClick = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest("a")) return;
+      if (cardRef.current) {
+        cardRef.current.dataset.clicking = "true";
+        cardRef.current.dataset.hovered = "true";
+        const glowElement = cardRef.current.querySelector(".glow-effect") as HTMLElement;
+        if (glowElement) {
+          glowElement.style.opacity = "1";
+        }
+        setTimeout(() => {
+          if (cardRef.current) {
+            delete cardRef.current.dataset.clicking;
+          }
+        }, 1500);
+      }
+      onTogglePost(post.slug);
+    };
+
+    return (
+      <div
+        ref={cardRef}
+        role="button"
+        tabIndex={0}
+        aria-label={`Blog post: ${post.title}`}
+        onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            handleClick(e as unknown as React.MouseEvent);
+        }}
+        className={
+          post.image
+            ? `relative block rounded-4xl cursor-pointer group overflow-hidden transition-all duration-300 ${theme.bg}`
+            : `relative block rounded-4xl cursor-pointer group overflow-hidden transition-all duration-300 ${theme.bg}`
+        }
+        {...glowHandlers}
+      >
+        <div
+          className={`relative flex flex-col justify-end p-4 ${
+            post.image ? "min-h-60" : "min-h-48"
+          }`}
+        >
+          {post.image ? (
+            <>
+              <Image
+                src={post.image}
+                alt=""
+                aria-hidden="true"
+                fill
+                style={{ objectFit: "cover", objectPosition: "center" }}
+                className="z-0"
+                sizes="(max-width: 640px) 100vw, 512px"
+                priority={isPriority}
+              />
+              <ProgressiveBlur />
+              <div
+                className={`absolute top-0 left-0 w-full h-full bg-gradient-to-b ${theme.gradientOverlay} z-10 pointer-events-none`}
+              />
+            </>
+          ) : null}
+
+          {/* Cursor Glow Effect - now above background but below content */}
+          <GlowEffect className="absolute inset-0 z-10 pointer-events-none rounded-4xl" />
+
+          {/* Top right: links if present (temporarily commented out)
+          {post.links && post.links.length > 0 ? (
+            <div className="z-10 w-full relative flex justify-end gap-2 self-start mb-4">
+              {post.links.map((link) => (
+                <Link
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200`}
+                  style={{ textDecoration: "none" }}
+                  aria-label={`External link: ${link.title}`}
+                >
+                  <span>{link.title}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className="ml-1"
+                    style={{ display: "block" }}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M7 17L17 7M7 7h10v10"
+                    />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          ) : null}
+          */}
+
+          {/* Bottom: tags + title right above, exactly matching Bento card style */}
+          <div className="relative z-10 mt-auto flex flex-col gap-1.5 font-w-70">
+            <div className={`flex flex-wrap items-center gap-2 text-sm font-normal uppercase ${theme.cardText}`}>
+              {post.type.map((type) => (
+                <span key={type} className="flex items-center gap-2">
+                  <span>{type}</span>
+                  <span>•</span>
+                </span>
+              ))}
+              <time dateTime={post.date}>{formatCustomDate(post.date)}</time>
+            </div>
+            <h2 className={`font-[family-name:var(--font-lastik)] font-w-70 text-3xl ${theme.cardText} text-balance`}>
+              {post.title}
+            </h2>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  areCardHeaderPropsEqual
+);
+
+CardHeader.displayName = "CardHeader";
+
+// Custom comparison function to prevent unnecessary re-renders of ArticleItem
 const arePropsEqual = (
   prevProps: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
-    selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
+    selectedPostRef: React.RefObject<HTMLElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
     isPriority: boolean;
     theme: Theme;
+    onTogglePost: (slug: string) => void;
   },
   nextProps: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
-    selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
+    selectedPostRef: React.RefObject<HTMLElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
     isPriority: boolean;
     theme: Theme;
+    onTogglePost: (slug: string) => void;
   }
 ) => {
   return (
@@ -39,11 +217,12 @@ const arePropsEqual = (
     prevProps.isSelected === nextProps.isSelected &&
     prevProps.glowHandlers === nextProps.glowHandlers &&
     prevProps.isPriority === nextProps.isPriority &&
-    prevProps.theme.name === nextProps.theme.name
+    prevProps.theme.name === nextProps.theme.name &&
+    prevProps.onTogglePost === nextProps.onTogglePost
   );
 };
 
-// Memoized article component to prevent unnecessary re-renders
+// Memoized article component
 const ArticleItem = memo(
   ({
     post,
@@ -52,126 +231,47 @@ const ArticleItem = memo(
     glowHandlers,
     isPriority,
     theme,
+    onTogglePost,
   }: {
     post: ThingMetadata & { slug: string };
     isSelected: boolean;
-    selectedPostRef: React.RefObject<HTMLDivElement | null> | null;
+    selectedPostRef: React.RefObject<HTMLElement | null> | null;
     glowHandlers: ReturnType<typeof createGlowEffect>;
     isPriority: boolean;
     theme: Theme;
+    onTogglePost: (slug: string) => void;
   }) => {
+    const articleRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+      if (articleRef.current) {
+        const cardEl = articleRef.current.querySelector('[role="button"]') as HTMLElement;
+        if (cardEl && (cardEl.dataset.hovered === "true" || cardEl.dataset.clicking === "true")) {
+          const glowElement = cardEl.querySelector(".glow-effect") as HTMLElement;
+          if (glowElement && glowElement.style.opacity !== "1") {
+            glowElement.style.opacity = "1";
+          }
+        }
+      }
+    }, [isSelected]);
+
     return (
       <article
         key={post.slug}
-        ref={isSelected ? selectedPostRef : undefined}
-        className={`${post.image ? "min-h-42" : ""}`}
-      >
-        <CardDiv
-          post={post}
-          isSelected={isSelected}
-          ariaLabel={`${isSelected ? "Close" : "Open"} blog post: ${post.title
-            }`}
-          className={
-            post.image
-              ? `relative block rounded-xl cursor-pointer group overflow-hidden transition-all duration-300 ${theme.bg}`
-              : `relative block rounded-xl cursor-pointer group overflow-hidden transition-all duration-300 ${theme.bg}`
+        ref={(el) => {
+          articleRef.current = el;
+          if (isSelected && selectedPostRef) {
+            (selectedPostRef as React.MutableRefObject<HTMLElement | null>).current = el;
           }
-          {...glowHandlers}
-        >
-          <div
-            className={`relative flex flex-col p-6 ${post.image ? "min-h-42" : ""
-              }`}
-          >
-            {post.image ? (
-              <>
-                <Image
-                  src={post.image}
-                  alt=""
-                  aria-hidden="true"
-                  fill
-                  style={{ objectFit: "cover", objectPosition: "center" }}
-                  className="z-0"
-                  sizes="(max-width: 640px) 100vw, 512px"
-                  priority={isPriority}
-                />
-                <div className={`absolute top-0 left-0 w-full h-full bg-gradient-to-b ${theme.gradientOverlay} z-10 pointer-events-none`} />
-              </>
-            ) : null}
-
-            {/* Cursor Glow Effect - now above background but below content */}
-            <GlowEffect className="absolute inset-0 z-10 pointer-events-none" />
-
-            {/* Metadata tags and date - always top left */}
-            <div
-              className="z-10 w-full relative flex flex-wrap gap-2 self-start"
-              aria-label="Post metadata"
-            >
-              <div
-                className="z-10 relative flex flex-wrap justify-start items-start gap-2 w-full"
-                aria-label="Post metadata"
-              >
-                {/* Left: tags and date */}
-                {post.type.map((type) => (
-                  <span
-                    key={type}
-                    role="tag"
-                    className={`${theme.cardText} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
-                  >
-                    {type}
-                  </span>
-                ))}
-                <time
-                  dateTime={post.date}
-                  className={`${theme.cardText} w-fit px-4 py-2 rounded-2xl text-sm font-normal uppercase flex items-center ${theme.pillBg} backdrop-blur-md`}
-                >
-                  {formatCustomDate(post.date)}
-                </time>
-
-                <div className="flex-1" />
-
-                {/* Right: links */}
-                {post.links &&
-                  post.links.length > 0 &&
-                  post.links.map((link) => (
-                    <Link
-                      key={link.url}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex items-center gap-1 px-4 py-2 rounded-2xl text-sm font-normal uppercase text-white ${theme.accent} backdrop-blur-md hover:-translate-y-0.5 transition-all duration-200`}
-                      style={{ textDecoration: "none" }}
-                      aria-label={`External link: ${link.title}`}
-                    >
-                      <span>{link.title}</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" className="ml-1" style={{ display: "block" }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M7 7h10v10" />
-                      </svg>
-                    </Link>
-                  ))}
-              </div>
-            </div>
-
-            {/* Title - always after metadata with guaranteed gap */}
-            <h2
-              className={`relative z-10 font-[family-name:var(--font-lastik)] font-w-70 text-3xl ${theme.cardText} text-balance ${post.image ? "mt-12" : "mt-6"
-                }`}
-              tabIndex={isSelected ? 0 : -1}
-              ref={(node) => {
-                if (node && isSelected) {
-                  node.setAttribute("tabindex", "0");
-                  if (window.location.pathname.includes(post.slug || "")) {
-                    requestAnimationFrame(() => {
-                      node.focus({ preventScroll: true });
-                      node.blur();
-                    });
-                  }
-                }
-              }}
-            >
-              {post.title}
-            </h2>
-          </div>
-        </CardDiv>
+        }}
+      >
+        <CardHeader
+          post={post}
+          glowHandlers={glowHandlers}
+          isPriority={isPriority}
+          theme={theme}
+          onTogglePost={onTogglePost}
+        />
         {isSelected && (
           <section 
             aria-label="Blog post content"
@@ -188,59 +288,9 @@ const ArticleItem = memo(
 
 ArticleItem.displayName = "ArticleItem";
 
-// CardDiv: a div that acts as a clickable card for navigation
-import { useRouter } from "next/navigation";
-import { ReactNode, HTMLAttributes } from "react";
-interface CardDivProps extends HTMLAttributes<HTMLDivElement> {
-  post: ThingMetadata & { slug: string };
-  isSelected: boolean;
-  ariaLabel: string;
-  className?: string;
-  style?: React.CSSProperties;
-  children: ReactNode;
-}
-function CardDiv({
-  post,
-  isSelected,
-  ariaLabel,
-  className,
-  style,
-  children,
-  ...rest
-}: CardDivProps) {
-  const router = useRouter();
-  const handleClick = (e: React.MouseEvent) => {
-    // Prevent navigation if clicking a link inside the card
-    if ((e.target as HTMLElement).closest("a")) return;
-    router.push(
-      isSelected
-        ? "/blog"
-        : `/blog/${post.slug}` +
-        (typeof window !== "undefined" ? window.location.search : ""),
-      { scroll: false }
-    );
-  };
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-label={ariaLabel}
-      className={className}
-      style={style}
-      onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ")
-          handleClick(e as unknown as React.MouseEvent);
-      }}
-      {...rest}
-    >
-      {children}
-    </div>
-  );
-}
-
 export function BlogList({ initialPosts, selectedSlug }: BlogListProps) {
-  const selectedPostRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const selectedPostRef = useRef<HTMLElement>(null);
   const [selectedTypes, setSelectedTypes] = useState<ThingType[]>([]);
   const glowHandlersRef = useRef<ReturnType<typeof createGlowEffect> | null>(
     null
@@ -251,6 +301,22 @@ export function BlogList({ initialPosts, selectedSlug }: BlogListProps) {
   }
 
   const glowHandlers = glowHandlersRef.current;
+
+  const handleTogglePost = useCallback(
+    (slug: string) => {
+      const isCurrentlySelected =
+        typeof window !== "undefined" &&
+        window.location.pathname.includes(`/blog/${slug}`);
+      router.push(
+        isCurrentlySelected
+          ? "/blog"
+          : `/blog/${slug}` +
+            (typeof window !== "undefined" ? window.location.search : ""),
+        { scroll: false }
+      );
+    },
+    [router]
+  );
 
   useEffect(() => {
     if (selectedSlug && selectedPostRef.current) {
@@ -312,6 +378,7 @@ export function BlogList({ initialPosts, selectedSlug }: BlogListProps) {
                 glowHandlers={glowHandlers}
                 isPriority={isPriority}
                 theme={theme}
+                onTogglePost={handleTogglePost}
               />
             );
           })}

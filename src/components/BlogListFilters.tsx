@@ -51,9 +51,7 @@ export function BlogListFilters({ availableTypes, onFiltersChange }: BlogListFil
   };
 
   const handleTypeSelect = (type: ThingType) => {
-    const newTypes = selectedTypes.includes(type)
-      ? selectedTypes.filter((t) => t !== type)
-      : [...selectedTypes, type];
+    const newTypes = selectedTypes.includes(type) ? [] : [type];
     setSelectedTypes(newTypes);
     updateURLParams(newTypes);
   };
