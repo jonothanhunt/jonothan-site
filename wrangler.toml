@@ -1,0 +1,35 @@
+# Cloudflare Pages deployment configuration
+
+name = "jonothan-site"
+type = "javascript"
+
+# Build configuration
+[build]
+command = "npm run build"
+cwd = "./"
+watch_paths = ["src/**/*.astro", "src/**/*.tsx", "src/**/*.ts", "src/content/**/*"]
+
+# Deployment output directory
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# Local development
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Routes configuration
+[routes]
+pattern = "*"
+zone_name = "jonothan.dev"
+
+# Static assets
+[site]
+bucket = "./dist"
+
+# Compatibility mode
+compatibility_date = "2024-08-08"
+compatibility_flags = []
+
+# Triggers for automatic deployments
+[triggers.crons]
+crons = ["0 0 * * *"]  # Daily builds
