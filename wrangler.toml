@@ -1,0 +1,13 @@
+# Cloudflare Workers Static Assets config.
+#
+# The `jonothan-site` project on Cloudflare is a Worker (not a Pages project),
+# so its build runs `npx wrangler deploy` and needs this file to know what to
+# upload. There is no `main` entrypoint on purpose: Astro emits a fully static
+# site, so this is an assets-only Worker and no server-side script runs.
+name = "jonothan-site"
+compatibility_date = "2026-08-08"
+
+[assets]
+directory = "./dist"
+# Serve Astro's prerendered dist/404.html for unmatched paths.
+not_found_handling = "404-page"
