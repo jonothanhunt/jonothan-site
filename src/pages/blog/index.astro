@@ -1,0 +1,15 @@
+---
+import Base from "../../layouts/Base.astro";
+import PostGrid from "../../components/PostGrid.astro";
+import { allPosts, allTags } from "../../lib/posts";
+
+const posts = await allPosts();
+const tags = await allTags();
+---
+
+<Base
+  title="Blog"
+  description="Writing on creative technology, AR, real-time 3D and the web."
+>
+  <PostGrid posts={posts} tags={tags} />
+</Base>

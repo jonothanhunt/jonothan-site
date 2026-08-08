@@ -1,0 +1,279 @@
+---
+import CopyEmail from "./CopyEmail.astro";
+
+const isBlog = Astro.url.pathname.startsWith("/blog");
+const isHome = Astro.url.pathname === "/";
+---
+
+<header class="site-head">
+  <nav aria-label="Main" data-nav data-home={isHome ? "" : undefined}>
+    <!-- Collapsed while the hero is on screen (the big "Hey, I'm Jonothan"
+         already says it), sliding in once you scroll past. -->
+    <a class="brand" href="/" data-brand>
+      <span>Jonothan</span>
+    </a>
+
+    <a class="nav-pill t-work" href="/#work" data-link="work">Work</a>
+
+    <a
+      class:list={["nav-pill", "t-blog", isBlog && "on"]}
+      href="/blog"
+      data-link="blog"
+      aria-current={isBlog ? "page" : undefined}>Blog</a
+    >
+
+    <!-- Contact opens a panel in place. No page, no JS for the disclosure. -->
+    <details class="contact">
+      <summary class="nav-pill t-contact">Contact</summary>
+      <div class="contact__panel">
+        <CopyEmail />
+      </div>
+    </details>
+  </nav>
+</header>
+
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-nav]");
+
+  // Close the contact panel on outside click or Escape.
+  const box = document.querySelector<HTMLDetailsElement>("details.contact");
+  if (box) {
+    addEventListener("click", (e) => {
+      if (box.open && !box.contains(e.target as Node)) box.open = false;
+    });
+    addEventListener("keydown", (e) => {
+      if (e.key === "Escape") box.open = false;
+    });
+  }
+
+  // Home only. One observer drives both the brand reveal and the Work
+  // highlight, so they happen on the same beat instead of competing for
+  // attention as you scroll. IntersectionObserver rather than a scroll
+  // handler, so there's no main-thread work while scrolling.
+  if (nav?.dataset.home !== undefined) {
+    const work = document.querySelector("#work");
+    const workLink = nav.querySelector('[data-link="work"]');
+
+    // A single latch drives the whole bar: it flips once #work reaches the
+    // middle of the viewport and then stays flipped for everything below,
+    // because `boundingClientRect.top < 0` keeps reading true once the section
+    // has gone by overhead.
+    //
+    // That means the bar changes width exactly once per scroll. Letting Work
+    // un-highlight again over the writing section would shrink its padding and
+    // re-centre the whole nav a second time, for no navigational gain — you
+    // are still below the work section, and everything below it is the same
+    // page. The brand rides the same latch so both move on one frame.
+    if (work && workLink) {
+      new IntersectionObserver(
+        ([e]) => {
+          const passed = e.isIntersecting || e.boundingClientRect.top < 0;
+          workLink.classList.toggle("on", passed);
+          if (passed) workLink.setAttribute("aria-current", "true");
+          else workLink.removeAttribute("aria-current");
+          nav.classList.toggle("at-top", !passed);
+        },
+        { rootMargin: "-45% 0px -45% 0px" },
+      ).observe(work);
+    }
+  }
+
+  // Smooth-scroll to #work only when we're already on the page. Arriving from
+  // another page should land there immediately — we've changed page anyway,
+  // and animating the whole document afterwards just feels slow.
+  nav?.querySelector('[data-link="work"]')?.addEventListener("click", (e) => {
+    if (location.pathname !== "/") return;
+    const target = document.querySelector("#work");
+    if (!target) return;
+
+    e.preventDefault();
+    target.scrollIntoView({ behavior: "smooth" });
+
+    // Writing a URL that carries a fragment cancels an in-flight smooth
+    // scroll, so only set the hash once the scroll has settled.
+    const setHash = () => history.pushState(null, "", "/#work");
+    if ("onscrollend" in window)
+      addEventListener("scrollend", setHash, { once: true });
+    else setTimeout(setHash, 700);
+  });
+</script>
+
+<style>
+  .site-head {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    /* Matches the page gutter, so the nav aligns with everything below it. */
+    padding: var(--gap);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  /* Fully opaque with a soft shadow, where the original used a translucent
+     bar over backdrop-blur. Blur forces the compositor to re-filter whatever
+     is behind it on every scroll frame; a solid fill and a static shadow cost
+     nothing and read almost identically. */
+  nav {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: var(--ui-pad);
+    border-radius: var(--pill);
+    background: #fffdf8;
+    /* Wide and faint rather than tight and dark — a large blur with a small
+       spread reads as the bar floating, where a short shadow reads as a
+       border. Static, so it costs one paint and nothing on scroll. */
+    box-shadow:
+      0 4px 12px rgb(88 28 135 / 0.05),
+      0 16px 48px rgb(88 28 135 / 0.09);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    height: var(--ui-h);
+    overflow: hidden;
+    font-family: var(--display);
+    font-weight: 70;
+    font-size: var(--t-brand);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--heading);
+    /* Width and opacity animate; nothing else reflows around it. A plain
+       ease-in-out reads as calm next to the Work pill lighting up at the
+       same moment. */
+    max-width: 8em;
+    opacity: 1;
+    padding-inline: 10px 8px;
+    /* The original's timing: 700ms on width and opacity together, on the
+       standard ease-in-out. It reads calmer than a fast-out curve because the
+       word grows and fades on exactly the same beat. */
+    transition:
+      max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+      padding 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .brand span {
+    white-space: nowrap;
+  }
+
+  /* Fades to 0.1 rather than 0, as the original does — the word is still
+     faintly there as it closes, which reads softer than a hard disappear. */
+  nav.at-top .brand {
+    max-width: 0;
+    opacity: 0.1;
+    padding-inline: 0;
+  }
+
+  /* Inactive sits at the narrower padding; active widens into a tinted
+     capsule. Only padding and colour animate, so it stays cheap. */
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    height: var(--ui-h);
+    /* Measured off the original: 4px 12px inactive, widening to 16px when a
+       pill goes active. */
+    padding-inline: 12px;
+    border-radius: var(--pill);
+    font-family: var(--display);
+    font-weight: 70;
+    font-size: var(--t-nav);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+    transition:
+      padding 0.3s ease,
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .nav-pill::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-pill.on,
+  details[open] > .nav-pill {
+    padding-inline: 16px;
+  }
+
+  /* The original's pairings: an -800 text colour on its -100 background.
+     Defined once in global.css so .pill--blog can match exactly. */
+  .t-work {
+    color: var(--pill-work-fg);
+  }
+  .t-work.on,
+  .t-work:hover {
+    background: var(--pill-work-bg);
+  }
+
+  .t-blog {
+    color: var(--pill-blog-fg);
+  }
+  .t-blog.on,
+  .t-blog:hover {
+    background: var(--pill-blog-bg);
+  }
+
+  .t-contact {
+    color: var(--pill-contact-fg);
+  }
+  .t-contact:hover,
+  details[open] > .t-contact {
+    background: var(--pill-contact-bg);
+  }
+
+  /* --- Contact panel: same height and padding as the nav bar itself --- */
+  .contact {
+    position: relative;
+  }
+
+  .contact__panel {
+    position: absolute;
+    /* Offset is measured from the summary, so add back the nav's own padding
+       to leave a true --gap between the bar and the panel. */
+    top: calc(100% + var(--ui-pad) + var(--gap));
+    /* Offset is measured from the Contact summary, which sits a --ui-pad in
+       from the bar's edge — pulling out by that much lines the panel's right
+       edge up with the nav bar's own. */
+    right: calc(-1 * var(--ui-pad));
+    padding: var(--ui-pad);
+    border-radius: var(--pill);
+    background: #fffdf8;
+    animation: drop 0.28s ease;
+  }
+
+  @keyframes drop {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact__panel {
+      animation: none;
+    }
+    .brand {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .brand {
+      display: none;
+    }
+    .nav-pill {
+      font-size: 1.05rem;
+      padding-inline: 0.7em;
+    }
+    .contact__panel {
+      right: -8px;
+    }
+  }
+</style>

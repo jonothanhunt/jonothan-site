@@ -1,0 +1,113 @@
+---
+// Article body styling. Everything is plain element selectors, so MDX output
+// stays clean HTML with no wrapper divs or utility classes.
+---
+
+<div class="prose"><slot /></div>
+
+<style is:global>
+  .prose {
+    /* In rem, not ch: the footer buttons below sit at a different font-size,
+       so a ch-based measure resolves to a different width and the two edges
+       don't line up. */
+    max-width: var(--measure);
+    margin-inline: auto;
+    width: 100%;
+    font-size: 1.115rem;
+    line-height: 1.68;
+  }
+
+  .prose > * + * {
+    margin-top: 1.1em;
+  }
+
+  .prose h2 {
+    font-size: var(--t-prose-h2);
+    margin-top: 2.2em;
+    scroll-margin-top: 90px;
+  }
+
+  .prose h3 {
+    font-size: var(--t-prose-h3);
+    margin-top: 1.8em;
+    scroll-margin-top: 90px;
+  }
+
+  .prose a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--sun);
+  }
+
+  .prose a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.4em;
+  }
+
+  .prose li + li {
+    margin-top: 0.3em;
+  }
+
+  .prose img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--r-md);
+    margin-block: 1.75rem;
+  }
+
+  .prose figure {
+    margin-block: 1.75rem;
+  }
+
+  .prose figcaption {
+    margin-top: 0.7em;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  .prose blockquote {
+    border-left: 4px solid var(--sun);
+    padding: 0.2em 0 0.2em 1.2em;
+    font-size: 1.15em;
+    line-height: 1.5;
+  }
+
+  .prose :not(pre) > code {
+    background: rgb(0 0 0 / 0.06);
+    padding: 0.15em 0.4em;
+    border-radius: 5px;
+    font-size: 0.88em;
+  }
+
+  .prose pre {
+    border-radius: var(--r-sm);
+    padding: 1.1em 1.2em;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+  }
+
+  .prose hr {
+    border: 0;
+    border-top: 2px solid rgb(0 0 0 / 0.1);
+    margin-block: 2.5em;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  .prose th,
+  .prose td {
+    text-align: left;
+    padding: 0.6em 0.8em;
+    border-bottom: 1px solid rgb(0 0 0 / 0.1);
+  }
+</style>

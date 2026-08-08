@@ -1,0 +1,133 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import tids from "../data/atproto-tids.json";
+
+const publicationTid = tids.__publication__;
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Absolute or site-relative URL for the social card. */
+  image?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  /** Extra JSON-LD to emit alongside the site-wide Person schema. */
+  schema?: Record<string, unknown>;
+  /** atproto record id for this page, if it has one. */
+  atprotoTid?: string;
+}
+
+const {
+  title,
+  description = "Creative technologist and developer. I lead Creative Innovation at VML UK, part of WPP.",
+  image = "/social-card.jpg",
+  type = "website",
+  publishedTime,
+  schema,
+  atprotoTid,
+} = Astro.props;
+
+const ATPROTO_DID =
+  import.meta.env.ATPROTO_DID ?? "did:plc:3su63qgei4gylhflvwqj54lw";
+
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", Astro.site);
+const socialImage = new URL(image, Astro.site);
+const fullTitle = title === "Jonothan Hunt" ? title : `${title} — Jonothan Hunt`;
+
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Jonothan Hunt",
+  alternateName: "Jonathan Hunt",
+  url: "https://jonothan.dev",
+  image: "https://jonothan.dev/images/jonothan_profile.jpeg",
+  jobTitle: "Creative Technologist",
+  worksFor: { "@type": "Organization", name: "VML" },
+  sameAs: ["https://www.linkedin.com/in/jonothan"],
+};
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Fonts are render-critical, so fetch them alongside the CSS. -->
+    <link
+      rel="preload"
+      href="/fonts/lastik.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/hyperlegible.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Jonothan Hunt" />
+    <meta property="og:type" content={type} />
+    <meta property="og:image" content={socialImage} />
+    {
+      publishedTime && (
+        <meta
+          property="article:published_time"
+          content={publishedTime.toISOString()}
+        />
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@jonothan" />
+
+    <link
+      rel="site.standard.publication"
+      href={`at://${ATPROTO_DID}/site.standard.publication/${publicationTid}`}
+    />
+    {
+      atprotoTid && (
+        <link
+          rel="site.standard.document"
+          href={`at://${ATPROTO_DID}/site.standard.document/${atprotoTid}`}
+        />
+      )
+    }
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Jonothan Hunt" href="/rss.xml" />
+    <meta name="theme-color" content="#f6f1e8" />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(person)}
+    />
+    {
+      schema && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(schema)}
+        />
+      )
+    }
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

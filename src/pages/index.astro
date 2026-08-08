@@ -1,0 +1,380 @@
+---
+import { Image, Picture } from "astro:assets";
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Card from "../components/Card.astro";
+import LogoStrip from "../components/LogoStrip.astro";
+import CopyEmail from "../components/CopyEmail.astro";
+import Desk from "../components/Desk.astro";
+
+import hero from "../assets/site/header.jpg";
+import effects from "../assets/home/effects.jpeg";
+import kitkat from "../assets/home/kitkat-heist.webp";
+import magpie from "../assets/home/magpie_app.webp";
+import waiting from "../assets/home/waiting_to_live.webp";
+import vault from "../assets/home/hsbc_vault.webp";
+import creativeTechStack from "../content/blog/_media/creative-tech-stack/creative-tech-stack.png";
+
+import grandPrix from "../assets/logos/grand-prix.png";
+import pencil from "../assets/logos/newblood_white_pencil.svg";
+import drum from "../assets/logos/the_drum_logo.jpeg";
+
+// TikTok view count, projected from a known sample so the number stays honest
+// as it ages. Computed at build time — no ticker, no client JS.
+const BASE_COUNT = 10_282_156_685;
+const BASE_DATE = Date.parse("2026-04-25T00:00:00Z");
+const PER_MINUTE = 1_496_355 / 1440;
+const views = BASE_COUNT + ((Date.now() - BASE_DATE) / 60_000) * PER_MINUTE;
+const billions = (views / 1e9).toFixed(1);
+
+const posts = (await getCollection("blog", (p) => !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+---
+
+<Base title="Jonothan Hunt">
+  <!-- The photo is the top of the page itself, not a card: full width, 80vh,
+       fading out to the right and down into the background. Desktop only —
+       on a narrow screen it would sit behind the copy with nowhere to fade. -->
+  <div class="page-photo" aria-hidden="true">
+    <Picture
+      class="page-photo__img"
+      pictureAttributes={{ class: "page-photo__pic" }}
+      src={hero}
+      alt=""
+      formats={["avif", "webp"]}
+      fallbackFormat="webp"
+      widths={[1024, 1440, 1920, 2440]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </div>
+
+  <div class="shell stack">
+    <section class="hero">
+      <div class="hero__body">
+        <h1><span>Hey, I&rsquo;m</span><span>Jonothan.</span></h1>
+        <p class="lede">
+          Creative technologist and developer. Lead Creative Innovation at <a
+            href="https://www.vml.com/united-kingdom">VML UK</a
+          >. Part of <a href="https://www.wpp.com">WPP</a> Innovation
+        </p>
+        <ul class="awards">
+          <li>
+            <a
+              href="https://www.lovethework.com/directory/individuals/jono-hunt-750043"
+            >
+              <Image src={grandPrix} alt="Cannes Lions Grand Prix" width={40} />
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
+            >
+              <Image src={pencil} alt="D&AD New Blood White Pencil" width={30} />
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
+            >
+              <Image src={drum} alt="The Drum award" width={34} />
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <LogoStrip />
+
+    <!-- Work -->
+    <section id="work" class="stack" aria-labelledby="work-h">
+      <h2 id="work-h" class="sr-only">Work</h2>
+
+      <!-- Three columns, with the lead card spanning two of them and both
+           rows. The layout only ever has one or three columns, so this fills
+           exactly: rows 1–2 are the feature plus two stacked cards, row 3 is
+           the remaining three. -->
+      <div class="grid grid--work">
+        <Card
+          href="https://vm.tiktok.com/ZNdr68mku/"
+          image={effects}
+          alt="TikTok effects I've built"
+          title={`Videos using my TikTok effects have reached ${billions} billion views`}
+          eyebrow="Effects"
+          feature
+          sizes="(max-width: 767px) calc(100vw - 32px), calc(66.6vw - 32px)"
+          loading="eager"
+        />
+        <Card
+          href="https://www.vml.com/work/kitkat-heist"
+          image={kitkat}
+          alt="The KitKat Heist"
+          eyebrow="Campaign"
+          title="The KitKat Heist wins a Grand Prix at Cannes"
+        />
+        <Card
+          href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
+          image={magpie}
+          alt="The Magpie mentorship app"
+          eyebrow="App"
+          title="Magpie mentorship app wins at The Drum awards"
+        />
+        <Card
+          href="/blog/creative-tech-stack"
+          image={creativeTechStack}
+          alt="The Creative Tech Stack site"
+          eyebrow="Site"
+          title="Creative Tech Stack: a tools database & blog for creatives"
+        />
+        <Card
+          href="https://www.nhsbt.nhs.uk/news/more-than-half-the-children-transformed-into-dolls-as-part-of-an-award-winning-national-organ-donation-campaign-have-now-received-a-lifesaving-transplant-in-time-for-christmas/"
+          image={waiting}
+          alt="The doll of Ralph sitting on a bench"
+          eyebrow="Campaign"
+          title="Waiting to Live gains 5,000+ donor registrations in 3 months"
+        />
+        <Card
+          href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
+          image={vault}
+          alt="The HSBC Vault installation at Waterloo station"
+          eyebrow="Installation"
+          title="HSBC's vault installation tours the UK"
+        />
+      </div>
+    </section>
+
+    <!-- Contact + the 3D desk -->
+    <section class="contact block block--grape" aria-labelledby="contact-h">
+      <div class="contact__body">
+        <h2 id="contact-h">Let&rsquo;s chat!</h2>
+        <p class="lede">
+          Book me for a talk, ask for creative tech career advice, or
+          let&rsquo;s explore installations for museums and galleries.
+        </p>
+        <CopyEmail variant="solo" />
+      </div>
+      <Desk />
+    </section>
+
+    <!-- Recent writing -->
+    <section class="writing" aria-labelledby="writing-h">
+      <h2 id="writing-h">Recent blog posts</h2>
+      <div class="grid">
+        {
+          posts.map((post, i) => (
+            <Card
+              href={`/blog/${post.id}`}
+              image={post.data.image}
+              alt=""
+              eyebrow={post.data.type[0]}
+              title={post.data.title}
+              colour={(["sun", "rose", "sky"] as const)[i % 3]}
+            />
+          ))
+        }
+      </div>
+      <a class="pill pill--blog" href="/blog">All posts</a>
+    </section>
+  </div>
+</Base>
+
+<style>
+  /* No nav offset at the top. The nav floats over the hero, as on the
+     original, and the hero centres its own copy well below it — reserving
+     --nav-space as well pushed the whole page down and stopped the work grid
+     peeking above the fold. */
+  .shell.stack {
+    padding-block: 0 64px;
+  }
+
+  /* The lead card spans two columns and both rows, as on the original. */
+  @media (min-width: 768px) {
+    .grid--work > :global(:first-child) {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  /* Hero */
+  /* Just short of the viewport, so the logo strip and the top edge of the
+     bento stay visible — a standing hint that there's more below. */
+  .page-photo {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .page-photo {
+      display: block;
+      position: absolute;
+      inset: 0 0 auto;
+      height: 80vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .page-photo__pic {
+      display: contents;
+    }
+
+    .page-photo__img {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      object-fit: cover;
+      /* Anchored right: I stand about three quarters across, so a centred
+         crop eats into me as the window narrows. */
+      object-position: right center;
+    }
+
+    /* Two fades, as on the original: across to the right so the copy has a
+       clean field, and down into the page background so there's no seam. */
+    .page-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to right,
+          rgb(var(--paper-rgb) / 0.95) 0%,
+          rgb(var(--paper-rgb) / 0.95) 40%,
+          rgb(var(--paper-rgb) / 0.75) 60%,
+          rgb(var(--paper-rgb) / 0) 100%
+        ),
+        linear-gradient(
+          to bottom,
+          transparent 50%,
+          rgb(var(--paper-rgb) / 0.1) 60%,
+          rgb(var(--paper-rgb) / 0.35) 70%,
+          rgb(var(--paper-rgb) / 0.7) 82%,
+          rgb(var(--paper-rgb) / 0.92) 92%,
+          rgb(var(--paper-rgb)) 100%
+        );
+    }
+  }
+
+  /* No card, no panel — the copy sits directly on the page over the photo. */
+  /* 128px of it above: the original's py-20 plus the h-12 spacer that nudges
+     the centred copy down past the floating nav. */
+  .hero {
+    min-height: calc(100vh - 250px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 128px 80px;
+  }
+
+  .hero__body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 25rem;
+    padding-inline-start: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .hero__body {
+      padding-inline-start: 40px;
+    }
+  }
+
+  /* Two lines, stacked — "Jonothan." never wraps mid-word. */
+  .hero__body h1 {
+    display: flex;
+    flex-direction: column;
+    color: var(--heading);
+  }
+
+  .hero__body h1 span {
+    white-space: nowrap;
+  }
+
+  .hero__body .lede {
+    color: var(--body-ink);
+    text-wrap: balance;
+  }
+
+  .hero__body .lede a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  .awards {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+  }
+
+  /* Contact: the desk fills the panel edge to edge; the copy sits over it. */
+  /* Close to the original's h-72, with enough room that the heading, copy and
+     button aren't pressed against each other. The panel carries more padding
+     than a card does — .block's --pad is sized for a card's corner label. */
+  .contact {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: 320px;
+    padding: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .contact {
+      min-height: 340px;
+      padding: 40px;
+    }
+  }
+
+  /* Tighter between heading and copy than between copy and button, so the
+     text reads as one block with the action set apart from it. */
+  .contact__body {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 42ch;
+  }
+
+  .contact__body :global(.copy) {
+    margin-top: 16px;
+  }
+
+  .contact__body .lede {
+    text-wrap: balance;
+  }
+
+  /* Equal breathing room above and below the heading, and the link centred
+     under the cards rather than floated off to the right. */
+  .writing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+  }
+
+  /* Lines up with the text inside the cards above and below, which sit a
+     --pad in from their own edge on top of the page gutter. */
+  .writing h2 {
+    align-self: flex-start;
+    margin-block: 0 20px;
+    padding-inline-start: var(--pad);
+  }
+
+  .writing .grid {
+    width: 100%;
+  }
+
+  .writing .pill {
+    margin-top: 40px;
+  }
+</style>
