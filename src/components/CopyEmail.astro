@@ -1,0 +1,159 @@
+---
+const email = "hey@jonothan.dev";
+
+interface Props {
+  /** `bar` sits inside the nav's own padding; `solo` carries its own. */
+  variant?: "bar" | "solo";
+}
+const { variant = "bar" } = Astro.props;
+---
+
+<div class:list={["copy", `copy--${variant}`]}>
+  <a class="copy__link" href={`mailto:${email}`}>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="2.75" y="4.75" width="18.5" height="14.5" rx="2.25"></rect>
+      <path d="m3.5 7.5 8.5 5.6 8.5-5.6"></path>
+    </svg>
+    {email}
+  </a>
+  <button
+    class="copy__btn"
+    type="button"
+    data-copy={email}
+    aria-label="Copy email address"
+  >
+    <svg class="i-clip" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 20.5 5v9a1.5 1.5 0 0 1-1.5 1.5h-1.5"></path>
+      <rect x="3.5" y="8.5" width="12" height="12" rx="1.75"></rect>
+    </svg>
+    <svg class="i-tick" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m4.5 12.5 5 5 10-10.5"></path>
+    </svg>
+    <span class="copy__label">Copy</span>
+    {/* The visible label never changes, so the icon swap is the only feedback
+        — which a screen reader can't see. This announces it instead. */}
+    <span class="sr-only" data-status aria-live="polite"></span>
+  </button>
+</div>
+
+<script>
+  // The only interactive script on the page. No framework, no dependencies.
+  document.querySelectorAll<HTMLButtonElement>(".copy__btn").forEach((btn) => {
+    const status = btn.querySelector("[data-status]");
+    btn.addEventListener("click", async () => {
+      // The label stays "Copy" throughout — the clipboard icon becoming a tick
+      // is the feedback, so the button never changes width mid-interaction.
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+        btn.classList.add("done");
+        if (status) status.textContent = "Copied";
+      } catch {
+        if (status) status.textContent = "Copy failed";
+      }
+      setTimeout(() => {
+        btn.classList.remove("done");
+        if (status) status.textContent = "";
+      }, 1600);
+    });
+  });
+</script>
+
+<style>
+  .copy {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--pill);
+    background: #fffdf8;
+    color: var(--ink);
+    /* Reads as an address and a plain action, not as UI chrome — so normal
+       body weight at the same 16px as every other control. */
+    font-weight: 400;
+    font-size: 1rem;
+    /* UI chrome isn't prose. */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Standing on its own (in the contact block) it needs its own frame, so it
+     matches the nav bar: 8px around a 36px row. */
+  .copy--solo {
+    padding: var(--ui-pad);
+  }
+
+  /* Same rose as the Contact pill in the nav, so the panel reads as that
+     control opened up rather than as a separate widget. */
+  .copy__link,
+  .copy__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    height: var(--ui-h);
+    padding-inline: 12px;
+    border-radius: var(--pill);
+    color: #9f1239;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+  }
+
+  /* No min-width. It used to reserve room for the longest label state so the
+     button wouldn't resize on click, but 6.6em was sized against the older,
+     smaller, bolder type — at 16px/400 it holds "Copy" 21px wider than it
+     needs and the slack all collects on the right. Sizing to content costs a
+     small momentary widening when the label becomes "Copied", which happens
+     on the button you just pressed and settles on its own. */
+
+  /* A hairline between the two halves rather than a heavy border. It only
+     separates two resting halves, so it goes as soon as either is hovered —
+     the highlight already shows where one ends and the other begins, and the
+     line cutting into a filled capsule looks like a seam. */
+  .copy__link + .copy__btn::before {
+    content: "";
+    position: absolute;
+    margin-left: -12px;
+    width: 1px;
+    height: 1.15em;
+    background: rgb(0 0 0 / 0.15);
+    transition: opacity 0.2s;
+  }
+
+  .copy:has(.copy__link:hover) .copy__btn::before,
+  .copy:has(.copy__btn:hover) .copy__btn::before {
+    opacity: 0;
+  }
+
+  .copy__btn {
+    position: relative;
+  }
+
+  svg {
+    width: 1.1em;
+    height: 1.1em;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Swap clipboard for tick on success — no layout change, so nothing jumps. */
+  .i-tick {
+    display: none;
+  }
+  .copy__btn.done .i-clip {
+    display: none;
+  }
+  /* Inherits currentColor like the clipboard it replaces — the shape carries
+     the message, so recolouring it as well would only break the row. */
+  .copy__btn.done .i-tick {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    .copy__link:hover,
+    .copy__btn:hover {
+      background: #ffe4e6;
+    }
+  }
+</style>

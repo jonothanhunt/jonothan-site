@@ -1,0 +1,53 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Base from "../../layouts/Base.astro";
+import PostGrid from "../../components/PostGrid.astro";
+import { allPosts, allTags } from "../../lib/posts";
+import tids from "../../data/atproto-tids.json";
+
+// Same list as /blog, with this post already expanded — so a shared link
+// lands exactly where the reader expects, and the page still works with JS off.
+// `satisfies` rather than a type annotation: annotating with GetStaticPaths
+// widens the props to `unknown`, so every use of `post` below loses its type.
+// This way the collection's schema flows through to Astro.props.
+export const getStaticPaths = (async () => {
+  const posts = await allPosts();
+  const tags = await allTags();
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, posts, tags },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post, posts, tags } = Astro.props as Props;
+const { title, date, excerpt, image } = post.data;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  datePublished: date.toISOString(),
+  description: excerpt,
+  author: {
+    "@type": "Person",
+    name: "Jonothan Hunt",
+    url: "https://jonothan.dev",
+  },
+  mainEntityOfPage: `https://jonothan.dev/blog/${post.id}`,
+};
+---
+
+<Base
+  title={title}
+  {...excerpt ? { description: excerpt } : {}}
+  image={image?.src}
+  type="article"
+  publishedTime={date}
+  schema={schema}
+  atprotoTid={tids[post.id as keyof typeof tids]}
+>
+  <PostGrid posts={posts} tags={tags} openSlug={post.id} />
+</Base>
