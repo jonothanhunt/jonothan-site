@@ -1,0 +1,470 @@
+/* ============================================================
+   Fonts — swap, so text paints immediately in a fallback.
+   ============================================================ */
+@font-face {
+  font-family: "Lastik";
+  src: url("/fonts/lastik.woff2") format("woff2-variations");
+  font-weight: 50 100;
+  font-display: swap;
+  /* Tuned so the fallback occupies near-identical space; kills the reflow. */
+  size-adjust: 105%;
+  ascent-override: 92%;
+  descent-override: 22%;
+}
+
+@font-face {
+  font-family: "Hyperlegible";
+  src: url("/fonts/hyperlegible.woff2") format("woff2-variations");
+  font-weight: 100 1000;
+  font-display: swap;
+}
+
+/* ============================================================
+   Tokens
+   ============================================================ */
+:root {
+  --paper: #f6f1e8;
+  /* Same colour as channels, so gradients can fade to it at any alpha and
+     land exactly on the page background with no seam. */
+  --paper-rgb: 246 241 232;
+  --ink: #17130f;
+  --ink-soft: #5b5147;
+
+  /* Carried over from the original site. */
+  --heading: #065f46; /* emerald-800 */
+  --body-ink: #075985; /* sky-800 */
+
+  /* Bright block colours — saturated against the neutral paper. */
+  --sun: #ffb703;
+  --flame: #ff5436;
+  --grape: #6d4aff;
+  --sea: #009e8e;
+  --sky: #2b8cf0;
+  --rose: #ff4d8d;
+  --leaf: #4aa72a;
+
+  /* Matched to the original site: rounded-4xl cards, p-4 insets, gap-4
+     gutters, max-w-6xl column. */
+  --r-lg: 32px;
+  --r-md: 26px;
+  --r-sm: 14px;
+  --pill: 999px;
+
+  --gap: 16px;
+  /* Fixed, not fluid: the inset inside every block is the same on a phone as
+     on a 4K display. */
+  --pad: 16px;
+  --shell: 1152px;
+  /* Blog column. 768px leaves a 736px card once the gutters are off, which is
+     what the original renders. */
+  --read: 768px;
+  /* Article measure in rem, so the prose and the buttons under it line up
+     regardless of their own font sizes (72ch differs per font-size). */
+  --measure: 41rem;
+
+  /* One height for every chip, pill and button on the site, so nothing is
+     subtly out of step. The nav bar is this plus its own 8px padding. */
+  --ui-h: 36px;
+  --ui-pad: 8px;
+  /* Two sizes, by nesting. A control inside a pill-shaped container (the nav
+     pills in the nav bar, the two halves of the copy bar) takes --ui-h. A
+     control sitting directly on the page is itself the container, so it takes
+     the container's height. */
+  --ui-h-solo: calc(var(--ui-h) + var(--ui-pad) * 2);
+
+  /* The nav floats: --gap above it, then the bar, then --gap before content.
+     Every page uses --nav-space as its top padding so the rhythm matches the
+     side gutters exactly. */
+  --nav-pill: calc(var(--ui-h) + var(--ui-pad) * 2);
+  --nav-space: calc(var(--gap) * 2 + var(--nav-pill));
+
+  /* The nav's three pill themes — a -100 fill with -800 text. Kept here
+     rather than in Nav.astro so anything else that needs to read as the same
+     control (the "All posts" link) uses the one definition. */
+  --pill-work-bg: #ffedd5;
+  --pill-work-fg: #9a3412;
+  --pill-blog-bg: #e0f2fe;
+  --pill-blog-fg: #075985;
+  --pill-contact-bg: #ffe4e6;
+  --pill-contact-fg: #9f1239;
+
+  --display: "Lastik", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --body: "Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ---- Type and spacing scale -------------------------------------------
+     Stepped at breakpoints rather than interpolated with vw. Fluid clamps
+     mean every window width gets its own slightly-off size — nothing is ever
+     the size it was designed at, and dragging the window resizes the text
+     continuously. These change three times and are otherwise fixed. */
+  --t-body: 1rem;
+  --t-lede: 1.5rem;
+  --t-h1: 3.25rem;
+  --t-h2: 2.25rem;
+  --t-h3: 1.5rem;
+  /* Lead card in the work grid, and the blog row headings. */
+  --t-card-feature: 1.875rem;
+  /* Blog row headings — 30px on the original. */
+  --t-card-row: 1.875rem;
+  /* Measured off the original: the Work/Blog/Contact links run at the base
+     16px and only the brand is text-2xl. Sizing the whole bar at 24px made it
+     enormous. */
+  --t-nav: 1rem;
+  --t-brand: 1.5rem;
+  /* Headings inside an article body. */
+  --t-prose-h2: 1.6rem;
+  --t-prose-h3: 1.25rem;
+
+  --hero-pad: 24px;
+  --post-pad: 32px;
+  --nf-pad: 48px;
+
+  /* Almost all of the distance up front, then a long tail into the end —
+     nothing arrives with a hard stop. */
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The original steps once, at Tailwind's `md`. Everything above that is the
+   size it was designed at rather than a function of the window. */
+@media (min-width: 768px) {
+  :root {
+    --t-h1: 4.5rem;
+    --t-h2: 2.25rem;
+    --t-card-feature: 3rem;
+    --t-prose-h2: 1.9rem;
+    --t-prose-h3: 1.375rem;
+    --hero-pad: 40px;
+    --post-pad: 40px;
+    --nf-pad: 80px;
+  }
+}
+
+@media (min-width: 1080px) {
+  :root {
+    --t-prose-h2: 2.2rem;
+    --t-prose-h3: 1.5rem;
+    --post-pad: 56px;
+    --nf-pad: 120px;
+  }
+}
+
+/* ============================================================
+   Reset — small and deliberate
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+/* No global smooth scrolling: arriving at /#work from another page should land
+   instantly. The places that want easing ask for it explicitly. */
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: var(--nav-space);
+  /* Always reserve the scrollbar's width. Filtering the blog down to a short
+     list otherwise drops the scrollbar, which widens the viewport and shifts
+     every centred thing on the page sideways. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: var(--body);
+  font-size: var(--t-body);
+  line-height: 1.6;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+video,
+svg,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   Type
+   ============================================================ */
+/* Lastik's weight axis runs 50–100. 70 is the original site's display weight —
+   100 is the very top of the axis and reads far too heavy. */
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 70;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--t-h1);
+}
+h2 {
+  font-size: var(--t-h2);
+}
+h3 {
+  font-size: var(--t-h3);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+/* Reading width — used by the blog and about pages. */
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gap);
+}
+
+/* Full-bleed: edge to edge with only a gutter, so the blocks read as one
+   full-page surface rather than a centred column. */
+.bleed {
+  width: 100%;
+  padding-inline: var(--gap);
+}
+
+.stack > * + * {
+  margin-top: var(--gap);
+}
+
+/* Explicit column counts rather than auto-fit: at full-bleed widths auto-fit
+   would keep adding columns and the cards would shrink to nothing. */
+.grid {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 1fr;
+}
+
+/* One column, then straight to three — the original has no two-column state,
+   which is what let a half-empty row appear at tablet widths. */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* A block is the core unit: a big rounded slab of colour. */
+.block {
+  border-radius: var(--r-lg);
+  padding: var(--pad);
+  position: relative;
+  overflow: hidden;
+}
+
+.block--sun {
+  background: var(--sun);
+}
+.block--flame {
+  background: var(--flame);
+  color: #fff;
+}
+.block--grape {
+  background: var(--grape);
+  color: #fff;
+}
+.block--sea {
+  background: var(--sea);
+  color: #fff;
+}
+.block--sky {
+  background: var(--sky);
+  color: #fff;
+}
+.block--rose {
+  background: var(--rose);
+  color: #fff;
+}
+.block--leaf {
+  background: var(--leaf);
+  color: #fff;
+}
+.block--paper {
+  background: #fffdf8;
+}
+
+/* ============================================================
+   Pills / buttons
+   ============================================================ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  height: var(--ui-h-solo);
+  padding-inline: 16px;
+  border-radius: var(--pill);
+  background: rgb(0 0 0 / 0.07);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  /* UI chrome isn't prose — dragging across it shouldn't select it. */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Reads as the nav's Blog pill — same display face, same colour pairing — so
+   every blog-context action (All posts, a post's links, Share) is one control
+   at one size. Replaces the old one-off --solid ink fill and --ghost 2px
+   outline, neither of which appeared anywhere else on the site. */
+.pill--blog {
+  background: var(--pill-blog-bg);
+  color: var(--pill-blog-fg);
+  font-family: var(--display);
+  font-weight: 70;
+  font-size: var(--t-nav);
+}
+
+a.pill,
+button.pill {
+  transition: transform 0.12s ease;
+}
+
+@media (hover: hover) {
+  a.pill:hover,
+  button.pill:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* ============================================================
+   Header / footer
+   ============================================================ */
+.site-foot {
+  margin-top: auto;
+  padding: 48px 0 32px;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+.site-foot .shell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.site-foot a {
+  color: inherit;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+}
+
+/* ============================================================
+   Marquee — one transform animation, compositor only
+   ============================================================ */
+.marquee {
+  overflow: hidden;
+  border-radius: var(--pill);
+  background: var(--flame);
+  color: #fff;
+  padding: 14px 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee ul {
+  display: flex;
+  gap: 2.5rem;
+  width: max-content;
+  list-style: none;
+  padding: 0;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  animation: slide 38s linear infinite;
+}
+
+@keyframes slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee ul {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.lede {
+  font-size: var(--t-lede);
+  line-height: 1.45;
+}

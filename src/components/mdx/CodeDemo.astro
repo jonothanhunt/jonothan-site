@@ -1,0 +1,63 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import Sandbox from "../../scenes/Sandbox.tsx";
+
+interface Props {
+  /** Folder name under public/demos/ */
+  name: string;
+  height?: number;
+  /** `preview` hides the editor; `split` shows code beside it. */
+  view?: "preview" | "split";
+}
+const { name, height = 420, view = "preview" } = Astro.props;
+
+// Sources are read at build time and handed to Sandpack as literals — no
+// network fetch at runtime.
+const dir = path.join(process.cwd(), "public", "demos", name);
+const files: Record<string, { code: string; hidden?: boolean }> = {};
+
+if (fs.existsSync(dir)) {
+  for (const f of fs.readdirSync(dir).sort()) {
+    if (!/\.(html|css|js)$/.test(f)) continue;
+    files[`/${f}`] = { code: fs.readFileSync(path.join(dir, f), "utf8") };
+  }
+}
+---
+
+<!--
+  Sandpack is heavy (a bundler in the browser), so it is an island that
+  hydrates only when scrolled to. Posts without a demo never pay for it, and
+  neither does anyone who doesn't reach this part of the page.
+-->
+<div class="demo" style={`--h:${height}px`}>
+  <Sandbox client:visible files={files} height={height} view={view} />
+</div>
+
+<style>
+  .demo {
+    margin-block: 1.75rem;
+    /* Reserve the height up front so hydrating it shifts nothing. */
+    min-height: var(--h);
+  }
+
+  /* Sandpack nests several panels, each with its own background. Rounding only
+     the outer box leaves square corners showing through, so the radius has to
+     land on the wrapper and every panel that paints inside it. */
+  .demo :global(.sp-wrapper),
+  .demo :global(.sp-layout) {
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 0;
+  }
+
+  .demo :global(.sp-layout) {
+    /* The layout draws the visible frame; let it own the corners cleanly. */
+    outline: 2px solid rgb(0 0 0 / 0.08);
+    outline-offset: -2px;
+  }
+
+  .demo :global(.sp-preview-container) {
+    background: #fff;
+  }
+</style>

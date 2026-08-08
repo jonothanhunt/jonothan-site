@@ -1,0 +1,39 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Page not found" description="That page doesn't exist.">
+  <div class="shell">
+    <section class="block block--flame nf">
+      <p class="eyebrow">404</p>
+      <h1>That page has wandered off.</h1>
+      <p class="lede">Try the work, or have a read of the blog.</p>
+      <p class="nf__links">
+        <a class="pill" href="/">Home</a>
+        <a class="pill" href="/blog">Blog</a>
+      </p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    margin-block: var(--gap) 64px;
+    padding-block: var(--nf-pad);
+  }
+
+  .nf .lede {
+    margin-top: 0.6em;
+  }
+
+  .nf__links {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.6em;
+  }
+
+  .nf .pill {
+    background: #fff;
+    color: var(--ink);
+  }
+</style>

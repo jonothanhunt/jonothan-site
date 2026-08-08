@@ -1,0 +1,131 @@
+---
+// The 3D desk. Everything about it is opt-in:
+//   * its JS lives in a separate chunk that is only fetched if the gate passes
+//   * the gate rejects small screens, low-memory/low-core devices, Save-Data,
+//     reduced-motion and anything without WebGL
+//   * even then it only loads once scrolled near
+// A device that fails the gate downloads zero bytes of three.js.
+---
+
+<div class="desk" data-desk aria-hidden="true"></div>
+
+<script>
+  const mount = document.querySelector<HTMLElement>("[data-desk]");
+
+  const capable = () => {
+    const nav = navigator as Navigator & {
+      deviceMemory?: number;
+      connection?: { saveData?: boolean };
+    };
+    if (!window.matchMedia("(min-width: 900px)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return false;
+    if (nav.connection?.saveData) return false;
+    if ((nav.deviceMemory ?? 8) < 4) return false;
+    if ((navigator.hardwareConcurrency ?? 8) < 4) return false;
+    try {
+      const gl = document
+        .createElement("canvas")
+        .getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+      if (!gl) return false;
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    } catch {
+      return false;
+    }
+    return true;
+  };
+
+  // Dev only. Vite's React plugin needs a Fast Refresh preamble on the page
+  // before any JSX module loads, and Astro only injects it for pages that
+  // render a React island. The desk isn't one — it's imported by hand from
+  // this script — so in dev the import throws "can't detect preamble" and the
+  // scene silently never appears. Installing the same hooks ourselves is
+  // enough. The production build has no Fast Refresh and skips all of this.
+  async function reactRefreshPreamble() {
+    if (!import.meta.env.DEV) return;
+    // Through a variable so TypeScript doesn't try to resolve it — this is a
+    // Vite virtual module that only exists while the dev server is running.
+    const virtual = "/@react-refresh";
+    const refresh = await import(/* @vite-ignore */ virtual);
+    refresh.injectIntoGlobalHook(window);
+    (window as any).$RefreshReg$ = () => {};
+    (window as any).$RefreshSig$ = () => (type: unknown) => type;
+    (window as any).__vite_plugin_react_preamble_installed__ = true;
+  }
+
+  if (mount && capable()) {
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      io.disconnect();
+      reactRefreshPreamble()
+        .then(() => import("../scenes/desk.jsx"))
+        .then((m) => m.mount(mount))
+        // Surfaced rather than swallowed: a silent catch here is what hid
+        // the preamble failure in the first place.
+        .catch((err) => console.error("[desk] scene failed to load", err));
+    };
+
+    // Two ways in, whichever comes first.
+    //
+    // Normally: once the page has finished loading and the main thread goes
+    // idle, a capable device fetches the scene regardless of scroll position.
+    // Waiting for the element to come near meant the download only *started*
+    // when you got there, so the desk landed several seconds late. Nothing is
+    // taken from the initial load — this begins after `load`, and the scene
+    // keeps its render loop parked until it's actually on screen.
+    const idle =
+      window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 200));
+    const queue = () => idle(start, { timeout: 3000 });
+    if (document.readyState === "complete") queue();
+    else addEventListener("load", queue, { once: true });
+
+    // And if you scroll straight there before the browser goes idle, don't
+    // wait for it.
+    const io = new IntersectionObserver(
+      (entries) => entries.some((e) => e.isIntersecting) && start(),
+      { rootMargin: "300px" },
+    );
+    io.observe(mount);
+  }
+</script>
+
+<style>
+  .desk {
+    display: none;
+  }
+
+  /* Bleeds to the top, right and bottom edges of the panel so the desk is
+     never cropped, starting partway left so the copy overlaps it slightly.
+     Absolutely positioned, so mounting it shifts no layout at all. */
+  @media (min-width: 900px) {
+    .desk {
+      display: block;
+      position: absolute;
+      inset: 0 0 0 34%;
+      /* Held back until the scene reports its first real frame, so it eases
+         in instead of popping. `is-ready` is set from the scene once the
+         model and textures have resolved — not on canvas creation, which
+         happens while the assets are still in flight. */
+      opacity: 0;
+      transition: opacity 0.7s var(--ease-settle);
+    }
+
+    .desk.is-ready {
+      opacity: 1;
+    }
+
+    .desk :global(canvas) {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .desk {
+      display: none;
+    }
+  }
+</style>

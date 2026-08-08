@@ -1,0 +1,234 @@
+---
+import PostRow from "./PostRow.astro";
+import { COLOURS, tagSlug, tagLabel, type Post } from "../lib/posts";
+
+interface Props {
+  posts: Post[];
+  tags: { tag: string; count: number }[];
+  /** Slug to render already expanded. */
+  openSlug?: string;
+}
+const { posts, tags, openSlug } = Astro.props;
+
+// The original's playful chip palette: a -100 fill with -800 text, going to a
+// solid -600 when selected. Cycled by position so the row reads as a set.
+const CHIPS = [
+  { bg: "#ccfbf1", fg: "#115e59", on: "#0d9488" },
+  { bg: "#ffedd5", fg: "#9a3412", on: "#ea580c" },
+  { bg: "#e0f2fe", fg: "#075985", on: "#0284c7" },
+  { bg: "#f3e8ff", fg: "#6b21a8", on: "#9333ea" },
+  { bg: "#fef9c3", fg: "#854d0e", on: "#ca8a04" },
+  { bg: "#ffe4e6", fg: "#9f1239", on: "#e11d48" },
+];
+
+const options = [
+  { slug: "all", label: "All", count: posts.length },
+  ...tags.map(({ tag, count }) => ({
+    slug: tagSlug(tag),
+    label: tagLabel(tag),
+    count,
+  })),
+].map((o, i) => ({ ...o, chip: CHIPS[i % CHIPS.length] }));
+---
+
+<div class="blog">
+  <h1 class="sr-only">Writing</h1>
+
+  <!--
+    Filtering is a radio group plus sibling selectors: no JS, no extra pages,
+    no duplicated content. The inputs sit here rather than inside the label row
+    so that `:checked ~ .list` can actually reach the posts; the labels bind to
+    them by id from anywhere.
+  -->
+  {
+    options.map((o, i) => (
+      <input
+        type="radio"
+        name="tag"
+        id={`tag-${o.slug}`}
+        class="sr-only"
+        checked={i === 0}
+      />
+    ))
+  }
+
+  <div class="filter" role="group" aria-label="Filter posts by tag">
+    {
+      options.map((o) => (
+        <label
+          class="pill"
+          for={`tag-${o.slug}`}
+          style={`--chip-bg:${o.chip.bg};--chip-fg:${o.chip.fg};--chip-on:${o.chip.on}`}
+        >
+          {o.label} <small>{o.count}</small>
+        </label>
+      ))
+    }
+  </div>
+
+  <div class="list">
+    {
+      posts.map((post, i) => (
+        <PostRow
+          post={post}
+          colour={COLOURS[i % COLOURS.length]}
+          open={post.id === openSlug}
+          loading={i < 2 ? "eager" : "lazy"}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<!-- One pair of rules per tag, generated at build time. -->
+<style
+  is:inline
+  set:html={options
+    .map(({ slug }) => {
+      const hide =
+        slug === "all"
+          ? ""
+          : `#tag-${slug}:checked~.list>.row:not([data-tags~="${slug}"]){display:none}`;
+      const on = `#tag-${slug}:checked~.filter label[for="tag-${slug}"]{background:var(--chip-on);color:#fff}`;
+      return hide + on;
+    })
+    .join("")}
+/>
+
+<script>
+  // Progressive enhancement, ~15 lines: keep the URL in step with whichever
+  // row is open, and allow only one at a time. Without it the list still
+  // works — this only adds shareable URLs and back-button support.
+  const rows = [...document.querySelectorAll<HTMLDetailsElement>("details.row")];
+
+  // --- Filter state lives in ?tag= so a filtered view can be linked ---
+  // The filtering itself is still pure CSS; this only syncs the radio to the
+  // URL, so it degrades to "shows everything" if the script never runs.
+  const radios = [
+    ...document.querySelectorAll<HTMLInputElement>('input[name="tag"]'),
+  ];
+
+  const applyFromUrl = () => {
+    const tag = new URLSearchParams(location.search).get("tag") ?? "all";
+    const hit = document.getElementById(`tag-${tag}`) as HTMLInputElement | null;
+    (hit ?? radios[0]).checked = true;
+  };
+  applyFromUrl();
+
+  radios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) return;
+      const tag = radio.id.replace(/^tag-/, "");
+      const url = new URL(location.href);
+      if (tag === "all") url.searchParams.delete("tag");
+      else url.searchParams.set("tag", tag);
+      history.replaceState(null, "", url);
+    });
+  });
+
+  // Landing on /blog/<slug>: that row is already open server-side, so bring it
+  // into view. Instant rather than smooth — it's the initial state.
+  const landed = rows.find((r) => r.open);
+  if (landed) landed.scrollIntoView({ block: "start" });
+
+  // Keep whichever filter is active when the path changes.
+  const withFilter = (path: string) => path + location.search;
+
+  rows.forEach((row) => {
+    row.addEventListener("toggle", () => {
+      if (!row.open) {
+        if (location.pathname === `/blog/${row.id}`)
+          history.pushState(null, "", withFilter("/blog"));
+        return;
+      }
+      rows.forEach((other) => other !== row && (other.open = false));
+      history.pushState(null, "", withFilter(`/blog/${row.id}`));
+      row.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+  });
+
+  addEventListener("popstate", () => {
+    const slug = location.pathname.replace(/^\/blog\/?/, "");
+    rows.forEach((r) => (r.open = r.id === slug));
+    applyFromUrl();
+  });
+
+  // Share: the native sheet where it exists, clipboard everywhere else.
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-share]")
+    .forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const url = new URL(btn.dataset.share!, location.origin).href;
+        const title = btn.dataset.title ?? document.title;
+        try {
+          if (navigator.share) await navigator.share({ title, url });
+          else {
+            await navigator.clipboard.writeText(url);
+            const was = btn.lastChild!.textContent;
+            btn.lastChild!.textContent = " Link copied";
+            setTimeout(() => (btn.lastChild!.textContent = was), 1600);
+          }
+        } catch {
+          /* user dismissed the sheet */
+        }
+      });
+    });
+</script>
+
+<style>
+  /* Reading width — the blog stays a comfortable column, unlike the
+     full-bleed home page. */
+  .blog {
+    width: 100%;
+    max-width: var(--read);
+    margin-inline: auto;
+    padding-inline: var(--gap);
+    padding-block: var(--nav-space) 64px;
+  }
+
+  /* Inline-block chips in a block container, so `text-wrap: balance` can even
+     out the rows instead of leaving one or two orphans on the last line. */
+  /* Room on both sides so the row reads as its own band between the nav and
+     the list, rather than crowding either. */
+  .filter {
+    display: block;
+    text-align: center;
+    text-wrap: balance;
+    margin-block: 32px 40px;
+    margin-inline: -3px;
+  }
+
+  .filter label {
+    cursor: pointer;
+    margin: 3px;
+    vertical-align: middle;
+    background: var(--chip-bg);
+    color: var(--chip-fg);
+    /* No transition on selection. Switching a filter re-lays out the list
+       underneath, so easing the chip's colour just delays the feedback for
+       something that has already happened. Hover still eases — see .pill. */
+  }
+
+  .filter small {
+    opacity: 0.55;
+    font-size: 0.8em;
+  }
+
+  .sr-only:focus-visible + .filter label,
+  .sr-only:focus-visible ~ .filter label[for] {
+    outline: none;
+  }
+
+  /* Keyboard focus lands on the hidden input; show it on its label. */
+  #tag-all:focus-visible ~ .filter label[for="tag-all"] {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  /* Vertical list — one post per row, full width of the column. */
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+</style>

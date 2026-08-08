@@ -1,0 +1,171 @@
+---
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import { bottomTint } from "../lib/tint";
+
+interface Props {
+  href: string;
+  eyebrow?: string;
+  title: string;
+  image?: ImageMetadata;
+  alt?: string;
+  colour?: "sun" | "flame" | "grape" | "sea" | "sky" | "rose" | "leaf" | "paper";
+  /** Renders taller and with larger type — for the lead item in a grid. */
+  feature?: boolean;
+  sizes?: string;
+  loading?: "lazy" | "eager";
+}
+
+const {
+  href,
+  eyebrow,
+  title,
+  image,
+  alt = "",
+  colour = "paper",
+  feature = false,
+  // Mirrors the .grid tracks exactly: one column, then two from 720px, then
+  // three from 1080px, each inside a --gap gutter. The old flat "380px" was
+  // well under the ~476px a card actually gets on a 1500px screen, so the
+  // browser picked a variant too small and upscaled it.
+  sizes = "(max-width: 719px) calc(100vw - 32px), (max-width: 1079px) calc(50vw - 24px), calc(33.3vw - 21px)",
+  loading = "lazy",
+} = Astro.props;
+
+const external = href.startsWith("http");
+
+// Sampled from the image's lower band at build time, so the overlay belongs to
+// the photo instead of being a flat black wash.
+const t = image ? await bottomTint(image) : null;
+
+// AVIF first — around 38% smaller than WebP on these photos — with WebP behind
+// it for anything that can't take AVIF. The width ladder reaches ~1300 so a 2x
+// screen at three columns gets a real pixel per device pixel, not an upscale.
+---
+
+<a
+  class:list={["card", `block block--${colour}`, feature && "card--feature"]}
+  href={href}
+  style={t && `--tint:${t.tint};--on-tint:${t.ink}`}
+  {...external ? { target: "_blank", rel: "noopener noreferrer" } : {}}
+>
+  {
+    image && (
+      <Picture
+        class="card__img"
+        pictureAttributes={{ class: "card__pic" }}
+        src={image}
+        alt={alt}
+        formats={["avif", "webp"]}
+        fallbackFormat="webp"
+        widths={feature ? [480, 780, 1100, 1600, 2200] : [380, 560, 780, 1040, 1300]}
+        sizes={sizes}
+        loading={loading}
+        decoding="async"
+      />
+    )
+  }
+  <div class="card__text">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h3>{title}</h3>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* min-h-80 on the original. The feature spans two rows, so it takes its
+       height from the grid rather than needing its own. */
+    min-height: 320px;
+    text-decoration: none;
+    isolation: isolate;
+    transition: transform 0.18s ease;
+  }
+
+  /* <picture> is only a wrapper for the format sources — it must not become a
+     box in the card's flex column, or it would take up a row of its own. With
+     display:contents it vanishes and the img positions against .card. */
+  .card__pic {
+    display: contents;
+  }
+
+  /* A card with a photo never shows its own colour — the image covers it. But
+     a rounded clip is antialiased, so at the corners each edge pixel is part
+     image and part whatever sits behind it, and a saturated block colour
+     reads as a bright outline tracing the curve. It shows up most on hover,
+     where the transform promotes the card to its own layer and the clip is
+     resolved differently.
+     Falling back to the sampled tint rather than the block colour means those
+     partial pixels blend into a colour taken from the photo itself, so there
+     is nothing to see — and it doubles as the placeholder while a lazy image
+     is still loading. */
+  .card:has(.card__img) {
+    background: var(--tint, transparent);
+  }
+
+  /* Image fills the block; the text sits on a scrim above it.
+     Overshoots by 1px so the parent's clip cuts the curve through solid image
+     rather than through the image's own antialiased edge — matching radii
+     would let the block colour beneath show as a fringe along the corner. The
+     radius is still inherited for browsers that skip the clip on a composited
+     layer. */
+  .card__img {
+    position: absolute;
+    inset: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    /* The global `img { max-width: 100% }` would otherwise cap the overshoot
+       and leave the block's colour showing as a 1px sliver down one edge. */
+    max-width: none;
+    object-fit: cover;
+    /* Radius grows with the box so the child's curve sits strictly outside
+       the parent's clip. Matching radii put the two antialiased curves on the
+       same pixels, and the block colour between them read as a ghost outline. */
+    border-radius: calc(var(--r-lg) + 1px);
+    z-index: -2;
+  }
+
+  /* Overlay tinted with the image's own bottom colour, pushed light or dark
+     so the text always contrasts. Sits above the image (-2), below text. */
+  .card:has(.card__img)::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: calc(var(--r-lg) + 1px);
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      var(--tint) 0%,
+      var(--tint) 30%,
+      transparent 88%
+    );
+  }
+
+  /* Descendant, not adjacent-sibling: wrapping the image in <picture> for the
+     AVIF sources meant `.card__img + .card__text` stopped matching, so cards
+     fell back to their block colour's white text and put white type on a pale
+     wash. */
+  .card:has(.card__img) .card__text {
+    color: var(--on-tint, #fff);
+  }
+
+  .card__text {
+    position: relative;
+  }
+
+  .card__text h3 {
+    margin-top: 0.25em;
+  }
+
+  .card--feature .card__text h3 {
+    font-size: var(--t-card-feature);
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      transform: translateY(-4px);
+    }
+  }
+</style>
