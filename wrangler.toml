@@ -1,9 +1,0 @@
-# Cloudflare Pages configuration
-name = "jonothan-site"
-
-[build]
-command = "npm run build"
-cwd = "./"
-
-[build.upload]
-format = "service-worker"
