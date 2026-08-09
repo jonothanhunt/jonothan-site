@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # machine-local Claude Code settings (the shared config is in AGENTS.md)
 .claude/settings.local.json
+
+# cloudflare deploy state
+.wrangler/

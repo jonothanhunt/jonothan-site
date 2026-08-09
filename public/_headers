@@ -1,0 +1,26 @@
+# Cloudflare reads this from the root of the deployed assets. Astro copies
+# everything in public/ to dist/ verbatim, so this file lands in the right
+# place. Carried over from the Vercel config the site used before the move —
+# none of it applied any more once deploys went to Cloudflare.
+
+# Hashed filenames, so these can never go stale.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/textures/*
+  Cache-Control: public, max-age=2592000
+
+/video/*
+  Cache-Control: public, max-age=2592000
+
+/*
+  X-Content-Type-Options: nosniff
+  X-DNS-Prefetch-Control: on
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

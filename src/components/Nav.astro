@@ -74,6 +74,8 @@ const isHome = Astro.url.pathname === "/";
   // bound to the persisted nodes are bound exactly once.
 
   let observer: IntersectionObserver | null = null;
+  // Scoped to the current page, so leaving it drops the listener with it.
+  let pageCtl: AbortController | null = null;
 
   /** Point the bar at whatever page we are now on. */
   function sync() {
@@ -99,6 +101,8 @@ const isHome = Astro.url.pathname === "/";
     // One observer per home visit; drop the previous page's before rebinding.
     observer?.disconnect();
     observer = null;
+    pageCtl?.abort();
+    pageCtl = null;
 
     if (!isHome) {
       // Off the home page there is no work section to be inside of, and the
@@ -136,17 +140,44 @@ const isHome = Astro.url.pathname === "/";
     // re-centre the whole nav a second time, for no navigational gain — you
     // are still below the work section, and everything below it is the same
     // page. The brand rides the same latch so both move on one frame.
+    const apply = (passed: boolean) => {
+      workLink.classList.toggle("on", passed);
+      if (passed) workLink.setAttribute("aria-current", "true");
+      else workLink.removeAttribute("aria-current");
+      nav.classList.toggle("at-top", !passed);
+    };
+
     observer = new IntersectionObserver(
-      ([e]) => {
-        const passed = e.isIntersecting || e.boundingClientRect.top < 0;
-        workLink.classList.toggle("on", passed);
-        if (passed) workLink.setAttribute("aria-current", "true");
-        else workLink.removeAttribute("aria-current");
-        nav.classList.toggle("at-top", !passed);
-      },
+      ([e]) => apply(e.isIntersecting || e.boundingClientRect.top < 0),
       { rootMargin: "-45% 0px -45% 0px" },
     );
     observer.observe(work);
+
+    // An observer only reports *changes* in intersection, so a jump that skips
+    // the band entirely — landing below the work section in one go — reports
+    // nothing and leaves the bar showing the state it had before the jump.
+    // Scrolling there by hand always crosses the band, so this only shows up
+    // when the position moves instantly: the router restoring scroll on a
+    // back/forward, or an anchor deeper down the page.
+    //
+    // Recomputing the same test on scrollend costs nothing while scrolling and
+    // settles those cases. Where scrollend isn't implemented the observer alone
+    // behaves exactly as it did before.
+    if ("onscrollend" in window) {
+      // Already aborted and cleared at the top of sync().
+      pageCtl = new AbortController();
+      addEventListener(
+        "scrollend",
+        () => {
+          const r = work.getBoundingClientRect();
+          // The same middle 10% band the rootMargin above describes.
+          const top = innerHeight * 0.45;
+          const bottom = innerHeight * 0.55;
+          apply(r.top < 0 || (r.top < bottom && r.bottom > top));
+        },
+        { signal: pageCtl.signal },
+      );
+    }
   }
 
   let bound = false;

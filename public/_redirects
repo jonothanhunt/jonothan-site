@@ -1,0 +1,6 @@
+# /things was this site's old name for /blog. These kept the old URLs alive on
+# Vercel and stopped working the moment deploys moved to Cloudflare, so anything
+# still linking to a /things URL has been 404ing since. 301, so they transfer.
+/things /blog 301
+/things/* /blog/:splat 301
+/things-content/* /blog-content/:splat 301

@@ -11,3 +11,7 @@ compatibility_date = "2026-08-08"
 directory = "./dist"
 # Serve Astro's prerendered dist/404.html for unmatched paths.
 not_found_handling = "404-page"
+# Every canonical/og:url on the site is written without a trailing slash. The
+# default here is "auto-trailing-slash", which answered /blog with a 307 to
+# /blog/ — an extra hop to a URL the page itself declares non-canonical.
+html_handling = "drop-trailing-slash"
