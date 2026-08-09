@@ -391,6 +391,15 @@ const isHome = Astro.url.pathname === "/";
        from the bar's edge — pulling out by that much lines the panel's right
        edge up with the nav bar's own. */
     right: calc(-1 * var(--ui-pad));
+    /* Its containing block is the Contact summary, only about 90px wide, and
+       an absolutely positioned box with no width shrink-to-fits against that.
+       The address and the button are both nowrap, so rather than wrap they
+       were squeezed as flex items until the text overran its own padding and
+       "Copy" ran into the right edge. max-content sizes the panel to what it
+       actually wants, independent of the summary behind it. */
+    width: max-content;
+    /* ...but never wider than the screen it opens over. */
+    max-width: calc(100vw - var(--gap) * 2);
     padding: var(--ui-pad);
     border-radius: var(--pill);
     background: #fffdf8;
@@ -421,15 +430,42 @@ const isHome = Astro.url.pathname === "/";
          value rather than an em. */
       --label-nudge: 0.75px;
     }
+    /* The brand used to be hidden outright at this width, which meant the site
+       never named itself on a phone — including on the blog, where the bar is
+       the only thing identifying whose it is. It shows here now on the same
+       terms as everywhere else: collapsed only over the home hero, where the
+       page says "Hey, I'm Jonothan" in 3rem type directly underneath, and
+       present on every other page and once you scroll past it.
+
+       Smaller than the desktop 1.5rem, and the pills come back to 1rem from
+       1.05rem, so the whole bar still fits inside the gutters on a small
+       phone with the brand in it. */
     .brand {
-      display: none;
+      font-size: 1.25rem;
     }
     .nav-pill {
-      font-size: 1.05rem;
-      padding-inline: 0.7em;
+      font-size: 1rem;
+      padding-inline: 0.6em;
     }
     .contact__panel {
       right: -8px;
+    }
+  }
+
+  /* Below about 360px the bar with the brand in it is wider than the screen,
+     and a nav hanging off both edges is worse than one that doesn't name the
+     site. Only the oldest small phones are this narrow. */
+  @media (max-width: 359px) {
+    .brand {
+      display: none;
+    }
+
+    /* The panel is sized to its content and hangs off the right edge of the
+       Contact pill. On a bar this narrow that content is wider than the room
+       to the left of it, so it ran off the side of the screen. One step down
+       in type brings it back inside without letting the address wrap. */
+    .contact__panel :global(.copy) {
+      font-size: 0.9rem;
     }
   }
 </style>
