@@ -333,6 +333,24 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
     }
   }
 
+  /* In one column this panel sits in the same vertical run as the work cards,
+     where h2-sized type over 32px of padding made it tower over them. Pulled
+     back to card proportions — the height stays at the cards' 320px so the
+     column keeps an even rhythm. */
+  @media (max-width: 767px) {
+    .contact {
+      padding: 24px;
+    }
+
+    .contact h2 {
+      font-size: 1.75rem;
+    }
+
+    .contact__body .lede {
+      font-size: 1.125rem;
+    }
+  }
+
   /* Tighter between heading and copy than between copy and button, so the
      text reads as one block with the action set apart from it. */
   .contact__body {

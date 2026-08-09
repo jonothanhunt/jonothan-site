@@ -4,12 +4,17 @@ const year = new Date().getFullYear();
 
 <footer class="site-foot">
   <div class="shell">
-    <span>&copy; {year} Jonothan Hunt</span>
-    <a href="mailto:hey@jonothan.dev">hey@jonothan.dev</a>
-    <a href="https://uk.linkedin.com/in/jonothanhunt" rel="me noopener"
-      >LinkedIn</a
-    >
-    <a href="https://github.com/jonothanhunt" rel="me noopener">GitHub</a>
-    <a href="/rss.xml">RSS</a>
+    <span class="site-foot__copy">&copy; {year} Jonothan Hunt</span>
+    <!-- Grouped so the copyright can take its own line on narrow screens. On
+         desktop this wrapper is display:contents, so the links stay direct
+         flex children and the row is exactly as it was. -->
+    <div class="site-foot__links">
+      <a href="mailto:hey@jonothan.dev">hey@jonothan.dev</a>
+      <a href="https://uk.linkedin.com/in/jonothanhunt" rel="me noopener"
+        >LinkedIn</a
+      >
+      <a href="https://github.com/jonothanhunt" rel="me noopener">GitHub</a>
+      <a href="/rss.xml">RSS</a>
+    </div>
   </div>
 </footer>

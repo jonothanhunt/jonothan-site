@@ -159,8 +159,15 @@ const t = image ? await bottomTint(image) : null;
     margin-top: 0.25em;
   }
 
-  .card--feature .card__text h3 {
-    font-size: var(--t-card-feature);
+  /* Feature type only where the card is actually a feature. Below 768px the
+     grid collapses to one column and this card stops spanning anything — the
+     span rule in index.astro starts at that same width — so it becomes just
+     another item in a vertical list. Keeping the larger heading there made the
+     first card read as a different component from the ones under it. */
+  @media (min-width: 768px) {
+    .card--feature .card__text h3 {
+      font-size: var(--t-card-feature);
+    }
   }
 
   @media (hover: hover) {

@@ -392,6 +392,36 @@ button.pill {
   color: inherit;
 }
 
+/* Transparent to layout, so the links remain flex children of .shell and the
+   footer is one centred row exactly as before. */
+.site-foot__links {
+  display: contents;
+}
+
+@media (max-width: 767px) {
+  .site-foot .shell {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Now a real box, holding the links as inline content so text-wrap can
+     balance them: four links across one line is too wide to read on a phone,
+     and letting them wrap naturally left three on the first line and a lone
+     one stranded underneath. Balancing splits them evenly instead. The
+     max-width is what forces the second line in the first place. */
+  .site-foot__links {
+    display: block;
+    max-width: 32ch;
+    margin-inline: auto;
+    text-wrap: balance;
+  }
+
+  .site-foot__links a {
+    display: inline-block;
+    margin: 4px 10px;
+  }
+}
+
 .skip {
   position: absolute;
   left: -9999px;
