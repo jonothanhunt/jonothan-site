@@ -257,6 +257,56 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
     }
   }
 
+  /* Mobile: there's no width for the photo to fade across, so instead of
+     sitting behind the copy it becomes a band across the top and the greeting
+     starts underneath it. The band dissolves over its own bottom third, and
+     the copy begins just inside that fade, so the last of the photo passes
+     behind the top of the text rather than stopping on an edge above it. */
+  @media (max-width: 767px) {
+    .page-photo {
+      display: block;
+      position: absolute;
+      inset: 0 0 auto;
+      /* Tall enough to hold a whole figure rather than a cropped strip —
+         anything under about 35vh reads as a banner. */
+      height: 42vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .page-photo__pic {
+      display: contents;
+    }
+
+    .page-photo__img {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      object-fit: cover;
+      /* Desktop's `right center` pins me to the very edge once the frame is
+         only a phone wide. Just inside that, and lifted, keeps both me and the
+         audience in shot. */
+      object-position: 72% 35%;
+    }
+
+    .page-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      /* Reaches solid paper at 96%, a little above the band's bottom edge, so
+         the photo is fully gone before the greeting starts rather than showing
+         through behind it. */
+      background: linear-gradient(
+        to bottom,
+        transparent 45%,
+        rgb(var(--paper-rgb) / 0.4) 65%,
+        rgb(var(--paper-rgb) / 0.88) 84%,
+        rgb(var(--paper-rgb)) 96%
+      );
+    }
+  }
+
   /* No card, no panel — the copy sits directly on the page over the photo. */
   /* 128px of it above: the original's py-20 plus the h-12 spacer that nudges
      the centred copy down past the floating nav. */
@@ -266,6 +316,19 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
     flex-direction: column;
     justify-content: center;
     padding-block: 128px 80px;
+  }
+
+  /* Must come after the rule above: a media query adds no specificity, so
+     placing this with the rest of the mobile hero block — which sits earlier
+     in this stylesheet — let the 128px win and the copy never moved. */
+  @media (max-width: 767px) {
+    .hero {
+      min-height: 0;
+      /* Just short of the 42vh band, so the greeting starts in the last of the
+         fade and the photo passes behind its top edge instead of stopping on a
+         line above it. */
+      padding-block: 38vh 48px;
+    }
   }
 
   .hero__body {
@@ -280,6 +343,17 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   @media (min-width: 768px) {
     .hero__body {
       padding-inline-start: 40px;
+    }
+  }
+
+  /* The indent above is a desktop device: it holds the copy off the left edge
+     so it reads as sitting *within* the photo behind it. In one column there's
+     no photo behind the copy any more, so it just left the greeting floating
+     32px in from everything under it. Flush to the shell gutter instead, so
+     the hero starts on the same line as the cards below. */
+  @media (max-width: 767px) {
+    .hero__body {
+      padding-inline-start: 0;
     }
   }
 
