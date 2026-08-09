@@ -10,8 +10,6 @@
 <div class="desk" data-desk aria-hidden="true"></div>
 
 <script>
-  const mount = document.querySelector<HTMLElement>("[data-desk]");
-
   const capable = () => {
     const nav = navigator as Navigator & {
       deviceMemory?: number;
@@ -53,7 +51,15 @@
     (window as any).__vite_plugin_react_preamble_installed__ = true;
   }
 
-  if (mount && capable()) {
+  // Held across navigations so leaving the home page can tear the scene down
+  // rather than leaving a WebGL context and a render loop attached to a node
+  // that has already been swapped out.
+  let dispose: (() => void) | null = null;
+
+  function init() {
+    const mount = document.querySelector<HTMLElement>("[data-desk]");
+    if (!mount || !capable()) return;
+
     let started = false;
     const start = () => {
       if (started) return;
@@ -61,7 +67,12 @@
       io.disconnect();
       reactRefreshPreamble()
         .then(() => import("../scenes/desk.jsx"))
-        .then((m) => m.mount(mount))
+        .then((m) => {
+          // Navigated away while the chunk was in flight — don't mount into
+          // a detached node.
+          if (!mount.isConnected) return;
+          dispose = m.mount(mount);
+        })
         // Surfaced rather than swallowed: a silent catch here is what hid
         // the preamble failure in the first place.
         .catch((err) => console.error("[desk] scene failed to load", err));
@@ -89,6 +100,16 @@
     );
     io.observe(mount);
   }
+
+  document.addEventListener("astro:page-load", init);
+
+  // Leaving the page: drop the scene before the DOM is swapped, so the WebGL
+  // context and its render loop go with it instead of lingering for the rest
+  // of the session.
+  document.addEventListener("astro:before-swap", () => {
+    dispose?.();
+    dispose = null;
+  });
 </script>
 
 <style>

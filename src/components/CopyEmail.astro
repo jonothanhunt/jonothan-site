@@ -37,25 +37,34 @@ const { variant = "bar" } = Astro.props;
 </div>
 
 <script>
-  // The only interactive script on the page. No framework, no dependencies.
-  document.querySelectorAll<HTMLButtonElement>(".copy__btn").forEach((btn) => {
-    const status = btn.querySelector("[data-status]");
-    btn.addEventListener("click", async () => {
-      // The label stays "Copy" throughout — the clipboard icon becoming a tick
-      // is the feedback, so the button never changes width mid-interaction.
-      try {
-        await navigator.clipboard.writeText(btn.dataset.copy ?? "");
-        btn.classList.add("done");
-        if (status) status.textContent = "Copied";
-      } catch {
-        if (status) status.textContent = "Copy failed";
-      }
-      setTimeout(() => {
-        btn.classList.remove("done");
-        if (status) status.textContent = "";
-      }, 1600);
+  // No framework, no dependencies. Runs on every astro:page-load because one
+  // of these lives in the persisted nav (already bound, skipped by the flag)
+  // and another is rendered fresh by the home page each time you arrive.
+  function bindCopyButtons() {
+    document.querySelectorAll<HTMLButtonElement>(".copy__btn").forEach((btn) => {
+      if (btn.dataset.bound !== undefined) return;
+      btn.dataset.bound = "";
+      const status = btn.querySelector("[data-status]");
+      btn.addEventListener("click", async () => {
+        // The label stays "Copy" throughout — the clipboard icon becoming a
+        // tick is the feedback, so the button never changes width
+        // mid-interaction.
+        try {
+          await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+          btn.classList.add("done");
+          if (status) status.textContent = "Copied";
+        } catch {
+          if (status) status.textContent = "Copy failed";
+        }
+        setTimeout(() => {
+          btn.classList.remove("done");
+          if (status) status.textContent = "";
+        }, 1600);
+      });
     });
-  });
+  }
+
+  document.addEventListener("astro:page-load", bindCopyButtons);
 </script>
 
 <style>

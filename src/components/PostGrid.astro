@@ -99,80 +99,106 @@ const options = [
   // Progressive enhancement, ~15 lines: keep the URL in step with whichever
   // row is open, and allow only one at a time. Without it the list still
   // works — this only adds shareable URLs and back-button support.
-  const rows = [...document.querySelectorAll<HTMLDetailsElement>("details.row")];
+  //
+  // Everything here re-runs on astro:page-load: with view transitions the
+  // module executes once, but this list is rebuilt from scratch each time you
+  // arrive at /blog, so the nodes these handlers bind to are new every visit.
+  const getRows = () => [
+    ...document.querySelectorAll<HTMLDetailsElement>("details.row"),
+  ];
 
   // --- Filter state lives in ?tag= so a filtered view can be linked ---
   // The filtering itself is still pure CSS; this only syncs the radio to the
   // URL, so it degrades to "shows everything" if the script never runs.
-  const radios = [
-    ...document.querySelectorAll<HTMLInputElement>('input[name="tag"]'),
-  ];
-
   const applyFromUrl = () => {
+    const radios = [
+      ...document.querySelectorAll<HTMLInputElement>('input[name="tag"]'),
+    ];
+    if (!radios.length) return;
     const tag = new URLSearchParams(location.search).get("tag") ?? "all";
     const hit = document.getElementById(`tag-${tag}`) as HTMLInputElement | null;
     (hit ?? radios[0]).checked = true;
   };
-  applyFromUrl();
 
-  radios.forEach((radio) => {
-    radio.addEventListener("change", () => {
-      if (!radio.checked) return;
-      const tag = radio.id.replace(/^tag-/, "");
-      const url = new URL(location.href);
-      if (tag === "all") url.searchParams.delete("tag");
-      else url.searchParams.set("tag", tag);
-      history.replaceState(null, "", url);
+  function init() {
+    const rows = getRows();
+    if (!rows.length) return;
+
+    const radios = [
+      ...document.querySelectorAll<HTMLInputElement>('input[name="tag"]'),
+    ];
+
+    applyFromUrl();
+
+    radios.forEach((radio) => {
+      radio.addEventListener("change", () => {
+        if (!radio.checked) return;
+        const tag = radio.id.replace(/^tag-/, "");
+        const url = new URL(location.href);
+        if (tag === "all") url.searchParams.delete("tag");
+        else url.searchParams.set("tag", tag);
+        history.replaceState(null, "", url);
+      });
     });
-  });
 
-  // Landing on /blog/<slug>: that row is already open server-side, so bring it
-  // into view. Instant rather than smooth — it's the initial state.
-  const landed = rows.find((r) => r.open);
-  if (landed) landed.scrollIntoView({ block: "start" });
+    // Landing on /blog/<slug>: that row is already open server-side, so bring it
+    // into view. Instant rather than smooth — it's the initial state.
+    const landed = rows.find((r) => r.open);
+    if (landed) landed.scrollIntoView({ block: "start" });
 
-  // Keep whichever filter is active when the path changes.
-  const withFilter = (path: string) => path + location.search;
+    // Keep whichever filter is active when the path changes.
+    const withFilter = (path: string) => path + location.search;
 
-  rows.forEach((row) => {
-    row.addEventListener("toggle", () => {
-      if (!row.open) {
-        if (location.pathname === `/blog/${row.id}`)
-          history.pushState(null, "", withFilter("/blog"));
-        return;
-      }
-      rows.forEach((other) => other !== row && (other.open = false));
-      history.pushState(null, "", withFilter(`/blog/${row.id}`));
-      row.scrollIntoView({ block: "start", behavior: "smooth" });
+    rows.forEach((row) => {
+      row.addEventListener("toggle", () => {
+        if (!row.open) {
+          if (location.pathname === `/blog/${row.id}`)
+            history.pushState(null, "", withFilter("/blog"));
+          return;
+        }
+        rows.forEach((other) => other !== row && (other.open = false));
+        history.pushState(null, "", withFilter(`/blog/${row.id}`));
+        row.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
     });
-  });
 
+    // Share: the native sheet where it exists, clipboard everywhere else.
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-share]")
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const url = new URL(btn.dataset.share!, location.origin).href;
+          const title = btn.dataset.title ?? document.title;
+          try {
+            if (navigator.share) await navigator.share({ title, url });
+            else {
+              await navigator.clipboard.writeText(url);
+              const was = btn.lastChild!.textContent;
+              btn.lastChild!.textContent = " Link copied";
+              setTimeout(() => (btn.lastChild!.textContent = was), 1600);
+            }
+          } catch {
+            /* user dismissed the sheet */
+          }
+        });
+      });
+  }
+
+  // Registered once, and reads the rows fresh each time it fires — the ones
+  // captured at bind time would be stale after any navigation.
+  //
+  // The view-transition router ignores popstate events whose state is null,
+  // which is exactly what the row toggles above push, so opening and closing
+  // rows still only moves this list and never triggers a page navigation.
   addEventListener("popstate", () => {
+    const rows = getRows();
+    if (!rows.length) return;
     const slug = location.pathname.replace(/^\/blog\/?/, "");
     rows.forEach((r) => (r.open = r.id === slug));
     applyFromUrl();
   });
 
-  // Share: the native sheet where it exists, clipboard everywhere else.
-  document
-    .querySelectorAll<HTMLButtonElement>("[data-share]")
-    .forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const url = new URL(btn.dataset.share!, location.origin).href;
-        const title = btn.dataset.title ?? document.title;
-        try {
-          if (navigator.share) await navigator.share({ title, url });
-          else {
-            await navigator.clipboard.writeText(url);
-            const was = btn.lastChild!.textContent;
-            btn.lastChild!.textContent = " Link copied";
-            setTimeout(() => (btn.lastChild!.textContent = was), 1600);
-          }
-        } catch {
-          /* user dismissed the sheet */
-        }
-      });
-    });
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>

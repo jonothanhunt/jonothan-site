@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import tids from "../data/atproto-tids.json";
@@ -107,6 +108,17 @@ const person = {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="Jonothan Hunt" href="/rss.xml" />
     <meta name="theme-color" content="#f6f1e8" />
+
+    <!-- Cross-fades between pages instead of tearing the document down and
+         rebuilding it, which is what made the nav snap on every navigation.
+         Pairs with transition:persist on the header, so the bar itself is
+         carried over untouched and its pills animate between states.
+
+         Because scripts are not re-executed on a client-side navigation, every
+         interactive component re-initialises on astro:page-load rather than on
+         module execution. Browsers without view transitions fall back to a
+         normal load, so nothing here is load-bearing. -->
+    <ClientRouter />
 
     <script
       type="application/ld+json"

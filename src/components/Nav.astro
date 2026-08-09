@@ -5,26 +5,40 @@ const isBlog = Astro.url.pathname.startsWith("/blog");
 const isHome = Astro.url.pathname === "/";
 ---
 
-<header class="site-head">
-  <nav aria-label="Main" data-nav data-home={isHome ? "" : undefined}>
+<!-- Persisted across navigations, so the bar is never torn down and rebuilt.
+     Without this the whole header is replaced on every page change and the
+     pills snap from one state to the next instead of animating between them.
+     The trade: this DOM no longer re-renders from the server after first load,
+     so every per-page class below is driven by the script's sync(). -->
+<header class="site-head" transition:persist>
+  <nav
+    aria-label="Main"
+    data-nav
+    data-home={isHome ? "" : undefined}
+    class:list={[isHome && "at-top"]}
+  >
     <!-- Collapsed while the hero is on screen (the big "Hey, I'm Jonothan"
-         already says it), sliding in once you scroll past. -->
+         already says it), sliding in once you scroll past. Home renders
+         collapsed from the server: applying `at-top` from JS after paint made
+         the brand animate shut on every single load. -->
     <a class="brand" href="/" data-brand>
       <span>Jonothan</span>
     </a>
 
-    <a class="nav-pill t-work" href="/#work" data-link="work">Work</a>
+    <a class="nav-pill t-work" href="/#work" data-link="work"
+      ><span>Work</span></a
+    >
 
     <a
       class:list={["nav-pill", "t-blog", isBlog && "on"]}
       href="/blog"
       data-link="blog"
-      aria-current={isBlog ? "page" : undefined}>Blog</a
+      aria-current={isBlog ? "page" : undefined}><span>Blog</span></a
     >
 
     <!-- Contact opens a panel in place. No page, no JS for the disclosure. -->
     <details class="contact">
-      <summary class="nav-pill t-contact">Contact</summary>
+      <summary class="nav-pill t-contact"><span>Contact</span></summary>
       <div class="contact__panel">
         <CopyEmail />
       </div>
@@ -32,28 +46,86 @@ const isHome = Astro.url.pathname === "/";
   </nav>
 </header>
 
+<script is:inline>
+  // Runs during parse, before first paint, and only on a cold load of /#work.
+  //
+  // Arriving at the work section — which is what "Work" does from any other
+  // page — used to paint with the pill inactive, because only the observer
+  // below could know the section was in view, and that runs a frame later.
+  // The pill then widened from 12px to 16px of padding and re-centred the
+  // entire bar in front of you. Setting it here means it is already active on
+  // the first frame, so there is nothing to animate and nothing to shift.
+  (function () {
+    if (location.hash !== "#work") return;
+    var nav = document.querySelector("[data-nav]");
+    if (!nav || nav.dataset.home === undefined) return;
+    var work = nav.querySelector('[data-link="work"]');
+    if (!work) return;
+    nav.classList.remove("at-top");
+    work.classList.add("on");
+    work.setAttribute("aria-current", "true");
+  })();
+</script>
+
 <script>
-  const nav = document.querySelector<HTMLElement>("[data-nav]");
+  // The bar is transition:persist'd, so this DOM outlives every navigation:
+  // nothing in it comes back from the server after the first load. Per-page
+  // state is therefore applied here, on each astro:page-load, and the handlers
+  // bound to the persisted nodes are bound exactly once.
 
-  // Close the contact panel on outside click or Escape.
-  const box = document.querySelector<HTMLDetailsElement>("details.contact");
-  if (box) {
-    addEventListener("click", (e) => {
-      if (box.open && !box.contains(e.target as Node)) box.open = false;
-    });
-    addEventListener("keydown", (e) => {
-      if (e.key === "Escape") box.open = false;
-    });
-  }
+  let observer: IntersectionObserver | null = null;
 
-  // Home only. One observer drives both the brand reveal and the Work
-  // highlight, so they happen on the same beat instead of competing for
-  // attention as you scroll. IntersectionObserver rather than a scroll
-  // handler, so there's no main-thread work while scrolling.
-  if (nav?.dataset.home !== undefined) {
-    const work = document.querySelector("#work");
+  /** Point the bar at whatever page we are now on. */
+  function sync() {
+    const nav = document.querySelector<HTMLElement>("[data-nav]");
+    if (!nav) return;
+
+    const isHome = location.pathname === "/";
+    const isBlog = location.pathname.startsWith("/blog");
     const workLink = nav.querySelector('[data-link="work"]');
+    const blogLink = nav.querySelector('[data-link="blog"]');
 
+    // Navigating with the panel open would leave it hanging over the new page.
+    const panel = nav.querySelector<HTMLDetailsElement>("details.contact");
+    if (panel) panel.open = false;
+
+    if (isHome) nav.dataset.home = "";
+    else delete nav.dataset.home;
+
+    blogLink?.classList.toggle("on", isBlog);
+    if (isBlog) blogLink?.setAttribute("aria-current", "page");
+    else blogLink?.removeAttribute("aria-current");
+
+    // One observer per home visit; drop the previous page's before rebinding.
+    observer?.disconnect();
+    observer = null;
+
+    if (!isHome) {
+      // Off the home page there is no work section to be inside of, and the
+      // brand is the only thing identifying the site, so it always shows.
+      workLink?.classList.remove("on");
+      workLink?.removeAttribute("aria-current");
+      nav.classList.remove("at-top");
+      return;
+    }
+
+    // Same reasoning as the inline script above, for client-side arrivals:
+    // land on /#work with the pill already active, so it never has to widen
+    // after the fact.
+    const atWork = location.hash === "#work";
+    nav.classList.toggle("at-top", !atWork);
+    workLink?.classList.toggle("on", atWork);
+    if (atWork) workLink?.setAttribute("aria-current", "true");
+    else workLink?.removeAttribute("aria-current");
+
+    const work = document.querySelector("#work");
+    if (!work || !workLink) return;
+
+    // One observer drives both the brand reveal and the Work highlight, so
+    // they happen on the same beat instead of competing for attention as you
+    // scroll. IntersectionObserver rather than a scroll handler, so there's no
+    // main-thread work while scrolling.
+    //
     // A single latch drives the whole bar: it flips once #work reaches the
     // middle of the viewport and then stays flipped for everything below,
     // because `boundingClientRect.top < 0` keeps reading true once the section
@@ -64,37 +136,64 @@ const isHome = Astro.url.pathname === "/";
     // re-centre the whole nav a second time, for no navigational gain — you
     // are still below the work section, and everything below it is the same
     // page. The brand rides the same latch so both move on one frame.
-    if (work && workLink) {
-      new IntersectionObserver(
-        ([e]) => {
-          const passed = e.isIntersecting || e.boundingClientRect.top < 0;
-          workLink.classList.toggle("on", passed);
-          if (passed) workLink.setAttribute("aria-current", "true");
-          else workLink.removeAttribute("aria-current");
-          nav.classList.toggle("at-top", !passed);
-        },
-        { rootMargin: "-45% 0px -45% 0px" },
-      ).observe(work);
-    }
+    observer = new IntersectionObserver(
+      ([e]) => {
+        const passed = e.isIntersecting || e.boundingClientRect.top < 0;
+        workLink.classList.toggle("on", passed);
+        if (passed) workLink.setAttribute("aria-current", "true");
+        else workLink.removeAttribute("aria-current");
+        nav.classList.toggle("at-top", !passed);
+      },
+      { rootMargin: "-45% 0px -45% 0px" },
+    );
+    observer.observe(work);
   }
 
-  // Smooth-scroll to #work only when we're already on the page. Arriving from
-  // another page should land there immediately — we've changed page anyway,
-  // and animating the whole document afterwards just feels slow.
-  nav?.querySelector('[data-link="work"]')?.addEventListener("click", (e) => {
-    if (location.pathname !== "/") return;
-    const target = document.querySelector("#work");
-    if (!target) return;
+  let bound = false;
+  /** Handlers on the persisted bar. Re-running these would stack duplicates. */
+  function bindOnce() {
+    if (bound) return;
+    bound = true;
 
-    e.preventDefault();
-    target.scrollIntoView({ behavior: "smooth" });
+    // Close the contact panel on outside click or Escape.
+    const box = document.querySelector<HTMLDetailsElement>("details.contact");
+    if (box) {
+      addEventListener("click", (e) => {
+        if (box.open && !box.contains(e.target as Node)) box.open = false;
+      });
+      addEventListener("keydown", (e) => {
+        if (e.key === "Escape") box.open = false;
+      });
+    }
 
-    // Writing a URL that carries a fragment cancels an in-flight smooth
-    // scroll, so only set the hash once the scroll has settled.
-    const setHash = () => history.pushState(null, "", "/#work");
-    if ("onscrollend" in window)
-      addEventListener("scrollend", setHash, { once: true });
-    else setTimeout(setHash, 700);
+    // Smooth-scroll to #work only when we're already on the page. Arriving
+    // from another page should land there immediately — we've changed page
+    // anyway, and animating the whole document afterwards just feels slow.
+    document
+      .querySelector('[data-nav] [data-link="work"]')
+      ?.addEventListener("click", (e) => {
+        if (location.pathname !== "/") return;
+        const target = document.querySelector("#work");
+        if (!target) return;
+
+        // Also stops the view-transition router taking this click, which is
+        // what we want: we are staying on the page and only scrolling.
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth" });
+
+        // Writing a URL that carries a fragment cancels an in-flight smooth
+        // scroll, so only set the hash once the scroll has settled.
+        const setHash = () => history.pushState(null, "", "/#work");
+        if ("onscrollend" in window)
+          addEventListener("scrollend", setHash, { once: true });
+        else setTimeout(setHash, 700);
+      });
+  }
+
+  // Fires on the first load as well as every navigation after it.
+  document.addEventListener("astro:page-load", () => {
+    bindOnce();
+    sync();
   });
 </script>
 
@@ -115,6 +214,18 @@ const isHome = Astro.url.pathname === "/";
      is behind it on every scroll frame; a solid fill and a static shadow cost
      nothing and read almost identically. */
   nav {
+    /* Lastik's ascent/descent overrides — set in global.css so the fallback
+       occupies the same space — leave its glyphs sitting high in the line box,
+       so flex centring lands every label above the optical middle of its pill.
+       Measured off the rendered bar: descender-free labels (Jonothan, Work,
+       Contact) sat 1.4–1.6px high, so one shared 1.5px correction centres them
+       all to within a sixth of a pixel. Blog gets the same value: you centre
+       on cap-height, not on whether a word happens to have a descender.
+
+       Applied to the label, never the pill, so the capsules and their
+       backgrounds stay exactly where they were. */
+    --label-nudge: 1.5px;
+
     pointer-events: auto;
     display: flex;
     align-items: center;
@@ -156,6 +267,13 @@ const isHome = Astro.url.pathname === "/";
       max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
       opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
       padding 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* display:block because transforms don't apply to non-replaced inlines. */
+  .brand span,
+  .nav-pill span {
+    display: block;
+    transform: translateY(var(--label-nudge));
   }
 
   .brand span {
@@ -265,6 +383,13 @@ const isHome = Astro.url.pathname === "/";
   }
 
   @media (max-width: 560px) {
+    nav {
+      /* Same measurement taken at the mobile pill size: the imbalance is
+         1.5px here rather than the 2.75px it is at 1rem, so the correction is
+         half of that. Not simply proportional to font-size, hence its own
+         value rather than an em. */
+      --label-nudge: 0.75px;
+    }
     .brand {
       display: none;
     }
