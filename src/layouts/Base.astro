@@ -106,16 +106,24 @@ const person = {
     <link rel="alternate" type="application/rss+xml" title="Jonothan Hunt" href="/rss.xml" />
     <meta name="theme-color" content="#f6f1e8" />
 
-    <!-- Cross-fades between pages instead of tearing the document down and
-         rebuilding it, which is what made the nav snap on every navigation.
-         Pairs with transition:persist on the header, so the bar itself is
-         carried over untouched and its pills animate between states.
+    <!-- Swaps the document instead of tearing it down and rebuilding it, which
+         is what made the nav snap on every navigation. Pairs with
+         transition:persist on the header, so the bar is carried over untouched
+         and its pills animate between states.
+
+         The page swap itself is deliberately not animated — global.css turns
+         the root view-transition animation off, because its cross-fade put a
+         grey wash between the two pages. The bar animating is the point; the
+         page changing should just happen.
+
+         fallback="none" for the same reason: a browser without native view
+         transitions does an ordinary navigation rather than Astro's JS
+         imitation of the same fade.
 
          Because scripts are not re-executed on a client-side navigation, every
          interactive component re-initialises on astro:page-load rather than on
-         module execution. Browsers without view transitions fall back to a
-         normal load, so nothing here is load-bearing. -->
-    <ClientRouter />
+         module execution. Nothing here is load-bearing. -->
+    <ClientRouter fallback="none" />
 
     <script
       type="application/ld+json"

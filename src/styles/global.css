@@ -422,6 +422,33 @@ button.pill {
   }
 }
 
+/* ============================================================
+   Page transitions — none. The router stays, the cross-fade goes.
+   ============================================================ */
+/* The view-transition router is here to keep the nav bar alive across pages,
+   not to animate the pages themselves. Its default cross-fade holds the old
+   and new snapshots on screen together, composited with plus-lighter; over a
+   full-bleed page in this paper colour that reads as a grey wash sitting
+   between the two pages rather than as a fade.
+   Turning the root animation off makes the swap itself instant. Everything the
+   bar does — the brand opening out, a pill lighting up — is an ordinary CSS
+   transition on the persisted element and is untouched by this, so the nav
+   still animates while the page under it simply changes. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* The group animation morphs the root box between the two pages. Both are
+   full-viewport, so it has nothing to move, but it still holds the transition
+   open for its duration — and while it runs the page on screen is a static
+   snapshot rather than the live document. With nothing left to animate the
+   transition finishes on the next frame, which is the point. */
+::view-transition-group(root) {
+  animation: none;
+}
+
 .skip {
   position: absolute;
   left: -9999px;
