@@ -197,9 +197,13 @@ const isHome = Astro.url.pathname === "/";
       });
     }
 
-    // Smooth-scroll to #work only when we're already on the page. Arriving
-    // from another page should land there immediately — we've changed page
-    // anyway, and animating the whole document afterwards just feels slow.
+    // Jump to #work when we're already on the page. This used to animate the
+    // scroll, which meant roughly half a second of travel between pressing
+    // Work and arriving at it — the same waiting-for-an-effect that the page
+    // transition was doing. It lands immediately now, which also removes the
+    // reason the hash had to be deferred: writing a URL with a fragment
+    // cancels an in-flight smooth scroll, so it had to wait for scrollend.
+    // With nothing in flight it can be written on the spot.
     document
       .querySelector('[data-nav] [data-link="work"]')
       ?.addEventListener("click", (e) => {
@@ -210,14 +214,8 @@ const isHome = Astro.url.pathname === "/";
         // Also stops the view-transition router taking this click, which is
         // what we want: we are staying on the page and only scrolling.
         e.preventDefault();
-        target.scrollIntoView({ behavior: "smooth" });
-
-        // Writing a URL that carries a fragment cancels an in-flight smooth
-        // scroll, so only set the hash once the scroll has settled.
-        const setHash = () => history.pushState(null, "", "/#work");
-        if ("onscrollend" in window)
-          addEventListener("scrollend", setHash, { once: true });
-        else setTimeout(setHash, 700);
+        target.scrollIntoView({ block: "start" });
+        history.pushState(null, "", "/#work");
       });
   }
 

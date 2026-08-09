@@ -158,7 +158,9 @@ const options = [
         }
         rows.forEach((other) => other !== row && (other.open = false));
         history.pushState(null, "", withFilter(`/blog/${row.id}`));
-        row.scrollIntoView({ block: "start", behavior: "smooth" });
+        // Instant, like the landing case above. Smooth-scrolling here put half
+        // a second between tapping a post and being able to read it.
+        row.scrollIntoView({ block: "start" });
       });
     });
 

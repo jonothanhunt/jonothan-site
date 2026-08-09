@@ -40,35 +40,46 @@ const fallback = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 </div>
 
 <script>
-  document.querySelectorAll<HTMLElement>(".yt").forEach((el) => {
-    const img = el.querySelector("img");
+  // Bound on every astro:page-load, not once at module execution. Scripts are
+  // not re-run on a client-side navigation, so arriving at a post through the
+  // router used to leave its embeds with no click handler at all — the poster
+  // was there and tapping it did nothing. The flag keeps a second pass from
+  // stacking a duplicate handler on an embed that already has one.
+  function bindEmbeds() {
+    document.querySelectorAll<HTMLElement>(".yt").forEach((el) => {
+      if (el.dataset.bound !== undefined) return;
+      el.dataset.bound = "";
+      const img = el.querySelector("img");
 
-    // Not every video has a maxres thumbnail. When it's missing YouTube serves
-    // a 120x90 placeholder, so swap to hqdefault and crop its letterboxing.
-    if (img) {
-      const useFallback = () => {
-        if (img.classList.contains("crop")) return;
-        img.classList.add("crop");
-        img.src = img.dataset.fallback ?? "";
-      };
-      img.addEventListener("error", useFallback);
-      img.addEventListener("load", () => {
-        if (img.naturalWidth < 320) useFallback();
+      // Not every video has a maxres thumbnail. When it's missing YouTube serves
+      // a 120x90 placeholder, so swap to hqdefault and crop its letterboxing.
+      if (img) {
+        const useFallback = () => {
+          if (img.classList.contains("crop")) return;
+          img.classList.add("crop");
+          img.src = img.dataset.fallback ?? "";
+        };
+        img.addEventListener("error", useFallback);
+        img.addEventListener("load", () => {
+          if (img.naturalWidth < 320) useFallback();
+        });
+        if (img.complete && img.naturalWidth && img.naturalWidth < 320)
+          useFallback();
+      }
+
+      el.querySelector("button")?.addEventListener("click", () => {
+        const f = document.createElement("iframe");
+        f.src = el.dataset.src ?? "";
+        f.title = "YouTube video";
+        f.allow =
+          "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
+        f.allowFullscreen = true;
+        el.replaceChildren(f);
       });
-      if (img.complete && img.naturalWidth && img.naturalWidth < 320)
-        useFallback();
-    }
-
-    el.querySelector("button")?.addEventListener("click", () => {
-      const f = document.createElement("iframe");
-      f.src = el.dataset.src ?? "";
-      f.title = "YouTube video";
-      f.allow =
-        "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
-      f.allowFullscreen = true;
-      el.replaceChildren(f);
     });
-  });
+  }
+
+  document.addEventListener("astro:page-load", bindEmbeds);
 </script>
 
 <style>

@@ -16,7 +16,11 @@ interface Props {
   loading?: "lazy" | "eager";
 }
 const { post, colour, open = false, loading = "lazy" } = Astro.props;
-const { title, date, excerpt, type, image, links } = post.data;
+// `excerpt` is deliberately not pulled in here. It still earns its keep as the
+// post's meta description and in the RSS feed, but the card shows only its
+// eyebrow and title — the summary text made every row taller and competed with
+// the headline it sat under.
+const { title, date, type, image, links } = post.data;
 
 // Slugged tags drive the CSS-only filter in PostGrid.
 const tagTokens = type.map(tagSlug).join(" ");
@@ -57,7 +61,6 @@ const t = image ? await bottomTint(image) : null;
         >
       </p>
       <h2>{title}</h2>
-      {excerpt && <p class="card__excerpt">{excerpt}</p>}
     </div>
   </summary>
 
@@ -180,12 +183,6 @@ const t = image ? await bottomTint(image) : null;
     font-size: var(--t-card-row);
   }
 
-  .card__excerpt {
-    margin-top: 0.6em;
-    max-width: 60ch;
-    opacity: 0.92;
-  }
-
   /* --- Body (revealed, sitting on the page background) --- */
   .body {
     padding-block: var(--post-pad);
@@ -211,23 +208,12 @@ const t = image ? await bottomTint(image) : null;
     stroke-linejoin: round;
   }
 
-  /* Animate open/close where supported. Elsewhere it simply snaps — no JS. */
-  @supports (interpolate-size: allow-keywords) {
-    .row::details-content {
-      block-size: 0;
-      overflow: hidden;
-      transition:
-        block-size 0.45s ease,
-        content-visibility 0.45s allow-discrete;
-    }
-
-    .row[open]::details-content {
-      block-size: auto;
-    }
-  }
+  /* Opening a row used to animate its height over 0.45s. That is the post
+     arriving — the thing you clicked for — so the animation was time spent
+     waiting to read rather than an effect worth having. It opens immediately
+     now. */
 
   @media (prefers-reduced-motion: reduce) {
-    .row::details-content,
     .card {
       transition: none;
     }

@@ -123,7 +123,26 @@ const person = {
          Because scripts are not re-executed on a client-side navigation, every
          interactive component re-initialises on astro:page-load rather than on
          module execution. Nothing here is load-bearing. -->
-    <ClientRouter fallback="none" />
+    <ClientRouter fallback="swap" />
+
+    <script>
+      // The router exists to keep the nav bar alive across pages, not to
+      // animate the pages. Turning the animation off in CSS was not enough:
+      // the transition still ran, holding both snapshots on screen for its
+      // duration, and any part of the incoming page not yet painted let the
+      // outgoing one show through — which is the ghosting between pages.
+      //
+      // skipTransition() ends the animation phase the moment Astro hands the
+      // transition over. The document swap still happens and persisted
+      // elements still survive it, but there is no animation and nothing is
+      // held on screen waiting for one. fallback="swap" above is the same
+      // deal for browsers with no native view transitions: swap instantly,
+      // keep the bar, animate nothing.
+      document.addEventListener("astro:before-swap", (e) => {
+        (e as { viewTransition?: { skipTransition?: () => void } })
+          .viewTransition?.skipTransition?.();
+      });
+    </script>
 
     <script
       type="application/ld+json"

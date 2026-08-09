@@ -515,7 +515,9 @@ button.pill {
 
 .eyebrow {
   font-size: 0.78rem;
-  font-weight: 700;
+  /* Not bold. Uppercase at this letter-spacing already reads as a label, and
+     the extra weight only put it in competition with the title underneath. */
+  font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   opacity: 0.75;
