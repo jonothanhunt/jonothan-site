@@ -294,14 +294,17 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
       content: "";
       position: absolute;
       inset: 0;
-      /* Reaches solid paper at 96%, a little above the band's bottom edge, so
-         the photo is fully gone before the greeting starts rather than showing
-         through behind it. */
+      /* Starts halfway up rather than at 45%, so the lower half of the band is
+         visibly dissolving instead of only the last third — a longer, softer
+         ramp that reads as the photo receding into the page. Still reaches
+         solid paper at 96%, above the band's bottom edge, so the photo is gone
+         before the greeting starts rather than showing through behind it. */
       background: linear-gradient(
         to bottom,
-        transparent 45%,
-        rgb(var(--paper-rgb) / 0.4) 65%,
-        rgb(var(--paper-rgb) / 0.88) 84%,
+        transparent 30%,
+        rgb(var(--paper-rgb) / 0.28) 50%,
+        rgb(var(--paper-rgb) / 0.62) 70%,
+        rgb(var(--paper-rgb) / 0.9) 86%,
         rgb(var(--paper-rgb)) 96%
       );
     }
@@ -324,10 +327,12 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   @media (max-width: 767px) {
     .hero {
       min-height: 0;
-      /* Just short of the 42vh band, so the greeting starts in the last of the
-         fade and the photo passes behind its top edge instead of stopping on a
-         line above it. */
-      padding-block: 38vh 48px;
+      /* Clear of the 42vh band rather than tucked into the last of its fade:
+         the greeting was sitting tight under the photo while a large gap ran
+         on below the awards. Moving it down puts that breathing room above the
+         copy, where it belongs, and the trimmed bottom padding closes the gap
+         underneath. */
+      padding-block: 46vh 24px;
     }
   }
 
@@ -371,6 +376,20 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   .hero__body .lede {
     color: var(--body-ink);
     text-wrap: balance;
+  }
+
+  /* Desktop's lede box is the 25rem body less its 40px indent — 360px, which
+     is exactly 15em at the 24px it sets in. Dropping that indent on mobile
+     made the box wider than 360px on a large phone, so the copy ran to fewer,
+     longer lines than the desktop it mirrors. Sizing the measure in em rather
+     than px pins it to the same characters-per-line at any width, so it breaks
+     on the same words on every phone, and the type can then come down for the
+     smaller screen without moving them. */
+  @media (max-width: 767px) {
+    .hero__body .lede {
+      font-size: 1.25rem;
+      max-width: 15em;
+    }
   }
 
   .hero__body .lede a {
