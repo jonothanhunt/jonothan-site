@@ -180,11 +180,33 @@ const isHome = Astro.url.pathname === "/";
     }
   }
 
+  /**
+   * Publish the brand's real width so its reveal can animate to exactly that
+   * and finish on the same frame as its fade, rather than to a round number
+   * the word stops short of.
+   *
+   * getBoundingClientRect, not offsetWidth: the parent clips this element when
+   * the bar is closed, but clipping is only visual — the box keeps its true
+   * width, so this reads correctly whether the brand is open or shut.
+   */
+  function measureBrand() {
+    const nav = document.querySelector<HTMLElement>("[data-nav]");
+    const span = nav?.querySelector("[data-brand] span");
+    if (!nav || !span) return;
+    const w = Math.ceil(span.getBoundingClientRect().width);
+    if (w > 0) nav.style.setProperty("--brand-w", `${w}px`);
+  }
+
   let bound = false;
   /** Handlers on the persisted bar. Re-running these would stack duplicates. */
   function bindOnce() {
     if (bound) return;
     bound = true;
+
+    // The brand sets at a smaller size below 560px, so its width changes when
+    // the window does — rotating a phone across that line would otherwise
+    // leave the reveal animating to a stale measurement.
+    addEventListener("resize", measureBrand, { passive: true });
 
     // Close the contact panel on outside click or Escape.
     const box = document.querySelector<HTMLDetailsElement>("details.contact");
@@ -222,6 +244,10 @@ const isHome = Astro.url.pathname === "/";
   // Fires on the first load as well as every navigation after it.
   document.addEventListener("astro:page-load", () => {
     bindOnce();
+    measureBrand();
+    // The display face loads after first paint, and the word is a different
+    // width in the fallback, so the first measurement is of the wrong font.
+    document.fonts?.ready.then(measureBrand);
     sync();
   });
 </script>
@@ -283,19 +309,25 @@ const isHome = Astro.url.pathname === "/";
     letter-spacing: -0.01em;
     text-decoration: none;
     color: var(--heading);
-    /* Width and opacity animate; nothing else reflows around it. A plain
-       ease-in-out reads as calm next to the Work pill lighting up at the
-       same moment. */
-    max-width: 8em;
+    /* --brand-w is measured and written by the script below: the exact width
+       this word occupies, padding included.
+       It used to open to a flat 8em. At the size the brand actually sets, that
+       is 160px for a word 100px wide — so the max-width curve spent its last
+       38% moving a limit the content had already stopped following. The word
+       reached full size around 300ms while opacity and padding ran on to
+       700ms, which is why the reveal read as one animation followed by a
+       second. Animating to the true width lands all of it on the same frame.
+       The 8em fallback only applies if the script has not measured yet. */
+    max-width: var(--brand-w, 8em);
     opacity: 1;
-    padding-inline: 10px 8px;
-    /* The original's timing: 700ms on width and opacity together, on the
-       standard ease-in-out. It reads calmer than a fast-out curve because the
-       word grows and fades on exactly the same beat. */
+    /* Padding lives on the span, so this element animates exactly one
+       layout-affecting property instead of two. Both max-width and padding
+       force the bar to re-lay-out and repaint its shadow every frame, and
+       that shadow is a 48px blur — the most expensive thing here. Halving
+       that work is most of what makes the reveal smooth on a phone. */
     transition:
-      max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-      padding 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* display:block because transforms don't apply to non-replaced inlines. */
@@ -305,8 +337,11 @@ const isHome = Astro.url.pathname === "/";
     transform: translateY(var(--label-nudge));
   }
 
+  /* Was on .brand. Here it is clipped away with the word itself as the parent
+     closes, so it needs no animation of its own. */
   .brand span {
     white-space: nowrap;
+    padding-inline: 10px 8px;
   }
 
   /* Fades to 0.1 rather than 0, as the original does — the word is still
@@ -314,7 +349,6 @@ const isHome = Astro.url.pathname === "/";
   nav.at-top .brand {
     max-width: 0;
     opacity: 0.1;
-    padding-inline: 0;
   }
 
   /* Inactive sits at the narrower padding; active widens into a tinted
