@@ -64,6 +64,22 @@ const track = [...half, ...half];
     );
   }
 
+  /* On a phone the strip breaks out of the page gutter and runs to both edges
+     of the screen, and the mask comes off with it.
+     The fade exists to disguise logos being cut in half where the strip stops
+     short of the edge — with a margin beside it, a hard clip looks like a
+     mistake. Once the strip ends at the edge of the glass there is nothing to
+     disguise: the screen is the boundary, and logos passing off it read as a
+     marquee continuing rather than as content being chopped. The moment there
+     is a margin either side again, above this width, the fade comes back. */
+  @media (max-width: 767px) {
+    .strip {
+      margin-inline: calc(-1 * var(--gap));
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+
   ul {
     display: flex;
     align-items: center;

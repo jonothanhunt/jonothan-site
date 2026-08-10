@@ -327,12 +327,12 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   @media (max-width: 767px) {
     .hero {
       min-height: 0;
-      /* Clear of the 42vh band rather than tucked into the last of its fade:
-         the greeting was sitting tight under the photo while a large gap ran
-         on below the awards. Moving it down puts that breathing room above the
-         copy, where it belongs, and the trimmed bottom padding closes the gap
-         underneath. */
-      padding-block: 46vh 24px;
+      /* Just inside the 42vh band, so the greeting starts in the last of the
+         fade and the photo carries behind its top edge. Pulling it up from
+         46vh closes the gap that had opened between the two and hands the
+         height back to the work grid, which now shows properly at the bottom
+         of the screen instead of only hinting at itself. */
+      padding-block: 41vh 24px;
     }
   }
 
@@ -378,17 +378,24 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
     text-wrap: balance;
   }
 
-  /* Desktop's lede box is the 25rem body less its 40px indent — 360px, which
-     is exactly 15em at the 24px it sets in. Dropping that indent on mobile
-     made the box wider than 360px on a large phone, so the copy ran to fewer,
-     longer lines than the desktop it mirrors. Sizing the measure in em rather
-     than px pins it to the same characters-per-line at any width, so it breaks
-     on the same words on every phone, and the type can then come down for the
-     smaller screen without moving them. */
+  /* This measure used to be pinned to 15em so the copy broke on exactly the
+     same words as desktop. It did, but at the cost of 114px of empty column to
+     its right on a phone — a third of the line spent holding the break points
+     of a layout nobody is looking at on that screen. Letting it use the width
+     is the better trade: three lines instead of four, no dead margin, and
+     "developer." now completes its sentence on the first line.
+
+     The cap only exists to stop the measure running away on a landscape phone
+     or a small tablet; at any width you would hold in one hand it never
+     binds, and the line lengths come from text-wrap: balance instead. */
   @media (max-width: 767px) {
+    .hero__body {
+      max-width: none;
+    }
+
     .hero__body .lede {
       font-size: 1.25rem;
-      max-width: 15em;
+      max-width: 34em;
     }
   }
 

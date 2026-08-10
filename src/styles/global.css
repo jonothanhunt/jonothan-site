@@ -123,6 +123,17 @@
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* A wider gutter on phones. 16px was measured against a desktop layout that
+   also has the window's own margins around it; on a screen where the gutter is
+   the only thing between the content and the edge of the glass, it read as
+   cramped. Set here rather than on the hero alone so every column on the page
+   — hero copy, cards, footer — keeps starting on the same line. */
+@media (max-width: 767px) {
+  :root {
+    --gap: 24px;
+  }
+}
+
 /* The original steps once, at Tailwind's `md`. Everything above that is the
    size it was designed at rather than a function of the window. */
 @media (min-width: 768px) {
