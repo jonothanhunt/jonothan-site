@@ -39,7 +39,15 @@ const { Content } = open ? await render(post) : { Content: null };
 // looks like the row expanding, which is what it used to be.
 const Row = open ? "details" : "a";
 const Head = open ? "summary" : "div";
-const rowProps = open ? { open: true } : { href: `/blog/${post.id}` };
+// The site prefetches on hover, which binds mouseenter and focusin — neither of
+// which a phone ever fires, so on touch these cards were fetched only once
+// tapped. Viewport prefetching warms each card as it scrolls into view, which
+// on a phone is one or two at a time, so a tap opens something already in
+// cache. That is what buys back the instant feel of the body having been in
+// the page all along, without the page having to carry it.
+const rowProps = open
+  ? { open: true }
+  : { href: `/blog/${post.id}`, "data-astro-prefetch": "viewport" };
 
 // Sampled from the image's lower band at build time.
 const t = image ? await bottomTint(image) : null;
