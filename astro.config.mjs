@@ -10,7 +10,27 @@ export default defineConfig({
   site: "https://jonothan.dev",
 
   // React is pulled in only by the one 3D island; every other page ships zero JS.
-  integrations: [mdx(), sitemap(), react()],
+  integrations: [
+    mdx(),
+    sitemap({
+      // Every canonical and og:url on the site is written without a trailing
+      // slash, and Cloudflare redirects the slashed form to it — but the
+      // sitemap was emitting the slashed form, so every URL submitted to Google
+      // was one that redirects. That is most of what Search Console was
+      // reporting under "Page with redirect", and it was us telling it to.
+      //
+      // Normalised to match the canonical exactly. The root keeps its slash,
+      // because that is what its own canonical says; every other path loses
+      // one. Done here rather than via the trailingSlash config, which the
+      // integration applies after this and which also strips the root.
+      serialize: (item) => {
+        const url = new URL(item.url);
+        if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/$/, "");
+        return { ...item, url: url.href };
+      },
+    }),
+    react(),
+  ],
 
   // Hover-prefetch internal links. ~1.6kB of JS that makes navigation feel instant.
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
