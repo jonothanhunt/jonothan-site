@@ -121,8 +121,13 @@ const options = [
   };
 
   function init() {
+    // Guard on the list, not on open rows. /blog now carries no <details> at
+    // all — every card there is a link to its own page — so keying off those
+    // would skip the filter and share wiring on the one page that needs it.
+    if (!document.querySelector(".row")) return;
+
+    // Zero on /blog, one on a post page.
     const rows = getRows();
-    if (!rows.length) return;
 
     const radios = [
       ...document.querySelectorAll<HTMLInputElement>('input[name="tag"]'),
@@ -149,18 +154,13 @@ const options = [
     // Keep whichever filter is active when the path changes.
     const withFilter = (path: string) => path + location.search;
 
+    // Only the open post is a <details>, so this is about collapsing it rather
+    // than choosing between rows — opening another is a link now, and a real
+    // navigation. Closing puts the URL back to the list it came from.
     rows.forEach((row) => {
       row.addEventListener("toggle", () => {
-        if (!row.open) {
-          if (location.pathname === `/blog/${row.id}`)
-            history.pushState(null, "", withFilter("/blog"));
-          return;
-        }
-        rows.forEach((other) => other !== row && (other.open = false));
-        history.pushState(null, "", withFilter(`/blog/${row.id}`));
-        // Instant, like the landing case above. Smooth-scrolling here put half
-        // a second between tapping a post and being able to read it.
-        row.scrollIntoView({ block: "start" });
+        if (!row.open && location.pathname === `/blog/${row.id}`)
+          history.pushState(null, "", withFilter("/blog"));
       });
     });
 

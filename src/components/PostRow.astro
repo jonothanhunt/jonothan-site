@@ -25,16 +25,28 @@ const { title, date, type, image, links } = post.data;
 // Slugged tags drive the CSS-only filter in PostGrid.
 const tagTokens = type.map(tagSlug).join(" ");
 
-// The whole post is rendered here, at build time. Opening a row reveals HTML
-// that is already on the page — no request, no import, no loading state.
-const { Content } = await render(post);
+// Only the open row renders its article. Every row used to render its whole
+// post into every page, so each of the eleven blog URLs carried all ten of
+// them: 91% of the HTML was posts you were not reading, it grew with every
+// post written, and Google saw eleven documents with identical text and threw
+// most of them away.
+const { Content } = open ? await render(post) : { Content: null };
+
+// So a closed row is a link to its own page, and the open one is the expanded
+// article. Swapping the wrapper element rather than writing the card twice.
+// As a link it still works with no JavaScript, and the router turns it into a
+// client-side swap — with the card prefetched on hover, arriving at the post
+// looks like the row expanding, which is what it used to be.
+const Row = open ? "details" : "a";
+const Head = open ? "summary" : "div";
+const rowProps = open ? { open: true } : { href: `/blog/${post.id}` };
 
 // Sampled from the image's lower band at build time.
 const t = image ? await bottomTint(image) : null;
 ---
 
-<details class="row" open={open} id={post.id} data-tags={tagTokens}>
-  <summary
+<Row class="row" id={post.id} data-tags={tagTokens} {...rowProps}>
+  <Head
     class:list={["card", `block block--${colour}`]}
     style={t && `--tint:${t.tint};--on-tint:${t.ink}`}
   >
@@ -62,9 +74,10 @@ const t = image ? await bottomTint(image) : null;
       </p>
       <h2>{title}</h2>
     </div>
-  </summary>
+  </Head>
 
   <!-- Sits below the card, directly on the page background — no panel. -->
+  {Content && (
   <article class="body">
     <Prose>
       <Content components={{ YouTube, TikTok, Video, CodeDemo }} />
@@ -100,11 +113,20 @@ const t = image ? await bottomTint(image) : null;
       </button>
     </footer>
   </article>
-</details>
+  )}
+</Row>
 
 <style>
   .row {
     scroll-margin-top: var(--nav-space);
+  }
+
+  /* A closed row is an anchor rather than a details, so it needs a block box
+     and none of a link's own styling — the card inside is the whole control. */
+  a.row {
+    display: block;
+    text-decoration: none;
+    color: inherit;
   }
 
   /* See Card.astro — the <picture> wrapper must not become a flex item. */
