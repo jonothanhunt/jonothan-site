@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Loaded in an iframe by the progressive-blur post, not a page in its own
+         right: no canonical, no description, and two of the three share a
+         title. Crawlable so this tag is seen, but kept out of the index. -->
+    <meta name="robots" content="noindex" />
     <title>Progressive Blur with Scroll Fade</title>
 
     <link rel="stylesheet" href="styles.css" />
