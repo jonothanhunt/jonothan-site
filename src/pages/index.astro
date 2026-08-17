@@ -33,13 +33,13 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
 
 ---
 
-{/* Its own description rather than the site-wide fallback. The fallback is
-    almost word for word the intro paragraph below, and a description that only
-    repeats the visible text gives Google no reason to prefer it — which is how
-    the snippet ended up being assembled out of the page instead. */}
+{/* Deliberately the same words as the intro below. Google may still extend or
+    replace it — that is its call, not ours — but this is the sentence to start
+    from, and the two fixes that matter for how it reads are elsewhere: the
+    space inside the heading, and data-nosnippet around the awards. */}
 <Base
   title="Jonothan Hunt"
-  description="I'm Jonothan Hunt, a creative technologist and developer leading Creative Innovation at VML UK. I build AR, real-time 3D and interactive work for brands."
+  description="Creative technologist and developer. Lead Creative Innovation at VML UK. Part of WPP Innovation"
 >
   <!-- The photo is the top of the page itself, not a card: full width, 80vh,
        fading out to the right and down into the background. Desktop only —
