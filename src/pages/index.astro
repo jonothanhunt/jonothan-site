@@ -33,7 +33,14 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
 
 ---
 
-<Base title="Jonothan Hunt">
+{/* Its own description rather than the site-wide fallback. The fallback is
+    almost word for word the intro paragraph below, and a description that only
+    repeats the visible text gives Google no reason to prefer it — which is how
+    the snippet ended up being assembled out of the page instead. */}
+<Base
+  title="Jonothan Hunt"
+  description="I'm Jonothan Hunt, a creative technologist and developer leading Creative Innovation at VML UK. I build AR, real-time 3D and interactive work for brands."
+>
   <!-- The photo is the top of the page itself, not a card: full width, 80vh,
        fading out to the right and down into the background. Desktop only —
        on a narrow screen it would sit behind the copy with nowhere to fade. -->
@@ -56,12 +63,26 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   <div class="shell stack">
     <section class="hero">
       <div class="hero__body">
-        <h1><span>Hey, I&rsquo;m</span><span>Jonothan.</span></h1>
+        {/* The trailing space belongs inside the span, not between the two.
+            These are flex items, so a whitespace node between them is thrown
+            away — and anything reading the rendered text, Google included, got
+            "I'mJonothan". That is how the search snippet came to read that way.
+            Inside the span it survives extraction, and costs nothing visually:
+            it is trailing whitespace at the end of a line box. */}
+        <h1><span>Hey, I&rsquo;m{" "}</span><span>Jonothan.</span></h1>
         <p class="lede">
           Creative technologist and developer. Lead Creative Innovation at <a
             href="https://www.vml.com/united-kingdom">VML UK</a
           >. Part of <a href="https://www.wpp.com">WPP</a> Innovation
         </p>
+        {/* data-nosnippet: these are award icons, and their alt text is what
+            put "Cannes Lions Grand Prix D&AD" in the middle of the search
+            snippet — Google was stitching it in between the intro and the
+            contact heading. The alt text stays, because it is what a screen
+            reader announces and what the links are worth; it is only excluded
+            from snippet building. Google honours this on div, span and section,
+            so the list is wrapped rather than tagged directly. */}
+        <div data-nosnippet>
         <ul class="awards">
           <li>
             <a
@@ -85,6 +106,7 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
             </a>
           </li>
         </ul>
+        </div>
       </div>
     </section>
 
