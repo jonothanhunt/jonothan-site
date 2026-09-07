@@ -118,7 +118,7 @@ async function processMdxFile(filePath) {
     });
   });
 
-  const result = await processor.process(content);
+  const result = await processor.process(bodyContent);
   const markdownBody = String(result).trim();
 
   // Construct the Standard.site Document payload
