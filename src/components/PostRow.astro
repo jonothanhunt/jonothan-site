@@ -52,12 +52,10 @@ const t = image ? await bottomTint(image) : null;
     }
     <div class="card__text">
       <p class="eyebrow">
-        {`${type.join(" · ")} · `}<time datetime={date.toISOString()}
-          >{formatDate(date)}</time
-        >
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        {type.length > 0 ? ` · ${type.join(" · ")}` : ""}
       </p>
       <h2>{title}</h2>
-      {excerpt && <p class="card__excerpt">{excerpt}</p>}
     </div>
   </summary>
 
@@ -180,11 +178,6 @@ const t = image ? await bottomTint(image) : null;
     font-size: var(--t-card-row);
   }
 
-  .card__excerpt {
-    margin-top: 0.6em;
-    max-width: 60ch;
-    opacity: 0.92;
-  }
 
   /* --- Body (revealed, sitting on the page background) --- */
   .body {
