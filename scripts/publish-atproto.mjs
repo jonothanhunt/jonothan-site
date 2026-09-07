@@ -63,6 +63,7 @@ async function processMdxFile(filePath) {
   const fileUrl = `${SITE_URL}/blog/${slug}`;
 
   let plainTextDesc = '';
+  let bodyContent = content.replace(/^---[\s\S]+?---\n*/, '');
 
   // Process the Markdown AST
   const processor = remark().use(remarkMdx).use(() => (tree) => {
