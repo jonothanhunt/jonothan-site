@@ -6,7 +6,7 @@ const isHome = Astro.url.pathname === "/";
 ---
 
 <header class="site-head">
-  <nav aria-label="Main" data-nav data-home={isHome ? "" : undefined}>
+  <nav class:list={{ "at-top": isHome }} aria-label="Main" data-nav data-home={isHome ? "" : undefined}>
     <!-- Collapsed while the hero is on screen (the big "Hey, I'm Jonothan"
          already says it), sliding in once you scroll past. -->
     <a class="brand" href="/" data-brand>
