@@ -196,7 +196,8 @@ async function main() {
         $type: 'site.standard.publication',
         ...(iconBlobRef ? { icon: iconBlobRef } : {}),
 
-        url: SITE_URL,
+        url: `${SITE_URL}/blog`,
+        // Changed to /blog so 'View Publication' links to the blog index instead of the root homepage
         name: 'Jonothan Hunt',
         description: 'Jonothan Hunt\'s Blog',
         preferences: {
