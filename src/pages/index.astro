@@ -33,7 +33,10 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
 
 ---
 
-<Base title="Jonothan Hunt">
+<Base
+  title="Jonothan Hunt"
+  description="Creative technologist and developer. Lead Creative Innovation at VML UK. Part of WPP Innovation"
+>
   <!-- The photo is the top of the page itself, not a card: full width, 80vh,
        fading out to the right and down into the background. Desktop only —
        on a narrow screen it would sit behind the copy with nowhere to fade. -->
@@ -56,35 +59,49 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   <div class="shell stack">
     <section class="hero">
       <div class="hero__body">
-        <h1><span>Hey, I&rsquo;m</span><span>Jonothan.</span></h1>
+        <!-- The space belongs inside the first span: the h1 is a flex column,
+             and a flex container throws away whitespace-only text nodes
+             between its items, so a space left between the spans would make
+             the heading's text content read "Hey, I'mJonothan." to anything
+             reading the markup rather than looking at it — screen readers,
+             copy-paste, search results. At the end of a flex line it renders
+             as nothing. -->
+        <h1><span>Hey, I&rsquo;m{" "}</span><span>Jonothan.</span></h1>
         <p class="lede">
           Creative technologist and developer. Lead Creative Innovation at <a
             href="https://www.vml.com/united-kingdom">VML UK</a
           >. Part of <a href="https://www.wpp.com">WPP</a> Innovation
         </p>
-        <ul class="awards">
-          <li>
-            <a
-              href="https://www.lovethework.com/directory/individuals/jono-hunt-750043"
-            >
-              <Image src={grandPrix} alt="Cannes Lions Grand Prix" width={40} />
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
-            >
-              <Image src={pencil} alt="D&AD New Blood White Pencil" width={30} />
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
-            >
-              <Image src={drum} alt="The Drum award" width={34} />
-            </a>
-          </li>
-        </ul>
+        <!-- The alt text on these three is for anyone who can't see them, not
+             for a search result. Left snippetable, Google is liable to append
+             "Cannes Lions Grand Prix D&AD New Blood White Pencil The Drum
+             award" to the description as a run of loose phrases. data-nosnippet
+             is only honoured on div, span and section, hence the wrapper. -->
+        <div data-nosnippet>
+          <ul class="awards">
+            <li>
+              <a
+                href="https://www.lovethework.com/directory/individuals/jono-hunt-750043"
+              >
+                <Image src={grandPrix} alt="Cannes Lions Grand Prix" width={40} />
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.dandad.org/profiles/person/202333/jonothan-hunt/"
+              >
+                <Image src={pencil} alt="D&AD New Blood White Pencil" width={30} />
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
+              >
+                <Image src={drum} alt="The Drum award" width={34} />
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
