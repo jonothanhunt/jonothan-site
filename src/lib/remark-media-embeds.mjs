@@ -7,6 +7,8 @@ const MATCHERS = [
 
 const embedName = (url) => MATCHERS.find(([re]) => re.test(url))?.[1] ?? null;
 
+const VIDEO_FILE = /\.(mp4|webm|mov)(\?.*)?$/i;
+
 /** The URL a node represents, if it is nothing but a URL. */
 const urlOf = (node) =>
   node.type === "link"
@@ -14,6 +16,36 @@ const urlOf = (node) =>
     : node.type === "text"
       ? node.value.trim()
       : "";
+
+const jsx = (name, attributes) => ({
+  type: "mdxJsxFlowElement",
+  name,
+  attributes: attributes.map(([name, value]) => ({
+    type: "mdxJsxAttribute",
+    name,
+    value,
+  })),
+  children: [],
+});
+
+/**
+ * The element a line consisting of one node should become, or null to leave it
+ * as prose.
+ *
+ * `![alt](clip.mp4)` is ordinary markdown image syntax pointing at a video, so
+ * posts don't have to reach for a component.
+ */
+function embedFor(node) {
+  if (node.type === "image" && VIDEO_FILE.test(node.url))
+    return jsx("Video", [
+      ["src", node.url],
+      ["caption", node.alt ?? ""],
+    ]);
+
+  const url = urlOf(node);
+  const name = embedName(url);
+  return name ? jsx(name, [["url", url]]) : null;
+}
 
 /**
  * Turns a YouTube or TikTok URL on its own line into a <YouTube>/<TikTok>
@@ -27,23 +59,12 @@ const urlOf = (node) =>
  */
 export default function remarkMediaEmbeds() {
   return (tree) => {
-    // `![alt](clip.mp4)` — ordinary markdown image syntax pointing at a video.
-    // Saves posts from having to reach for a component.
-    visit(tree, "image", (node, index, parent) => {
-      if (!parent || index === undefined) return;
-      if (!/\.(mp4|webm|mov)(\?.*)?$/i.test(node.url)) return;
-
-      parent.children[index] = {
-        type: "mdxJsxFlowElement",
-        name: "Video",
-        attributes: [
-          { type: "mdxJsxAttribute", name: "src", value: node.url },
-          { type: "mdxJsxAttribute", name: "caption", value: node.alt ?? "" },
-        ],
-        children: [],
-      };
-    });
-
+    // Everything is handled at paragraph level, replacing the paragraph rather
+    // than a node inside it. Video used to be swapped in place, which left the
+    // <figure> it renders sitting inside the <p> markdown had wrapped the image
+    // in — invalid, since <figure> is flow content. Browsers paper over it by
+    // closing the <p> early; a feed reader's sanitiser is under no obligation
+    // to be as forgiving.
     visit(tree, "paragraph", (node, index, parent) => {
       if (!parent || index === undefined) return;
 
@@ -73,17 +94,10 @@ export default function remarkMediaEmbeds() {
         const solid = line.filter(
           (n) => !(n.type === "text" && n.value.trim() === ""),
         );
-        const name = solid.length === 1 ? embedName(urlOf(solid[0])) : null;
+        const embed = solid.length === 1 ? embedFor(solid[0]) : null;
 
-        if (name) {
-          out.push({
-            type: "mdxJsxFlowElement",
-            name,
-            attributes: [
-              { type: "mdxJsxAttribute", name: "url", value: urlOf(solid[0]) },
-            ],
-            children: [],
-          });
+        if (embed) {
+          out.push(embed);
           changed = true;
         } else if (solid.length) {
           const last = out.at(-1);
