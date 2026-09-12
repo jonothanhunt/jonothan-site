@@ -1,0 +1,21 @@
+---
+/**
+ * A live code demo, as an RSS reader can actually show it.
+ *
+ * Sandpack is a bundler running in the browser — there is no version of that a
+ * reader can host. Each demo is also a real standalone page under
+ * /demos/<name>/ though, so this links straight at the working thing rather
+ * than back at the article.
+ */
+interface Props {
+  name: string;
+  height?: number;
+  view?: "preview" | "split";
+}
+const { name } = Astro.props;
+---
+
+<p>
+  <a href={`/demos/${name}/`}>Open the interactive demo</a> — it needs a browser,
+  so it is not included here.
+</p>

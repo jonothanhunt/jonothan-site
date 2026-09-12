@@ -1,0 +1,26 @@
+---
+/**
+ * A silent looping clip, as an RSS reader can actually show it.
+ *
+ * <video> is stripped about as often as an iframe, so this sends the poster
+ * frame as a linked image — the still is the point in these, since they are
+ * former GIFs — with the caption and a link to play the file itself. Both
+ * files live in public/, so their URLs are stable and absolute here.
+ */
+interface Props {
+  src: string;
+  poster?: string;
+  caption?: string;
+}
+const { src, caption } = Astro.props;
+const poster = Astro.props.poster ?? src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
+---
+
+<figure>
+  <a href={src}>
+    <img src={poster} alt={caption ?? ""} />
+  </a>
+  <figcaption>
+    {caption ? `${caption} — ` : ""}<a href={src}>play video</a>
+  </figcaption>
+</figure>

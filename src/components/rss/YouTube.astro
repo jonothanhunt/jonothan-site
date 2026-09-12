@@ -1,0 +1,40 @@
+---
+/**
+ * YouTube, as an RSS reader can actually show it.
+ *
+ * Every reader strips iframes, so the on-site facade would arrive as an empty
+ * box. This sends the poster frame as a plain linked image instead — the one
+ * thing a feed reader will render — with a text link under it for readers that
+ * block remote images too.
+ */
+interface Props {
+  url: string;
+}
+const { url } = Astro.props;
+
+const id =
+  url.match(/(?:youtu\.be\/|v\/|embed\/|live\/|watch\?v=|&v=)([^#&?]{11})/)
+    ?.[1] ?? "";
+const start = url.match(/[?&]t=(\d+)/)?.[1];
+const watch = `https://www.youtube.com/watch?v=${id}${start ? `&t=${start}` : ""}`;
+
+// hqdefault, not maxresdefault. maxres is 1280x720 but only exists if the
+// source was uploaded in HD, and a feed has no way to fall back to another
+// size the way the on-site facade does in JavaScript — a missing poster would
+// just be a broken image in someone's reader. hqdefault is generated for every
+// video without exception. It is 480x360, so a 16:9 frame arrives letterboxed,
+// which is a fair trade for never breaking.
+const poster = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "";
+---
+
+{
+  id && (
+    <p>
+      <a href={watch}>
+        <img src={poster} alt="" width="480" height="360" />
+      </a>
+      <br />
+      <a href={watch}>▶ Watch on YouTube</a>
+    </p>
+  )
+}

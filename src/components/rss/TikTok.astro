@@ -1,0 +1,19 @@
+---
+/**
+ * TikTok, as an RSS reader can actually show it.
+ *
+ * No poster here, unlike YouTube. TikTok publishes thumbnails only through its
+ * oEmbed endpoint, which would mean a network call per embed at build time —
+ * eight of them on this site — on a builder that may be rate-limited or
+ * offline. A feed that sometimes fails to build is worse than one that links
+ * out, so this stays a link.
+ */
+interface Props {
+  url: string;
+}
+const { url } = Astro.props;
+---
+
+<p>
+  <a href={url}>▶ Watch this on TikTok</a>
+</p>
