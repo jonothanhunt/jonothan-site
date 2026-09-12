@@ -1,11 +1,19 @@
 ---
 /**
- * A silent looping clip, as an RSS reader can actually show it.
+ * A silent looping clip, as a real <video> element.
  *
- * <video> is stripped about as often as an iframe, so this sends the poster
- * frame as a linked image — the still is the point in these, since they are
- * former GIFs — with the caption and a link to play the file itself. Both
- * files live in public/, so their URLs are stable and absolute here.
+ * These were animated GIFs before the migration, so they keep a GIF's
+ * behaviour here — muted, looping, autoplaying — with controls added, because
+ * unlike a GIF someone may want to stop it. preload="metadata" means a reader
+ * scrolling past an article pays for the poster and a header, not the file.
+ *
+ * <video> has something an iframe doesn't: content inside the element renders
+ * only when the element itself isn't supported. So the link is a real fallback
+ * rather than a permanent second line, and a reader that strips the tag
+ * outright still leaves the link behind.
+ *
+ * Both files live in public/, so their URLs are stable; renderForFeed makes
+ * them absolute.
  */
 interface Props {
   src: string;
@@ -17,10 +25,20 @@ const poster = Astro.props.poster ?? src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
 ---
 
 <figure>
-  <a href={src}>
-    <img src={poster} alt={caption ?? ""} />
-  </a>
-  <figcaption>
-    {caption ? `${caption} — ` : ""}<a href={src}>play video</a>
-  </figcaption>
+  <video
+    src={src}
+    poster={poster}
+    controls
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    width="640"
+    style="width:100%;max-width:640px;height:auto"
+    aria-label={caption}
+  >
+    <a href={src}>Play the video</a>
+  </video>
+  {caption && <figcaption>{caption}</figcaption>}
 </figure>
