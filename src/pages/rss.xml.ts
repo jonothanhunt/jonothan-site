@@ -66,6 +66,20 @@ export async function GET(context: APIContext) {
         // arriving as a bare headline.
         description: excerpt || summarise(body),
         pubDate: date,
+        // ⚠ THIS IS THE ITEM'S IDENTITY. DO NOT CHANGE THE FORMAT.
+        //
+        // @astrojs/rss has no separate guid option — it writes
+        // `<guid isPermaLink="true">` straight from this link (dist/index.js,
+        // `item.guid = itemLink`). Feed readers key every stored article on
+        // guid, so any edit here, down to a trailing slash, makes every post
+        // in the feed a brand-new article to every existing subscriber. They
+        // get a second copy of the entire back catalogue alongside the first,
+        // and there is no way to withdraw it once it has been fetched.
+        //
+        // That has already happened once: this was `/blog/${post.id}/` until
+        // the feed was rewritten, and dropping the slash to match the canonical
+        // URLs re-delivered all eleven posts. Worth it once to settle on the
+        // canonical form — never worth it again.
         link: `/blog/${post.id}`,
         categories: type,
         // The whole article, as HTML a reader can display.
