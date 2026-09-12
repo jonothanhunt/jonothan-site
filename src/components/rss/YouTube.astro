@@ -1,11 +1,25 @@
 ---
 /**
- * YouTube, as an RSS reader can actually show it.
+ * YouTube, as a real embed.
  *
- * Every reader strips iframes, so the on-site facade would arrive as an empty
- * box. This sends the poster frame as a plain linked image instead — the one
- * thing a feed reader will render — with a text link under it for readers that
- * block remote images too.
+ * Feed readers render item HTML in a webview, and the mainstream ones allow
+ * iframes from YouTube specifically — NetNewsWire, Reeder, Miniflux, FreshRSS,
+ * Inoreader. So the player goes in the feed and plays in place rather than
+ * bouncing someone out to a browser.
+ *
+ * Two deliberate differences from the on-site facade:
+ *
+ * No autoplay. On the site the reader has just pressed a play button. In a
+ * feed the article merely opened, and nothing should start making noise on its
+ * own.
+ *
+ * The sizing is inline. Readers strip <style> blocks, so a scoped stylesheet
+ * would take the dimensions with it; they keep style attributes and the
+ * width/height attributes, which are themselves the fallback if the inline
+ * style is dropped too.
+ *
+ * The link underneath is the safety net for the readers that do strip iframes,
+ * where the embed would otherwise leave an empty gap and nothing else.
  */
 interface Props {
   url: string;
@@ -16,25 +30,35 @@ const id =
   url.match(/(?:youtu\.be\/|v\/|embed\/|live\/|watch\?v=|&v=)([^#&?]{11})/)
     ?.[1] ?? "";
 const start = url.match(/[?&]t=(\d+)/)?.[1];
-const watch = `https://www.youtube.com/watch?v=${id}${start ? `&t=${start}` : ""}`;
 
-// hqdefault, not maxresdefault. maxres is 1280x720 but only exists if the
-// source was uploaded in HD, and a feed has no way to fall back to another
-// size the way the on-site facade does in JavaScript — a missing poster would
-// just be a broken image in someone's reader. hqdefault is generated for every
-// video without exception. It is 480x360, so a 16:9 frame arrives letterboxed,
-// which is a fair trade for never breaking.
-const poster = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "";
+const src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&iv_load_policy=3${
+  start ? `&start=${start}` : ""
+}`;
+const watch = `https://www.youtube.com/watch?v=${id}${start ? `&t=${start}` : ""}`;
 ---
 
 {
-  id && (
+  /* Same fallback as the TikTok one: a youtube.com URL the id regex can't
+     read (a playlist, say) still becomes a link, never nothing. */
+  !id ? (
     <p>
-      <a href={watch}>
-        <img src={poster} alt="" width="480" height="360" />
-      </a>
-      <br />
-      <a href={watch}>▶ Watch on YouTube</a>
+      <a href={url}>▶ Watch on YouTube</a>
     </p>
+  ) : (
+    <figure>
+      <iframe
+        src={src}
+        title="YouTube video"
+        width="560"
+        height="315"
+        style="width:100%;max-width:560px;aspect-ratio:16/9;height:auto;border:0"
+        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      />
+      <figcaption>
+        <a href={watch}>▶ Watch on YouTube</a>
+      </figcaption>
+    </figure>
   )
 }

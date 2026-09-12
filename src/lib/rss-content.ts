@@ -13,9 +13,10 @@ import CodeDemo from "../components/rss/CodeDemo.astro";
  * Renders a post to the HTML a feed reader can actually display.
  *
  * The same MDX the site renders, but with the four embed components swapped for
- * versions that degrade to a linked image or a link, and with the output
- * rewritten so nothing depends on the page it was going to live in: absolute
- * URLs throughout, no srcset, no scoped-style attributes.
+ * versions that stand on their own — real YouTube, TikTok and video players,
+ * each with a link a reader falls back to if it strips the element — and with
+ * the output rewritten so nothing depends on the page it was going to live in:
+ * absolute URLs throughout, no srcset, no scoped-style attributes.
  *
  * Building the container is not free, so it is created once and reused for
  * every post in the feed.
