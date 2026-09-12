@@ -3,9 +3,16 @@
  * A live code demo, as an RSS reader can actually show it.
  *
  * Sandpack is a bundler running in the browser — there is no version of that a
- * reader can host. Each demo is also a real standalone page under
- * /demos/<name> though, so this links straight at the working thing rather
- * than back at the article.
+ * reader can host, so this has to be a link. The question is what it links at.
+ *
+ * Not /demos/<name>. Those folders exist so the on-site component can read
+ * them at build time and hand the source to Sandpack as literal files; they
+ * are only reachable at all because public/ is copied into dist verbatim.
+ * Opening one gives you the bare test harness — lorem ipsum, no styling, none
+ * of the article explaining what you are looking at.
+ *
+ * So it links back to the post, at the demo itself via its id, where the thing
+ * runs in the context it was written for.
  */
 interface Props {
   name: string;
@@ -13,9 +20,14 @@ interface Props {
   view?: "preview" | "split";
 }
 const { name } = Astro.props;
+
+// Set by renderForFeed. Without it a link to a fragment alone would be
+// meaningless in a reader, so fall back to the blog index.
+const { postUrl } = Astro.locals;
+const href = postUrl ? `${postUrl}#demo-${name}` : "/blog";
 ---
 
 <p>
-  <a href={`/demos/${name}`}>Open the interactive demo</a> — it needs a browser,
-  so it is not included here.
+  <a href={href}>▶ Try this demo on jonothan.dev</a> — it builds and runs in the
+  browser, so it can&rsquo;t come through the feed.
 </p>

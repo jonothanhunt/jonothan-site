@@ -112,6 +112,11 @@ export async function renderForFeed(post: Post, site: URL): Promise<string> {
   const c = await getContainer();
   const html = await c.renderToString(Content, {
     props: { components: { YouTube, TikTok, Video, CodeDemo } },
+    // The post's own URL, for the components that have to point back at the
+    // article — a code demo can only be linked to, not carried. locals is the
+    // container's supported way in; the components prop above belongs to MDX
+    // and can't carry anything the MDX didn't write.
+    locals: { postUrl: new URL(`/blog/${post.id}`, site).href },
   });
   return forFeed(html, site);
 }
