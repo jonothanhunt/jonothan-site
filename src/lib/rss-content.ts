@@ -1,6 +1,8 @@
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { loadRenderers } from "astro:container";
-import { getContainerRenderer as mdxRenderer } from "@astrojs/mdx";
+// From @astrojs/mdx/container-renderer, not @astrojs/mdx — the re-export on the
+// package root is deprecated and warns on every build. Same function.
+import { getContainerRenderer as mdxRenderer } from "@astrojs/mdx/container-renderer";
 import { render } from "astro:content";
 import type { Post } from "./posts";
 
