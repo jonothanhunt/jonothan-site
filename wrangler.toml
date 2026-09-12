@@ -2,3 +2,9 @@ name = "jonothan-site"
 compatibility_date = "2026-01-01"
 [assets]
 directory = "dist"
+# Astro writes `blog/index.html`, and Cloudflare's default then serves that at
+# `/blog/` and 307s `/blog` to it. Every canonical tag, sitemap entry and feed
+# link on the site uses the slashless form, so the default sends a redirect for
+# the canonical URL of every page — and turns the /things 301s into chains.
+# This makes the slashless form the one that answers 200.
+html_handling = "drop-trailing-slash"

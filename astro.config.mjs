@@ -10,7 +10,22 @@ export default defineConfig({
   site: "https://jonothan.dev",
 
   // React is pulled in only by the one 3D island; every other page ships zero JS.
-  integrations: [mdx(), sitemap(), react()],
+  integrations: [
+    mdx(),
+    // Every canonical on the site drops its trailing slash except the root, so
+    // the sitemap has to say the same thing — a sitemap URL that redirects to
+    // the canonical is a wasted crawl. This has to happen in serialize: the
+    // integration's own `trailingSlash` option is applied after it, and it
+    // strips the root's slash too.
+    sitemap({
+      serialize(item) {
+        const url = new URL(item.url);
+        if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/$/, "");
+        return { ...item, url: url.href };
+      },
+    }),
+    react(),
+  ],
 
   // Hover-prefetch internal links. ~1.6kB of JS that makes navigation feel instant.
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
