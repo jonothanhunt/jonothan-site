@@ -139,82 +139,6 @@ const awards = [
              as nothing. -->
         <h1><span>Hey, I&rsquo;m{" "}</span><span>Jonothan.</span></h1>
 
-        <!--
-          The pixelate filter the heading above is drawn through.
-
-          None of the primitives does anything recognisable on its own:
-
-            feFlood      one opaque pixel, at (1, 1)
-            feBlend      clipped to a 2 x 2 box at the user-space origin — so
-                         the result is a 2 x 2 tile with a single dot in it
-            feTile       that tile, repeated across the whole filter region
-            feComposite  the heading, kept only where a dot is: one sample per
-                         2 x 2 block and nothing in between
-            feComponent- the sample's alpha snapped to 0 or 1, so a block is
-              Transfer   either on or off
-            feOffset +   the sample smeared one pixel left, then the pair
-            feMerge      smeared one pixel up — filling the 2 x 2 block it was
-                         sampled from
-
-          The threshold is the one addition to the original. A sample taken
-          from the edge of a glyph carries that glyph's antialiasing, and
-          dilating a half-opaque pixel gives a half-opaque block — so without
-          it every edge comes back as a row of grey squares and the whole thing
-          reads as a blurred heading rather than a sampled one. `discrete` with
-          two table values is the whole step: below half goes to nothing, half
-          and above goes to solid.
-
-          The tile and the block have to be the same size — overgrow the block
-          and neighbours overlap, which along a diagonal fills the inside of
-          every corner and the contour comes back bevelled.
-
-          `x="0" y="0"` on the feBlend is doing more than it looks, and is what
-          makes an exact 2 x 2 possible. A filter primitive with no x/y takes
-          them from the *filter region*, which sits at -10% of the element's
-          bounding box and so lands on a fraction of a pixel — while the
-          feFlood's dot is placed at an absolute (1, 1). Tile and dot were
-          therefore out of phase with each other by a sub-pixel amount, which
-          showed up as two grids fighting and as stray lines along the glyph
-          edges. Anchoring the tile explicitly puts them back in step.
-
-          The block is built from offsets rather than from an feMorphology
-          dilate, which is the shorter way and the reason 3px looked like the
-          floor: morphology grows a pixel symmetrically, so the only block
-          sizes it can make are odd. Two offsets and two merges build any size.
-
-          2 x 2 is as fine as this goes. A 1 x 1 grid samples every pixel,
-          which is the identity transform and no pixelation at all.
-
-          `primitiveUnits` is left at its default of userSpaceOnUse, which is
-          what lets those numbers mean pixels. `color-interpolation-filters` is
-          not left at its default: filters composite in linear light unless
-          told otherwise, and compositing antialiased type in linear light puts
-          a pale fringe around every block.
-
-          Width and height of 0 rather than `display: none` — a filter inside a
-          hidden subtree stops resolving in some browsers.
-        -->
-        <svg class="sr-svg" width="0" height="0" aria-hidden="true" focusable="false">
-          <filter id="pixelate" color-interpolation-filters="sRGB">
-            <feFlood x="1" y="1" width="1" height="1"></feFlood>
-            <feBlend x="0" y="0" width="2" height="2"></feBlend>
-            <feTile></feTile>
-            <feComposite in="SourceGraphic" operator="in"></feComposite>
-            <feComponentTransfer result="dot">
-              <feFuncA type="discrete" tableValues="0 1"></feFuncA>
-            </feComponentTransfer>
-            <feOffset in="dot" dx="-1" dy="0" result="dot-left"></feOffset>
-            <feMerge result="row">
-              <feMergeNode in="dot"></feMergeNode>
-              <feMergeNode in="dot-left"></feMergeNode>
-            </feMerge>
-            <feOffset in="row" dx="0" dy="-1" result="row-up"></feOffset>
-            <feMerge>
-              <feMergeNode in="row"></feMergeNode>
-              <feMergeNode in="row-up"></feMergeNode>
-            </feMerge>
-          </filter>
-        </svg>
 
         <!-- Two lines, not one wrapped one: the sentences say different
              things and the second is the affiliation, which wants to sit
@@ -463,7 +387,12 @@ const awards = [
     height: 100%;
     max-width: none;
     object-fit: cover;
-    object-position: right center;
+    /* Narrow: the crop is tall and takes a slice out of the middle of a wide
+       photograph, so it has to be told which slice. I stand about three
+       quarters across, and `right` put that three-quarter point off the left
+       of the frame — the same anchor that is correct on a wide screen is the
+       wrong one here. */
+    object-position: 88% center;
   }
 
   @media (min-width: 768px) {
@@ -499,6 +428,12 @@ const awards = [
       mask-image: var(--fade-x), var(--fade-y);
       -webkit-mask-composite: source-in;
       mask-composite: intersect;
+    }
+
+    /* Wide: the frame is wider than it is tall and barely crops horizontally,
+       so anchoring right is what keeps me in shot as the window narrows. */
+    .page-photo__img {
+      object-position: right center;
     }
 
   }
@@ -558,19 +493,17 @@ const awards = [
     /* Sentence case, not the caps every other heading on the site is set in.
        Lastik is a serif with a proper lowercase and the original site used it
        — set in caps it loses the ascenders and descenders that give the line
-       its shape, and at this size that is most of what there is to look at. */
+       its shape, and at this size that is most of what there is to look at.
+
+       Drawn smooth. It was sampled onto a 2px grid through an SVG filter for a
+       while, to put it on the same grid as the dithered photograph behind it
+       and the sampled client marks below. That came off: the technique leans
+       on feTile, feMorphology and a discrete alpha transfer, and it is not
+       worth shipping something that fine-grained to one browser's rendering
+       path when the rest of the page carries the idea anyway. */
     text-transform: none;
     letter-spacing: -0.01em;
     line-height: 1.05;
-    filter: url(#pixelate);
-  }
-
-  /* An SVG that exists only to carry the filter. */
-  .sr-svg {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
   }
 
   .hero__body h1 span {
