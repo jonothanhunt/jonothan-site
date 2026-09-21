@@ -787,9 +787,13 @@ p {
 /* ============================================================
    Footer / skip
    ============================================================ */
+/* The gap under the last line is the same --gap the shell holds off the left
+   and right edges, so the type sits the same distance from all three. It was
+   24px against a 16px gutter, which is close enough to look like a mistake
+   rather than a decision. */
 .site-foot {
   margin-top: auto;
-  padding: 56px 0 24px;
+  padding: 56px 0 var(--gap);
   font-size: var(--t-label);
 }
 

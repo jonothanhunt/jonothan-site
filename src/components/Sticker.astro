@@ -292,20 +292,34 @@ function ring(radius: number, steps = 12) {
     );
   }
 
-  /* The sheen only moves on hover, and it moves by rotating an element rather
-     than by animating a gradient — a gradient is repainted every frame, a
-     rotation is handed to the compositor and costs nothing after the first. */
+  /* The foil turns a little under the pointer and turns back when it leaves.
+     ---
+     It used to spin through a full 360 on a six-second loop, which meant
+     arriving mid-rotation and, worse, snapping back to zero the moment you
+     moved away — the animation simply stopped wherever it had got to. A
+     transition runs in both directions, so leaving is the same movement as
+     arriving, played backwards from wherever it had reached.
+     ---
+     Forty-five degrees is enough to move the sweep across the mark without
+     the colours travelling so far that it reads as a different sticker. And
+     it is a rotation, not an animated gradient: a gradient is repainted every
+     frame, a rotation is handed to the compositor and costs nothing after the
+     first.
+     ---
+     This is the one eased hover left on the site. Everything else switches,
+     because everything else has two states; this has a range, and the whole
+     point of it is the travel between the ends. */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .sticker__foil::before,
+    .sticker__sheen::before,
+    .sticker__bleed::before {
+      transition: rotate 0.5s var(--ease-settle);
+    }
+
     .sticker:hover .sticker__foil::before,
     .sticker:hover .sticker__sheen::before,
     .sticker:hover .sticker__bleed::before {
-      animation: foil 6s linear infinite;
-    }
-  }
-
-  @keyframes foil {
-    to {
-      rotate: 360deg;
+      rotate: 45deg;
     }
   }
 </style>

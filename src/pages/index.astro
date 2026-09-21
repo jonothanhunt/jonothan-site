@@ -430,10 +430,20 @@ const awards = [
       mask-composite: intersect;
     }
 
-    /* Wide: the frame is wider than it is tall and barely crops horizontally,
-       so anchoring right is what keeps me in shot as the window narrows. */
+    /* How much of the width is cropped here depends entirely on the window.
+       At 1440 x 900 the frame is slightly wider than the 2:1 photograph, so
+       nothing is cropped horizontally at all and this value does nothing. On a
+       tablet, where the frame is *taller* than it is wide, almost half the
+       photograph is cropped away and this value decides which half.
+
+       `right` was the obvious anchor and the wrong one there: pinning the
+       right edge slides the window as far right as it goes, which pushes me
+       leftward within it and straight into the lede. Backing off to 85% moves
+       the window left, which moves me right — clear of the copy on a tablet,
+       and no different from `right` on a wide screen, where there is no
+       overflow for it to act on. */
     .page-photo__img {
-      object-position: right center;
+      object-position: 85% center;
     }
 
   }
