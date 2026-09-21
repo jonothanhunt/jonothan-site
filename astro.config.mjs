@@ -51,9 +51,10 @@ export default defineConfig({
 
   vite: {
     build: { assetsInlineLimit: 2048 },
-    // The 3D scene is only reachable through a dynamic import inside a script
-    // tag, so Vite's scanner misses it and re-optimises mid-session (504s in
-    // dev). Naming the deps up front keeps the dev server stable.
+    // Anything Vite's scanner can't see from a plain import has to be named
+    // here, or it gets discovered the first time something asks for it, the
+    // optimiser re-runs mid-session, and every module already in flight comes
+    // back 504 Outdated Optimize Dep.
     optimizeDeps: {
       include: [
         "react",
@@ -62,9 +63,18 @@ export default defineConfig({
         // raw CJS and the compiled scene throws "_jsxDEV is not a function".
         "react/jsx-runtime",
         "react/jsx-dev-runtime",
+        // The 3D scene is only reachable through a dynamic import inside a
+        // script tag, so the scanner never sees these at all.
         "three",
         "@react-three/fiber",
         "@react-three/drei",
+        // Sandpack is reached through an Astro island (`client:visible` in
+        // CodeDemo.astro), so it isn't requested until a code demo scrolls
+        // into view — which is the worst possible moment to re-optimise, and
+        // is exactly when the 504 showed up. It is also by far the biggest
+        // dependency here, so pre-bundling it costs a slower first `dev` and
+        // saves the stall every time after.
+        "@codesandbox/sandpack-react",
       ],
     },
   },

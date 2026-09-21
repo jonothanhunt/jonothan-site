@@ -124,18 +124,32 @@ function ditherColour(
   rgb,
   width,
   height,
-  { levels = 4, gamma = 0.85, contrast = 1.12 } = {},
+  { levels = 4, gamma = 0.85, contrast = 1.12, saturation = 0.78 } = {},
 ) {
   const out = Buffer.alloc(width * height * 3);
   const steps = levels - 1;
+  const px = [0, 0, 0];
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
+      const base = (y * width + x) * 3;
       // 0–1, matching `threshold`'s 0–255 scale below.
       const t = threshold(x, y) / 255;
+
+      // Pulled toward its own luminance before anything else happens to it.
+      // Done here rather than as a CSS filter on the finished image so the
+      // palette itself is the calmer one, and the dither pattern is worked out
+      // from the values that are actually going to be shown — desaturating
+      // afterwards would leave the dots arranged for colours that no longer
+      // exist. Rec. 709 weights, so the greens don't go flat first.
+      const lum =
+        (0.2126 * rgb[base] + 0.7152 * rgb[base + 1] + 0.0722 * rgb[base + 2]) /
+        255;
+
       for (let c = 0; c < 3; c++) {
-        const i = (y * width + x) * 3 + c;
-        let v = rgb[i] / 255;
-        v = Math.pow(v, gamma);
+        let v = rgb[base + c] / 255;
+        v = lum + (v - lum) * saturation;
+        v = Math.pow(Math.max(0, v), gamma);
         v = (v - 0.5) * contrast + 0.5;
         v = Math.min(1, Math.max(0, v));
 
@@ -145,8 +159,12 @@ function ditherColour(
         const lower = Math.floor(scaled);
         const frac = scaled - lower;
         const step = Math.min(steps, lower + (frac > t ? 1 : 0));
-        out[i] = Math.round((step / steps) * 255);
+        px[c] = Math.round((step / steps) * 255);
       }
+
+      out[base] = px[0];
+      out[base + 1] = px[1];
+      out[base + 2] = px[2];
     }
   }
   return out;
