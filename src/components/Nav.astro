@@ -238,7 +238,9 @@ const isHome = Astro.url.pathname === "/";
     /* Width and opacity animate; nothing else reflows around it. */
     max-width: 9em;
     opacity: 1;
-    padding-inline: 8px 10px;
+    /* Same padding as the pills beside it, less its own (much smaller)
+       tracking on the right. */
+    padding-inline: 14px calc(14px - 0.02em);
     transition:
       max-width 0.5s var(--ease-settle),
       opacity 0.5s var(--ease-settle),
@@ -258,11 +260,21 @@ const isHome = Astro.url.pathname === "/";
   /* Resting: a hairline box. Active: the same box filled with ink, type
      knocked out. The padding is identical in both states, so lighting one up
      never re-centres the bar — which is what the old widening pill did. */
+  /* The side padding matches the top and bottom, which the pill gets from
+     being --nav-pill tall around a line box of about 17px: 13.5 each way, so
+     14 here.
+
+     The right side is short by the tracking. `letter-spacing` is added *after*
+     every character including the last, so a letterspaced word carries 0.1em
+     of empty space on its right edge that the padding then sits outside of —
+     which makes the gap after the K of WORK a pixel and a bit wider than the
+     gap before the W. Taking it back off the right padding evens the two up
+     optically, which is the thing being matched. */
   .nav-pill {
     display: flex;
     align-items: center;
     height: var(--ui-h);
-    padding-inline: 11px;
+    padding-inline: 14px calc(14px - 0.1em);
     font-family: var(--mono);
     font-weight: 700;
     font-size: var(--t-nav);
