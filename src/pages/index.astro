@@ -55,7 +55,7 @@ const writingInks = await paletteRun(posts.map((post) => post.data.image));
 // square pixels rather than a soft enlargement. The `w` descriptors stay
 // honest — they describe the file, not the box — so the picking still works;
 // it just picks a small file for a big slot on purpose.
-const HERO_WIDTHS = [430, 600, 816];
+const HERO_WIDTHS = [860, 1200, 1632];
 // `-tone-` for the three-tone line-screen version, or drop it for the 1-bit
 // one — both are built, so this is the whole switch between them.
 const HERO_VARIANT = "tone-";
@@ -118,8 +118,8 @@ const awards = [
       src={`/dither/hero-${HERO_VARIANT}${HERO_WIDTHS.at(-1)}.png`}
       srcset={heroSrcset}
       sizes="100vw"
-      width="816"
-      height="408"
+      width="1632"
+      height="816"
       alt=""
       loading="eager"
       fetchpriority="high"
