@@ -38,13 +38,14 @@
     letter-spacing: -0.02em;
   }
 
+  /* No rule above a section heading. It was doing the dividing while nothing
+     else on the page was, but an article already has more than enough
+     hairlines around it, and a line directly over a heading reads as the
+     bottom of whatever came before rather than as the top of what follows.
+     The space does the same job without drawing anything. */
   .prose h2 {
     font-size: var(--t-prose-h2);
-    margin-top: 2.4em;
-    padding-top: 0.5em;
-    /* A rule above each section, which is what does the dividing now that
-       nothing is a rounded panel. */
-    border-top: 1px solid var(--rule-mid);
+    margin-top: 2.6em;
     scroll-margin-top: 90px;
   }
 
@@ -54,10 +55,16 @@
     scroll-margin-top: 90px;
   }
 
+  /* Links underlined in ink-yellow, as they were before the reskin — the one
+     place in an article where the palette gets to show up in the middle of
+     the type rather than behind it. Two pixels rather than one: at a hairline
+     a `sun` underline on paper is too pale to read as a colour at all, which
+     is how it got lost. It goes to ink on hover, so the target is unambiguous
+     without the underline changing weight and shifting the line. */
   .prose a {
-    text-decoration-thickness: 1px;
+    text-decoration-thickness: 2px;
     text-underline-offset: 3px;
-    text-decoration-color: var(--rule-mid);
+    text-decoration-color: var(--sun);
   }
 
   .prose a:hover {
@@ -103,10 +110,12 @@
     text-align: left;
   }
 
-  /* The reference's pull quote: one ink rule down the left, no fill, no
-     italics, and the quote set a size up from the copy around it. */
+  /* The pull quote: one rule down the left, no fill, no italics, and the quote
+     set a size up from the copy around it. The rule is the same yellow the
+     links are underlined in, and heavier than a hairline for the same reason
+     — it is carrying a colour, not dividing anything. */
   .prose blockquote {
-    border-left: 2px solid var(--ink);
+    border-left: 4px solid var(--sun);
     padding: 0.1em 0 0.1em 1.2em;
     font-size: 1.15em;
     line-height: 1.5;
