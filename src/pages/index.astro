@@ -638,6 +638,13 @@ const awards = [
     align-self: stretch;
     width: 100%;
     margin-bottom: 18px;
+    /* The size of the card titles it sits over, so the section reads as a
+       heading with a list under it rather than as a caption. The tracking eases
+       off with the size change: 0.14em is there to stop small caps closing up,
+       and at 18px they aren't small any more — held at the label value the row
+       sprawled to twice the width of the words in it. */
+    font-size: var(--t-h3);
+    letter-spacing: 0.06em;
   }
 
   .writing .grid {
