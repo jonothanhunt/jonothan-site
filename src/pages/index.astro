@@ -55,7 +55,7 @@ const writingInks = await paletteRun(posts.map((post) => post.data.image));
 // square pixels rather than a soft enlargement. The `w` descriptors stay
 // honest — they describe the file, not the box — so the picking still works;
 // it just picks a small file for a big slot on purpose.
-const HERO_WIDTHS = [320, 450, 612];
+const HERO_WIDTHS = [430, 600, 816];
 // `-colour-` for the ordered-dithered colour version, or drop it for the 1-bit
 // one — both are built, so this is the whole switch between them.
 const HERO_VARIANT = "colour-";
@@ -114,12 +114,12 @@ const awards = [
        both cases — that is the one thing that doesn't change. -->
   <div class="page-photo" aria-hidden="true">
     <img
-      class="page-photo__img dither fade-down"
+      class="page-photo__img dither"
       src={`/dither/hero-${HERO_VARIANT}${HERO_WIDTHS.at(-1)}.png`}
       srcset={heroSrcset}
       sizes="100vw"
-      width="612"
-      height="306"
+      width="816"
+      height="408"
       alt=""
       loading="eager"
       fetchpriority="high"
@@ -145,15 +145,16 @@ const awards = [
           None of the primitives does anything recognisable on its own:
 
             feFlood      one opaque pixel, at (1, 1)
-            feBlend      clipped to a 3 x 3 box at the origin — so the result
-                         is a 3 x 3 tile with a single dot at its centre
+            feBlend      clipped to a 2 x 2 box at the user-space origin — so
+                         the result is a 2 x 2 tile with a single dot in it
             feTile       that tile, repeated across the whole filter region
             feComposite  the heading, kept only where a dot is: one sample per
-                         3 x 3 block and nothing in between
+                         2 x 2 block and nothing in between
             feComponent- the sample's alpha snapped to 0 or 1, so a block is
               Transfer   either on or off
-            feMorphology each surviving sample dilated by 1, which grows it
-                         back into the 3 x 3 block it was sampled from
+            feOffset +   the sample smeared one pixel left, then the pair
+            feMerge      smeared one pixel up — filling the 2 x 2 block it was
+                         sampled from
 
           The threshold is the one addition to the original. A sample taken
           from the edge of a glyph carries that glyph's antialiasing, and
@@ -163,16 +164,26 @@ const awards = [
           two table values is the whole step: below half goes to nothing, half
           and above goes to solid.
 
-          The tile and the block have to be the same size, and this is why the
-          grid can't go finer than 3px. feMorphology grows a pixel
-          symmetrically, so the only block sizes it can make are odd, and 3 is
-          the smallest that does anything. Sampling every 2px and dilating to
-          3 x 3 was tried, to get a finer staircase: the blocks then overlap
-          their neighbours by a pixel, and along a diagonal those overlaps fill
-          the inside of every corner, so the contour comes back bevelled. It
-          reads as rounded, which is the opposite of the point. Building an
-          exact 2 x 2 out of offsets and merges was tried too, and drags
-          one-pixel slivers across the edge of the filter region.
+          The tile and the block have to be the same size — overgrow the block
+          and neighbours overlap, which along a diagonal fills the inside of
+          every corner and the contour comes back bevelled.
+
+          `x="0" y="0"` on the feBlend is doing more than it looks, and is what
+          makes an exact 2 x 2 possible. A filter primitive with no x/y takes
+          them from the *filter region*, which sits at -10% of the element's
+          bounding box and so lands on a fraction of a pixel — while the
+          feFlood's dot is placed at an absolute (1, 1). Tile and dot were
+          therefore out of phase with each other by a sub-pixel amount, which
+          showed up as two grids fighting and as stray lines along the glyph
+          edges. Anchoring the tile explicitly puts them back in step.
+
+          The block is built from offsets rather than from an feMorphology
+          dilate, which is the shorter way and the reason 3px looked like the
+          floor: morphology grows a pixel symmetrically, so the only block
+          sizes it can make are odd. Two offsets and two merges build any size.
+
+          2 x 2 is as fine as this goes. A 1 x 1 grid samples every pixel,
+          which is the identity transform and no pixelation at all.
 
           `primitiveUnits` is left at its default of userSpaceOnUse, which is
           what lets those numbers mean pixels. `color-interpolation-filters` is
@@ -186,20 +197,39 @@ const awards = [
         <svg class="sr-svg" width="0" height="0" aria-hidden="true" focusable="false">
           <filter id="pixelate" color-interpolation-filters="sRGB">
             <feFlood x="1" y="1" width="1" height="1"></feFlood>
-            <feBlend width="3" height="3"></feBlend>
+            <feBlend x="0" y="0" width="2" height="2"></feBlend>
             <feTile></feTile>
             <feComposite in="SourceGraphic" operator="in"></feComposite>
-            <feComponentTransfer>
+            <feComponentTransfer result="dot">
               <feFuncA type="discrete" tableValues="0 1"></feFuncA>
             </feComponentTransfer>
-            <feMorphology operator="dilate" radius="1"></feMorphology>
+            <feOffset in="dot" dx="-1" dy="0" result="dot-left"></feOffset>
+            <feMerge result="row">
+              <feMergeNode in="dot"></feMergeNode>
+              <feMergeNode in="dot-left"></feMergeNode>
+            </feMerge>
+            <feOffset in="row" dx="0" dy="-1" result="row-up"></feOffset>
+            <feMerge>
+              <feMergeNode in="row"></feMergeNode>
+              <feMergeNode in="row-up"></feMergeNode>
+            </feMerge>
           </filter>
         </svg>
 
-        <p class="lede">
-          Creative technologist and developer. Part of <a
-            href="https://www.wpp.com">WPP</a
-          > Innovation
+        <!-- Two lines, not one wrapped one: the sentences say different
+             things and the second is the affiliation, which wants to sit
+             under the description rather than run on from it.
+
+             The trailing space belongs inside the first span, for the same
+             reason as in the h1 above — a flex container throws away
+             whitespace-only text nodes between its items, so a space left
+             between the spans would make this read "…developer.Part of WPP
+             Innovation" to anything reading the markup rather than looking at
+             it. At the end of a flex line it renders as nothing. -->
+        <p class="lede lede--stacked">
+          <span>Creative technologist and developer.{" "}</span><span
+            >Part of <a href="https://www.wpp.com">WPP</a> Innovation</span
+          >
         </p>
 
         <!-- The names live on the links rather than in the page. Left as
@@ -371,17 +401,43 @@ const awards = [
 
   /* Hero */
 
-  /* Narrow: a band across the top, in the flow, with the copy under it.
-     Full-bleed — this sits outside .shell, so it has no gutter to escape — and
-     anchored right for the same reason the desktop crop is. */
+  /* Narrow: a band across the top, in the flow, with the copy riding up into
+     the bottom of it. Full-bleed — this sits outside .shell, so it has no
+     gutter to escape — and anchored right for the same reason the desktop crop
+     is.
+
+     The fade is a plain gradient mask rather than the dither ramp the rest of
+     the site uses. The ramp dissolves over a fixed 192px, which is most of a
+     phone-sized band and none of a desktop one, and it can only ever run
+     bottom-up; a gradient can be given whatever length each layout wants and
+     can be intersected with a second one, which is what the wide layout needs.
+     The image is already dithered — the edge doesn't have to be as well.
+
+     The negative margin is what lets the copy sit *over* the tail instead of
+     after it, so the photograph runs on behind the heading rather than
+     stopping above it. */
   .page-photo {
     position: relative;
-    height: 42vh;
-    min-height: 240px;
-    max-height: 380px;
+    z-index: 0;
+    height: 58vh;
+    min-height: 320px;
+    max-height: 480px;
+    margin-bottom: -15vh;
     overflow: hidden;
-    /* The fixed nav floats over the top of it, as it does over everything. */
-    margin-bottom: 8px;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 40%,
+      transparent 94%
+    );
+    mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 94%);
+  }
+
+  /* The photo is positioned, so without this the copy that overlaps it would
+     paint underneath it. */
+  .shell.stack {
+    position: relative;
+    z-index: 1;
   }
 
   .page-photo__img {
@@ -403,32 +459,28 @@ const awards = [
       overflow: hidden;
       pointer-events: none;
       z-index: -1;
-      /* The image is pure black and white, so left alone it would fight the
-         copy for the whole top of the page. Multiplying it into the paper
-         keeps the blacks and lets the page colour take the whites, and the
-         opacity settles how far forward it sits.
-         Two fades on two elements. The dither ramp dissolves the bottom edge
-         and lives on the image (.fade-down); this one clears the left, where
-         the copy sits, and lives on the wrapper. They have to be on separate
-         elements for two reasons: mask layers composite with `add`, so
-         stacking a horizontal gradient onto the ramp would have added coverage
-         back rather than taken it away — and .fade-down sets mask-size,
-         -position and -repeat as well, which a second rule overriding only
-         mask-image would inherit, tiling this gradient in a 4px column. */
-      -webkit-mask-image: linear-gradient(
+      /* Both fades on the one element now: down the page, as on narrow, and
+         across it to clear the left where the copy sits. Two mask layers
+         composite with `add` by default, which would have *given back* the
+         coverage each one takes away — `intersect` is what multiplies them, so
+         a pixel survives only where both gradients keep it. That is the whole
+         reason these used to live on separate elements.
+
+         And full strength. It was multiplied into the paper at a third
+         opacity, which is what a backdrop behind copy needs — but the copy
+         only sits on the left, and the horizontal fade already clears that.
+         Everywhere else it was dimming a photograph for no one. */
+      --fade-x: linear-gradient(
         to right,
         transparent 0%,
         rgb(0 0 0 / 0.3) 36%,
         #000 64%
       );
-      mask-image: linear-gradient(
-        to right,
-        transparent 0%,
-        rgb(0 0 0 / 0.3) 36%,
-        #000 64%
-      );
-      mix-blend-mode: multiply;
-      opacity: 0.34;
+      --fade-y: linear-gradient(to bottom, #000 0%, #000 46%, transparent 96%);
+      -webkit-mask-image: var(--fade-x), var(--fade-y);
+      mask-image: var(--fade-x), var(--fade-y);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
     }
 
   }
@@ -495,16 +547,6 @@ const awards = [
     filter: url(#pixelate);
   }
 
-  /* The grid is a fixed 3px in CSS pixels, so the blocks stay the same size
-     whatever the type does — which means the heading has to be big enough for
-     them to read as sampling rather than as damage. Below the breakpoint
-     --t-h1 drops to 2.5rem and the filter comes off. */
-  @media (max-width: 767px) {
-    .hero__body h1 {
-      filter: none;
-    }
-  }
-
   /* An SVG that exists only to carry the filter. */
   .sr-svg {
     position: absolute;
@@ -515,6 +557,12 @@ const awards = [
 
   .hero__body h1 span {
     white-space: nowrap;
+  }
+
+  .lede--stacked {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .hero__body .lede {

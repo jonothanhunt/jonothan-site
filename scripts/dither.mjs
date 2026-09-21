@@ -75,7 +75,7 @@ const PHOTOS = [
   // the layout's width and scaled back up through `image-rendering: pixelated`,
   // so the dither pattern comes out as squares you can count rather than as a
   // fine grain that disappears at a glance.
-  { name: "hero", from: "src/assets/site/header.jpg", widths: [320, 450, 612] },
+  { name: "hero", from: "src/assets/site/header.jpg", widths: [430, 600, 816] },
 ];
 
 /**
