@@ -107,10 +107,17 @@
   --ui-h-solo: calc(var(--ui-h) + var(--ui-pad) * 2);
 
   --nav-pill: calc(var(--ui-h) + var(--ui-pad) * 2);
-  /* What a page leaves clear at the top for the fixed bar. The bar sits on
-     the edge now rather than a --gap below it, so this is its own height plus
-     one gap of breathing room under it. */
-  --nav-space: calc(var(--gap) + var(--nav-pill));
+  /* The break between one band of a page and the next: under the nav, under
+     the blog's filter row. One number so the two match — at --gap the nav sat
+     noticeably closer to what followed it than the filter row did to the list
+     it governs, and the page read as top-heavy for no reason anyone could
+     point at.
+
+     --nav-space is what a page leaves clear at the top for the fixed bar: the
+     bar's own height, since it sits on the edge rather than below it, plus one
+     band under it. */
+  --band: 36px;
+  --nav-space: calc(var(--band) + var(--nav-pill));
 
   /* One face, one stack. The symbol subset shares the family name, so a glyph
      the variable file doesn't carry is picked up by the other face without
