@@ -218,13 +218,15 @@ const options = [
     outline-offset: 2px;
   }
 
-  /* Vertical list — one post per row, full width of the column. The gap is
-     wider than the grid's: these are full-bleed photographs stacked one above
-     another in a single column, and at --gap two of them read as one tall
-     image with a seam rather than as two cards. */
+  /* Vertical list — one post per row, full width of the column, and the same
+     --gap between them as the home page puts between its cards and around its
+     edges. It was two and a half times that for a while, to stop two
+     full-bleed photographs reading as one tall image with a seam; the plates
+     the cards carry now do that job, and the wider gap only made the blog
+     stack differently from everything else. */
   .list {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--gap) * 2.5);
+    gap: var(--gap);
   }
 </style>
