@@ -7,18 +7,28 @@ const files = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 
+// Two of the eleven are drawn as a white mark on a filled field rather than as
+// a shape on nothing, and `brightness(0)` takes every opaque pixel to black —
+// so those two flattened to a solid rectangle. Their silhouettes are cut from
+// their own luminance by scripts/dither.mjs instead, and arrive here as
+// ordinary assets with their own dimensions. The filter still applies and is
+// simply a no-op on them: the cutouts are already black.
+import nhsCutout from "../assets/generated/nhs-cutout.png";
+import eeCutout from "../assets/generated/ee-cutout.png";
+
+const CUTOUTS: Record<string, ImageMetadata> = {
+  nhs: nhsCutout,
+  ee: eeCutout,
+};
+
 const logos = Object.entries(files)
-  .map(([path, mod]) => ({
-    src: mod.default,
-    alt: `${
-      path
-        .split("/")
-        .pop()!
-        .replace("_logo.svg", "")
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase())
-    } logo`,
-  }))
+  .map(([path, mod]) => {
+    const name = path.split("/").pop()!.replace("_logo.svg", "");
+    return {
+      src: CUTOUTS[name] ?? mod.default,
+      alt: `${name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} logo`,
+    };
+  })
   .sort((a, b) => a.alt.localeCompare(b.alt));
 
 // The animation slides the track by half its width, so the two halves have to

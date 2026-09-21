@@ -2,8 +2,9 @@
 dist/
 # generated types
 .astro/
-# dithered images, baked from src/assets by scripts/dither.mjs on every build
+# baked from src/assets by scripts/dither.mjs on every build
 public/dither/
+src/assets/generated/
 
 # dependencies
 node_modules/

@@ -13,9 +13,12 @@ import magpie from "../assets/home/magpie_app.webp";
 import waiting from "../assets/home/waiting_to_live.webp";
 import vault from "../assets/home/hsbc_vault.webp";
 import creativeTechStack from "../content/blog/_media/creative-tech-stack/creative-tech-stack.png";
+import drumCutout from "../assets/generated/drum-cutout.png";
 
 import grandPrix from "../assets/logos/grand-prix.png";
-import pencil from "../assets/logos/newblood_white_pencil.svg";
+// The D&AD mark rather than the White Pencil artwork: the pencil is drawn
+// head-on, so its silhouette is a pentagon and reads as a house.
+import dad from "../assets/logos/dad_logo.svg";
 
 // TikTok view count, projected from a known sample so the number stays honest
 // as it ages. Computed at build time — no ticker, no client JS.
@@ -50,7 +53,7 @@ const awards = [
   },
   {
     href: "https://www.dandad.org/profiles/person/202333/jonothan-hunt/",
-    src: pencil,
+    src: dad,
     alt: "D&AD New Blood White Pencil",
     label: "D&AD New Blood",
     value: "White Pencil",
@@ -58,7 +61,7 @@ const awards = [
   },
   {
     href: "https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie",
-    src: "/dither/drum-cutout.png",
+    src: drumCutout,
     alt: "The Drum award",
     label: "The Drum",
     value: "Awards",
@@ -75,9 +78,9 @@ const awards = [
        dissolving down into the page through a dithered alpha ramp rather than
        fading through a gradient. Desktop only — on a narrow screen it would
        sit behind the copy with nowhere to go. -->
-  <div class="page-photo fade-down" aria-hidden="true">
+  <div class="page-photo" aria-hidden="true">
     <img
-      class="page-photo__img dither"
+      class="page-photo__img dither fade-down"
       src={`/dither/hero-${HERO_WIDTHS.at(-1)}.png`}
       srcset={heroSrcset}
       sizes="100vw"
@@ -259,6 +262,15 @@ const awards = [
     }
   }
 
+  /* The lead card carries the longest title on the page at the largest size,
+     and it spans two rows — so its own min-height has to clear both rows of
+     the cards beside it, or the title eats the space its photo needs. */
+  @media (min-width: 768px) {
+    .grid--work > :global(:first-child) {
+      min-height: calc(320px * 2 + var(--gap));
+    }
+  }
+
   /* Hero */
   .page-photo {
     display: none;
@@ -276,9 +288,29 @@ const awards = [
       /* The image is pure black and white, so left alone it would fight the
          copy for the whole top of the page. Multiplying it into the paper
          keeps the blacks and lets the page colour take the whites, and the
-         opacity settles how far forward it sits. */
+         opacity settles how far forward it sits.
+         Two fades on two elements. The dither ramp dissolves the bottom edge
+         and lives on the image (.fade-down); this one clears the left, where
+         the copy sits, and lives on the wrapper. They have to be on separate
+         elements for two reasons: mask layers composite with `add`, so
+         stacking a horizontal gradient onto the ramp would have added coverage
+         back rather than taken it away — and .fade-down sets mask-size,
+         -position and -repeat as well, which a second rule overriding only
+         mask-image would inherit, tiling this gradient in a 4px column. */
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgb(0 0 0 / 0.3) 36%,
+        #000 64%
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgb(0 0 0 / 0.3) 36%,
+        #000 64%
+      );
       mix-blend-mode: multiply;
-      opacity: 0.22;
+      opacity: 0.34;
     }
 
     .page-photo__img {
