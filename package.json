@@ -6,8 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dither": "node scripts/dither.mjs",
+    "dev": "npm run dither && astro dev",
+    "build": "npm run dither && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

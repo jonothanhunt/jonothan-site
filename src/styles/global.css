@@ -1,17 +1,39 @@
 /* ============================================================
-   Fonts — swap, so text paints immediately in a fallback.
+   Fonts
+
+   Two faces of one typeface, split by coverage. The variable file is
+   Fontsource's latin subset — 229 codepoints, which is everything the site
+   writes in prose but none of the furniture the layout is built from. The
+   second file is a subset I cut from JetBrains Mono's static Regular holding
+   only box drawing, block elements, geometric shapes, arrows and maths
+   operators: 348 glyphs in 8.8kB.
+
+   The ranges have to be declared on both, or the browser assumes the first
+   face covers everything and renders tofu for ⊕ and ░. The symbol face is
+   declared second so it wins the arrows the two ranges share, and given a
+   weight *range* it doesn't really have — that stops the browser synthesising
+   a bold, which on a 1px box-drawing rule looks like a smudge.
    ============================================================ */
 @font-face {
-  font-family: "Lastik";
-  src: url("/fonts/lastik.woff2") format("woff2-variations");
-  font-weight: 50 100;
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono.woff2") format("woff2-variations");
+  font-weight: 100 800;
   font-display: swap;
-  /* Tuned so the fallback occupies near-identical space; kills the reflow. */
-  size-adjust: 105%;
-  ascent-override: 92%;
-  descent-override: 22%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-symbols.woff2") format("woff2");
+  font-weight: 100 800;
+  font-display: swap;
+  unicode-range: U+2190-21FF, U+2200-22FF, U+2300-23FF, U+2500-259F,
+    U+25A0-25FF, U+2700-27BF;
+}
+
+/* Kept for article body copy only — see --body. */
 @font-face {
   font-family: "Hyperlegible";
   src: url("/fonts/hyperlegible.woff2") format("woff2-variations");
@@ -23,116 +45,120 @@
    Tokens
    ============================================================ */
 :root {
-  --paper: #f6f1e8;
-  /* Same colour as channels, so gradients can fade to it at any alpha and
-     land exactly on the page background with no seam. */
-  --paper-rgb: 246 241 232;
-  --ink: #17130f;
-  --ink-soft: #5b5147;
+  /* Neutral warm grey, a shade off white — the ground everything is printed
+     on. Dark enough that a paper-white panel reads as a panel. */
+  --paper: #e8e7e3;
+  --paper-rgb: 232 231 227;
+  /* Panels and the nav: a half-step up from the page, not white. */
+  --panel: #f2f1ee;
+  --ink: #0e0e0c;
+  --ink-rgb: 14 14 12;
+  --ink-soft: #6c6a64;
 
-  /* Carried over from the original site. */
-  --heading: #065f46; /* emerald-800 */
-  --body-ink: #075985; /* sky-800 */
+  /* Hairlines. Everything structural is one of these three weights and
+     nothing else — it's what keeps a page of squares from turning into a
+     patchwork of borders. */
+  --rule: rgb(var(--ink-rgb) / 0.16);
+  --rule-mid: rgb(var(--ink-rgb) / 0.3);
+  --rule-ink: rgb(var(--ink-rgb) / 0.9);
 
-  /* Bright block colours — saturated against the neutral paper. */
-  --sun: #ffb703;
-  --flame: #ff5436;
-  --grape: #6d4aff;
-  --sea: #009e8e;
-  --sky: #2b8cf0;
-  --rose: #ff4d8d;
-  --leaf: #4aa72a;
+  /* Block colours, flat and screen-printed. Tuned so black type clears 7:1 on
+     every one of them — the blocks carry ink, never white, which is what makes
+     them read as a print rather than a UI. */
+  --sun: #ffc400;
+  --flame: #ff6a3d;
+  --grape: #a08cff;
+  --sea: #00c4a7;
+  --sky: #6fb5ff;
+  --rose: #ff8fb8;
+  --leaf: #8ad45c;
 
-  /* Matched to the original site: rounded-4xl cards, p-4 insets, gap-4
-     gutters, max-w-6xl column. */
-  --r-lg: 32px;
-  --r-md: 26px;
-  --r-sm: 14px;
-  --pill: 999px;
+  /* Square. The tokens stay so nothing has to be hunted down, but there is one
+     radius on the site and it is zero. */
+  --r-lg: 0px;
+  --r-md: 0px;
+  --r-sm: 0px;
+  --pill: 0px;
 
   --gap: 16px;
-  /* Fixed, not fluid: the inset inside every block is the same on a phone as
-     on a 4K display. */
   --pad: 16px;
   --shell: 1152px;
-  /* Blog column. 768px leaves a 736px card once the gutters are off, which is
-     what the original renders. */
   --read: 768px;
-  /* Article measure in rem, so the prose and the buttons under it line up
-     regardless of their own font sizes (72ch differs per font-size). */
   --measure: 41rem;
 
-  /* One height for every chip, pill and button on the site, so nothing is
-     subtly out of step. The nav bar is this plus its own 8px padding. */
-  --ui-h: 36px;
-  --ui-pad: 8px;
-  /* Two sizes, by nesting. A control inside a pill-shaped container (the nav
-     pills in the nav bar, the two halves of the copy bar) takes --ui-h. A
-     control sitting directly on the page is itself the container, so it takes
-     the container's height. */
+  /* One height for every control on the site. */
+  --ui-h: 32px;
+  --ui-pad: 6px;
   --ui-h-solo: calc(var(--ui-h) + var(--ui-pad) * 2);
 
-  /* The nav floats: --gap above it, then the bar, then --gap before content.
-     Every page uses --nav-space as its top padding so the rhythm matches the
-     side gutters exactly. */
   --nav-pill: calc(var(--ui-h) + var(--ui-pad) * 2);
   --nav-space: calc(var(--gap) * 2 + var(--nav-pill));
 
-  /* The nav's three pill themes — a -100 fill with -800 text. Kept here
-     rather than in Nav.astro so anything else that needs to read as the same
-     control (the "All posts" link) uses the one definition. */
-  --pill-work-bg: #ffedd5;
-  --pill-work-fg: #9a3412;
-  --pill-blog-bg: #e0f2fe;
-  --pill-blog-fg: #075985;
-  --pill-contact-bg: #ffe4e6;
-  --pill-contact-fg: #9f1239;
-
-  --display: "Lastik", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  /* One face, one stack. The symbol subset shares the family name, so a glyph
+     the variable file doesn't carry is picked up by the other face without
+     leaving the typeface. */
+  --mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+  /* Article body copy only. Mono is right for every label, heading and value
+     on the site, and wrong for six thousand words of an essay: a monospaced
+     face gives up the varying letter widths that make a line of prose
+     scannable. Everything that frames the writing is mono; the writing itself
+     is Hyperlegible, which is what the site already shipped. */
   --body: "Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--mono);
 
-  /* ---- Type and spacing scale -------------------------------------------
-     Stepped at breakpoints rather than interpolated with vw. Fluid clamps
-     mean every window width gets its own slightly-off size — nothing is ever
-     the size it was designed at, and dragging the window resizes the text
-     continuously. These change three times and are otherwise fixed. */
+  /* ---- Type ------------------------------------------------------------
+     Mono at display sizes needs negative tracking or it reads as a spreadsheet;
+     at label sizes it needs positive tracking or the caps close up. Both are
+     set per-role below rather than globally. */
   --t-body: 1rem;
-  --t-lede: 1.5rem;
-  --t-h1: 3.25rem;
-  --t-h2: 2.25rem;
-  --t-h3: 1.5rem;
-  /* Lead card in the work grid, and the blog row headings. */
-  --t-card-feature: 1.875rem;
-  /* Blog row headings — 30px on the original. */
-  --t-card-row: 1.875rem;
-  /* Measured off the original: the Work/Blog/Contact links run at the base
-     16px and only the brand is text-2xl. Sizing the whole bar at 24px made it
-     enormous. */
-  --t-nav: 1rem;
-  --t-brand: 1.5rem;
-  /* Headings inside an article body. */
-  --t-prose-h2: 1.6rem;
-  --t-prose-h3: 1.25rem;
+  --t-lede: 1.125rem;
+  --t-h1: 2.5rem;
+  --t-h2: 1.75rem;
+  --t-h3: 1.125rem;
+  --t-card-feature: 1.75rem;
+  --t-card-row: 1.375rem;
+  --t-nav: 0.8125rem;
+  --t-brand: 0.9375rem;
+  --t-label: 0.6875rem;
+  --t-prose-h2: 1.375rem;
+  --t-prose-h3: 1.0625rem;
 
-  --hero-pad: 24px;
+  --hero-pad: 20px;
   --post-pad: 32px;
   --nf-pad: 48px;
 
-  /* Almost all of the distance up front, then a long tail into the end —
-     nothing arrives with a hard stop. */
   --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---- Ordered-dither tiles -------------------------------------------
+     Five 4×4 Bayer tiles as data URIs, one per density. Used as backgrounds
+     for flat texture and as mask layers for stepped density ramps. Cells are
+     picked in Bayer order, so stacking them reads as one dither ramp rather
+     than five unrelated patterns.
+
+     They're here rather than in a file because each is under 200 bytes: a
+     request per tile would cost more than the bytes do. */
+  --dot-1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath fill='%23000' d='M0 0h1v1H0zM2 2h1v1H2z'/%3E%3C/svg%3E");
+  --dot-2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath fill='%23000' d='M0 0h1v1H0zM2 2h1v1H2zM2 0h1v1H2zM0 2h1v1H0z'/%3E%3C/svg%3E");
+  --dot-3: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath fill='%23000' d='M0 0h1v1H0zM2 2h1v1H2zM2 0h1v1H2zM0 2h1v1H0zM1 1h1v1H1zM3 3h1v1H3z'/%3E%3C/svg%3E");
+  --dot-4: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath fill='%23000' d='M0 0h1v1H0zM2 2h1v1H2zM2 0h1v1H2zM0 2h1v1H0zM1 1h1v1H1zM3 3h1v1H3zM3 1h1v1H3zM1 3h1v1H1z'/%3E%3C/svg%3E");
+  --dot-6: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath fill='%23000' d='M0 0h1v1H0zM2 2h1v1H2zM2 0h1v1H2zM0 2h1v1H0zM1 1h1v1H1zM3 3h1v1H3zM3 1h1v1H3zM1 3h1v1H1zM1 0h1v1H1zM3 2h1v1H3zM3 0h1v1H3zM1 2h1v1H1z'/%3E%3C/svg%3E");
+
+  /* The registration crosshair in each block's corners, and the dot-grid
+     motif. Drawn rather than set, so they don't depend on a glyph existing. */
+  --mark-reg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M4.5 0v9M0 4.5h9'/%3E%3Ccircle cx='4.5' cy='4.5' r='2.5'/%3E%3C/svg%3E");
 }
 
-/* The original steps once, at Tailwind's `md`. Everything above that is the
-   size it was designed at rather than a function of the window. */
 @media (min-width: 768px) {
   :root {
-    --t-h1: 4.5rem;
-    --t-h2: 2.25rem;
-    --t-card-feature: 3rem;
-    --t-prose-h2: 1.9rem;
-    --t-prose-h3: 1.375rem;
-    --hero-pad: 40px;
+    --t-h1: 4rem;
+    --t-h2: 2rem;
+    --t-lede: 1.25rem;
+    --t-card-feature: 2.5rem;
+    --t-prose-h2: 1.625rem;
+    --t-prose-h3: 1.1875rem;
+    --hero-pad: 32px;
     --post-pad: 40px;
     --nf-pad: 80px;
   }
@@ -140,15 +166,16 @@
 
 @media (min-width: 1080px) {
   :root {
-    --t-prose-h2: 2.2rem;
-    --t-prose-h3: 1.5rem;
+    --t-h1: 5rem;
+    --t-prose-h2: 1.875rem;
+    --t-prose-h3: 1.25rem;
     --post-pad: 56px;
     --nf-pad: 120px;
   }
 }
 
 /* ============================================================
-   Reset — small and deliberate
+   Reset
    ============================================================ */
 *,
 *::before,
@@ -160,23 +187,18 @@
   margin: 0;
 }
 
-/* No global smooth scrolling: arriving at /#work from another page should land
-   instantly. The places that want easing ask for it explicitly. */
 html {
   background: var(--paper);
   color: var(--ink);
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: var(--nav-space);
-  /* Always reserve the scrollbar's width. Filtering the blog down to a short
-     list otherwise drops the scrollbar, which widens the viewport and shifts
-     every centred thing on the page sideways. */
   scrollbar-gutter: stable;
 }
 
 body {
-  font-family: var(--body);
+  font-family: var(--mono);
   font-size: var(--t-body);
-  line-height: 1.6;
+  line-height: 1.55;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -203,10 +225,12 @@ button {
   cursor: pointer;
 }
 
+/* Square, like everything else — a rounded focus ring on a square control is
+   the one place the old radius would still show. */
 :focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
-  border-radius: 4px;
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -222,15 +246,16 @@ button {
 /* ============================================================
    Type
    ============================================================ */
-/* Lastik's weight axis runs 50–100. 70 is the original site's display weight —
-   100 is the very top of the axis and reads far too heavy. */
+/* Uppercase mono, tight. The weight axis tops out at 800, and headings sit
+   there — at 700 the display sizes read like body copy set large. */
 h1,
 h2,
 h3 {
   font-family: var(--display);
-  font-weight: 70;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
   text-wrap: balance;
 }
 
@@ -240,8 +265,12 @@ h1 {
 h2 {
   font-size: var(--t-h2);
 }
+/* Card titles. Tracking eases off as the size comes down — the same -0.045em
+   that stops a 5rem heading sprawling closes a 1.1rem one up too far. */
 h3 {
   font-size: var(--t-h3);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 p {
@@ -251,7 +280,6 @@ p {
 /* ============================================================
    Layout
    ============================================================ */
-/* Reading width — used by the blog and about pages. */
 .shell {
   width: 100%;
   max-width: var(--shell);
@@ -259,8 +287,6 @@ p {
   padding-inline: var(--gap);
 }
 
-/* Full-bleed: edge to edge with only a gutter, so the blocks read as one
-   full-page surface rather than a centred column. */
 .bleed {
   width: 100%;
   padding-inline: var(--gap);
@@ -270,28 +296,34 @@ p {
   margin-top: var(--gap);
 }
 
-/* Explicit column counts rather than auto-fit: at full-bleed widths auto-fit
-   would keep adding columns and the cards would shrink to nothing. */
 .grid {
   display: grid;
   gap: var(--gap);
   grid-template-columns: 1fr;
 }
 
-/* One column, then straight to three — the original has no two-column state,
-   which is what let a half-empty row appear at tablet widths. */
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* A block is the core unit: a big rounded slab of colour. */
+/* ============================================================
+   Blocks
+
+   The unit of the page: a square slab of flat colour carrying black type.
+   `isolation: isolate` is load-bearing rather than tidy — every image inside a
+   block paints in `multiply`, and without it the blend group is the whole page,
+   so the compositor has to re-read the backdrop behind the block on any frame
+   that touches it. Isolated, the group is the block and nothing outside it is
+   ever consulted.
+   ============================================================ */
 .block {
-  border-radius: var(--r-lg);
+  border-radius: 0;
   padding: var(--pad);
   position: relative;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .block--sun {
@@ -299,97 +331,302 @@ p {
 }
 .block--flame {
   background: var(--flame);
-  color: #fff;
 }
 .block--grape {
   background: var(--grape);
-  color: #fff;
 }
 .block--sea {
   background: var(--sea);
-  color: #fff;
 }
 .block--sky {
   background: var(--sky);
-  color: #fff;
 }
 .block--rose {
   background: var(--rose);
-  color: #fff;
 }
 .block--leaf {
   background: var(--leaf);
-  color: #fff;
 }
 .block--paper {
-  background: #fffdf8;
+  background: var(--panel);
+}
+/* Inverted, as the reference's label chips are: ink ground, paper type. */
+.block--ink {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* A hairline frame. Only panels on paper need one — a block of colour is
+   already separated from the page by its colour. */
+.framed {
+  box-shadow: inset 0 0 0 1px var(--rule-mid);
+}
+
+.framed--ink {
+  box-shadow: inset 0 0 0 1px var(--rule-ink);
 }
 
 /* ============================================================
-   Pills / buttons
+   Registration marks
+
+   Crosshairs in the corners of a block, as on a printer's proof. Two
+   background layers on one pseudo-element rather than four positioned
+   children, so the whole motif costs nothing in the box tree.
+   ============================================================ */
+.marks::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  background-image: var(--mark-reg), var(--mark-reg);
+  background-position: left top, right bottom;
+  background-repeat: no-repeat;
+  background-size: 9px 9px;
+  opacity: 0.45;
+  z-index: 2;
+}
+
+.marks--all::before {
+  background-image: var(--mark-reg), var(--mark-reg), var(--mark-reg),
+    var(--mark-reg);
+  background-position: left top, right top, left bottom, right bottom;
+}
+
+/* ============================================================
+   Labels, spec rows, meters
+
+   The vocabulary the reference is built from: a small letterspaced caps label,
+   a value hard right, a hairline under. Everything factual on the site is one
+   of these.
+   ============================================================ */
+.label {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* Carried over as the name the components already use. */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.label--soft,
+.eyebrow--soft {
+  color: var(--ink-soft);
+}
+
+/* LABEL ───── value. The rule fills whatever is left between the two, so the
+   row works at any width without a fixed column. */
+.spec {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.spec__rule {
+  flex: 1;
+  height: 0;
+  border-top: 1px solid currentColor;
+  opacity: 0.28;
+  /* Baseline-aligned children with no text won't sit on the baseline, so nudge
+     the rule to the optical middle of the caps. */
+  transform: translateY(-0.35em);
+}
+
+.spec__val {
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* A run of ▮/▯ would need a glyph per step and re-wrap at every width. This is
+   one element: a repeating hard-stop gradient for the ticks, masked to the
+   proportion being reported. */
+.meter {
+  --meter: 0.5;
+  height: 10px;
+  background-image: repeating-linear-gradient(
+    to right,
+    currentColor 0 2px,
+    transparent 2px 5px
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0 calc(var(--meter) * 100%),
+    rgb(0 0 0 / 0.22) calc(var(--meter) * 100%) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0 calc(var(--meter) * 100%),
+    rgb(0 0 0 / 0.22) calc(var(--meter) * 100%) 100%
+  );
+}
+
+/* The dot-grid motif from the reference's card corners. */
+.dotgrid {
+  width: 18px;
+  height: 18px;
+  background-image: var(--dot-2);
+  background-size: 4px 4px;
+  opacity: 0.55;
+}
+
+/* ============================================================
+   Controls
+
+   One control, two states. Resting is a hairline box; active is the same box
+   filled with ink and the type knocked out of it. No size change between the
+   two, so nothing reflows when a filter or a nav item lights up.
    ============================================================ */
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5em;
+  gap: 0.55em;
   height: var(--ui-h-solo);
-  padding-inline: 16px;
-  border-radius: var(--pill);
-  background: rgb(0 0 0 / 0.07);
-  font-size: 1rem;
-  font-weight: 600;
+  padding-inline: 12px;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px var(--rule-mid);
+  background: transparent;
+  font-family: var(--mono);
+  font-size: var(--t-nav);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
-  /* UI chrome isn't prose — dragging across it shouldn't select it. */
   user-select: none;
   -webkit-user-select: none;
+  transition:
+    background-color 0.15s linear,
+    color 0.15s linear,
+    box-shadow 0.15s linear;
 }
 
-/* Reads as the nav's Blog pill — same display face, same colour pairing — so
-   every blog-context action (All posts, a post's links, Share) is one control
-   at one size. Replaces the old one-off --solid ink fill and --ghost 2px
-   outline, neither of which appeared anywhere else on the site. */
 .pill--blog {
-  background: var(--pill-blog-bg);
-  color: var(--pill-blog-fg);
-  font-family: var(--display);
-  font-weight: 70;
-  font-size: var(--t-nav);
+  box-shadow: inset 0 0 0 1px var(--rule-ink);
 }
 
-a.pill,
-button.pill {
-  transition: transform 0.12s ease;
+.pill--on {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--ink);
 }
 
 @media (hover: hover) {
   a.pill:hover,
-  button.pill:hover {
-    transform: translateY(-2px);
+  button.pill:hover,
+  label.pill:hover {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--ink);
   }
 }
 
+/* An external link's ↗. The arrow that reads right is U+2197, which JetBrains
+   Mono has but the latin subset doesn't carry — and pulling the symbol face in
+   for one glyph puts it at a different weight to the label beside it. Rotating
+   the ↑ the text face does have gets the same mark in the same weight. */
+.out::after {
+  content: "\2191";
+  display: inline-block;
+  transform: rotate(45deg);
+  margin-inline-start: 0.35em;
+}
+
 /* ============================================================
-   Header / footer
+   Media treatments
+
+   Three of them, and which one an image gets is decided by what it sits on:
+
+     .duo    — on a block of colour. Flattened to one channel and multiplied
+               into the block, so the colour shows through the lights and the
+               darks go to ink. A duotone, printed rather than composited.
+     .dither — a 1-bit image baked by scripts/dither.mjs. Nothing to do here
+               but stop the browser smoothing it.
+     .plain  — on paper, in an article. Left alone.
+   ============================================================ */
+.duo {
+  /* Desaturate, then push the contrast so the mid greys don't turn the block
+     to mud once they multiply into it. `brightness` above 1 protects the
+     highlights that let the block colour read through. */
+  filter: grayscale(1) contrast(1.35) brightness(1.12);
+  mix-blend-mode: multiply;
+}
+
+/* The same on a paper ground, where multiply has nothing to tint and only
+   costs a blend group. */
+.block--paper .duo,
+.duo--flat {
+  mix-blend-mode: normal;
+  filter: grayscale(1) contrast(1.2);
+}
+
+.dither {
+  image-rendering: pixelated;
+}
+
+/* Dither-ramp fade. Two mask layers: the 4px ramp tiled along the bottom at
+   its native height, and a flat fill covering everything above it. Mask layers
+   composite with `add` by default, so the two make one mask — opaque, then
+   dissolving into the page over the last 192px.
+
+   A linear-gradient mask would fade smoothly and look like a fade; this
+   dissolves, which is the same move the images make. */
+.fade-down {
+  -webkit-mask-image: url("/dither/ramp-down.png"), linear-gradient(#000, #000);
+  mask-image: url("/dither/ramp-down.png"), linear-gradient(#000, #000);
+  -webkit-mask-size: 4px 192px, 100% calc(100% - 192px);
+  mask-size: 4px 192px, 100% calc(100% - 192px);
+  -webkit-mask-position: bottom left, top left;
+  mask-position: bottom left, top left;
+  -webkit-mask-repeat: repeat-x, no-repeat;
+  mask-repeat: repeat-x, no-repeat;
+}
+
+.fade-up {
+  -webkit-mask-image: url("/dither/ramp-up.png"), linear-gradient(#000, #000);
+  mask-image: url("/dither/ramp-up.png"), linear-gradient(#000, #000);
+  -webkit-mask-size: 4px 192px, 100% calc(100% - 192px);
+  mask-size: 4px 192px, 100% calc(100% - 192px);
+  -webkit-mask-position: top left, bottom left;
+  mask-position: top left, bottom left;
+  -webkit-mask-repeat: repeat-x, no-repeat;
+  mask-repeat: repeat-x, no-repeat;
+}
+
+/* Flat dither texture, for a field of colour that needs a surface. */
+.tex {
+  background-image: var(--dot-2);
+  background-size: 4px 4px;
+}
+.tex--light {
+  background-image: var(--dot-1);
+}
+.tex--heavy {
+  background-image: var(--dot-4);
+}
+
+/* ============================================================
+   Footer / skip
    ============================================================ */
 .site-foot {
   margin-top: auto;
-  padding: 48px 0 32px;
-  color: var(--ink-soft);
-  font-size: 0.875rem;
-}
-
-.site-foot .shell {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.site-foot a {
-  color: inherit;
+  padding: 56px 0 24px;
+  font-size: var(--t-label);
 }
 
 .skip {
@@ -403,7 +640,6 @@ button.pill {
   background: var(--ink);
   color: var(--paper);
   padding: 10px 16px;
-  border-radius: var(--r-sm);
 }
 
 /* ============================================================
@@ -411,12 +647,11 @@ button.pill {
    ============================================================ */
 .marquee {
   overflow: hidden;
-  border-radius: var(--pill);
-  background: var(--flame);
-  color: #fff;
-  padding: 14px 0;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
 }
 
 .marquee ul {
@@ -425,8 +660,11 @@ button.pill {
   width: max-content;
   list-style: none;
   padding: 0;
-  font-family: var(--display);
-  font-size: 1.25rem;
+  font-family: var(--mono);
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   animation: slide 38s linear infinite;
 }
 
@@ -456,15 +694,14 @@ button.pill {
   border: 0;
 }
 
-.eyebrow {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.75;
-}
-
 .lede {
   font-size: var(--t-lede);
-  line-height: 1.45;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+}
+
+/* A hairline across the page, with optional label. */
+.hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
 }
