@@ -24,8 +24,6 @@ const links = [
         ))
       }
     </ul>
-
-    <p class="foot__colophon">Astro &#x00B7; No trackers</p>
   </div>
 </footer>
 
@@ -34,18 +32,18 @@ const links = [
     color: var(--ink);
   }
 
-  /* One line on desktop: name, links, colophon, with a single hairline closing
-     the page off above it. It used to be three stacked spec rows, each with a
-     rule of its own — three lines of type and three lines of rule for six
-     words and four links, and the two rules stacked up against the section
-     divider above them read as a fence. */
+  /* One line: the byline hard left, the links hard right, and nothing drawn
+     between them or above them. It was three stacked spec rows with a rule
+     each; then one row with a rule over it and a colophon on the end. Both
+     were more structure than six words and four links need — the page has
+     already ended by the time you get here, and a line saying so is a line
+     saying so twice. */
   .foot {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
+    justify-content: space-between;
     gap: 10px 24px;
-    border-top: 1px solid var(--rule-mid);
-    padding-top: 14px;
     font-size: var(--t-label);
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -60,16 +58,13 @@ const links = [
     color: var(--ink-soft);
   }
 
-  /* Pushed hard right of the links, and dropped below them before there is
-     room for all three on one line. */
-  .foot__colophon {
-    margin: 0 0 0 auto;
-    color: var(--ink-soft);
-  }
-
+  /* `auto` rather than relying on space-between alone, so the links stay hard
+     right on the wrapped layout too — where they are the only thing on their
+     row and space-between has nothing to push them against. */
   .foot__links {
     display: flex;
     flex-wrap: wrap;
+    margin-left: auto;
     /* The separator is the gap plus a hairline, drawn per item below — a gap
        alone reads as a list, the rules read as a set of fields. */
     gap: 0 18px;

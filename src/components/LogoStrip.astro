@@ -1,4 +1,5 @@
 ---
+import type { ImageMetadata } from "astro";
 
 /**
  * The client strip: brand marks in their own colours, rasterised small and
@@ -48,6 +49,27 @@ const files = import.meta.glob<{ default: ImageMetadata }>(
    legible, coarse enough to stay obviously sampled. */
 const DISPLAY_H = 28;
 
+/* And the widest any of them is allowed to get.
+   ---
+   Height alone is the wrong constraint for a set of marks this mixed. Duracell
+   is a long, short wordmark: matched on height it came out 190px wide against
+   Microsoft's 130 and BT's 28, so it read as the client rather than as one of
+   eleven. Capping the width and letting the height come down for the few that
+   hit it evens the row out — they all still sit on the same baseline, the wide
+   ones are just a little shorter, which is what the eye expects of a wordmark
+   anyway. */
+const MAX_W = 130;
+
+/** Height-matched, unless that would make it wider than MAX_W. */
+function size(src: ImageMetadata) {
+  const width = Math.round((src.width * DISPLAY_H) / src.height);
+  if (width <= MAX_W) return { width, height: DISPLAY_H };
+  return {
+    width: MAX_W,
+    height: Math.round((src.height * MAX_W) / src.width),
+  };
+}
+
 const logos = Object.entries(files)
   .map(([path, mod]) => {
     const name = path.split("/").pop()!.replace("-pixel.png", "");
@@ -81,8 +103,7 @@ const track = [...half, ...half];
           <img
             src={src.src}
             alt={i < logos.length ? alt : ""}
-            width={Math.round((src.width * DISPLAY_H) / src.height)}
-            height={DISPLAY_H}
+            {...size(src)}
             loading="eager"
             decoding="sync"
           />
@@ -138,9 +159,10 @@ const track = [...half, ...half];
 
   /* `pixelated` turns off the smoothing the browser would otherwise apply on
      the way up, which is the other half of the effect — the baked hard alpha
-     is the first half. The width and height attributes carry the doubled size,
-     so nothing here has to restate it. */
-  /* Flattened to ink at rest. `brightness(0)` takes every opaque pixel to
+     is the first half. The width and height attributes carry the drawn size,
+     so nothing here has to restate it.
+
+     Flattened to ink at rest. `brightness(0)` takes every opaque pixel to
      black and leaves the alpha alone, which is why the three counter-change
      marks still need their silhouette cut from luminance at build time —
      otherwise the knockout fills in.
@@ -154,6 +176,24 @@ const track = [...half, ...half];
     image-rendering: pixelated;
     filter: brightness(0);
     opacity: 0.8;
+  }
+
+  /* Smaller on a phone, and slower with it. The marquee crosses a narrower
+     screen, so at the desktop duration the same run of marks arrives and
+     leaves in a fraction of the time, and the row reads as busy rather than as
+     drifting. `width: auto` rather than a second pair of numbers: the height
+     is what changes and the ratio follows it, including for the few marks the
+     width cap has already shortened. */
+  @media (max-width: 767px) {
+    img {
+      height: 22px;
+      width: auto;
+    }
+
+    ul {
+      gap: 2.5rem;
+      animation-duration: 320s;
+    }
   }
 
   @media (hover: hover) {
