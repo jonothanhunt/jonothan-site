@@ -419,18 +419,36 @@ const awards = [
   .page-photo {
     position: relative;
     z-index: 0;
-    height: 58vh;
-    min-height: 320px;
-    max-height: 480px;
-    margin-bottom: -15vh;
+    /* Tall enough to run the whole height of the hero, and pulled back up by
+       roughly half of that so the copy sits over its lower half rather than
+       after it. The two are a pair: whatever is added to one has to come off
+       the other, or the copy moves rather than the photograph getting longer.
+
+       Both in vh, and no min- or max-height, for the same reason — a clamp on
+       one and not the other would let them drift apart on a short screen and
+       the overlap would stop being where it was designed to be. */
+    height: 88vh;
+    margin-bottom: -42vh;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(
+    /* A long fade, and not a straight one.
+       ---
+       The top third stays at full strength, because that is the half of the
+       photograph nobody is reading over. Then it drops steeply through the
+       band where the heading and the lede sit — a plain linear ramp left the
+       image at about half strength right where the type crosses it, and black
+       serif on a busy photograph at half strength is not readable. Past that
+       it tails off gently to nothing at the bottom edge, so the picture runs
+       on behind the copy rather than stopping at it. */
+    --fade: linear-gradient(
       to bottom,
       #000 0%,
-      #000 40%,
-      transparent 94%
+      #000 34%,
+      rgb(0 0 0 / 0.3) 52%,
+      rgb(0 0 0 / 0.1) 68%,
+      transparent 100%
     );
-    mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 94%);
+    -webkit-mask-image: var(--fade);
+    mask-image: var(--fade);
   }
 
   /* The photo is positioned, so without this the copy that overlaps it would
