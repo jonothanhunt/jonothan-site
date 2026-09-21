@@ -526,8 +526,12 @@ const awards = [
     align-items: flex-start;
   }
 
+  /* Narrow enough that "and developer" turns onto a second line. The sentence
+     reads better broken at its own clause than run to the edge of the column,
+     and it stops the lede from being nearly as wide as the heading above it —
+     which had the two competing rather than stacking. */
   .hero__body .lede {
-    max-width: 30rem;
+    max-width: 22rem;
     /* Balanced rather than pretty: three lines of roughly equal length under
        a two-line heading reads as a block, where `pretty` left a long first
        line over a short last one. */

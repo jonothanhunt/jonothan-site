@@ -309,14 +309,15 @@ function Ready({ onReady }) {
    the desk occupies, a little finer than a VGA screen and still obviously a
    grid.
 
-   LEVELS is the colour depth. Six a channel is 216 colours, which is the old
-   web-safe palette exactly, and is where this had to land: at four the whole
-   view through the window collapsed. That scene is five ridge planes separated
-   only by value — mountains receding into trees — and four levels gives the
-   shadows a single step, so every layer below the sun quantised to the same
-   black and the window turned into a slab. Six gives the darks two steps,
-   which is the least that reads as depth, and still bands the desk's own
-   surfaces hard enough to be the point.
+   LEVELS is the colour depth, and it is four a channel — 64 colours — because
+   the pass now dithers on the way down. Four was tried before without a dither
+   and had to be abandoned at six: the view through the window is five ridge
+   planes separated only by value, the shadows had a single step between them,
+   and every layer below the sun quantised to the same black. An ordered dither
+   is the answer to exactly that. A value between two levels comes out as a mix
+   of both instead of snapping to one, so the ridges keep their separation on a
+   palette a third the size, and the desk's own surfaces band harder than they
+   did at six.
 
    Deliberately *not* dithered. Ordered dithering is the site's house treatment
    and it is the natural thing to reach for here, but dithering exists to hide
@@ -344,7 +345,7 @@ function Ready({ onReady }) {
    small framebuffer would have taken.
    ============================================================ */
 const PIXEL_SCALE = 0.62;
-const LEVELS = 6;
+const LEVELS = 4;
 
 const RETRO_VERT = /* glsl */ `
   varying vec2 vUv;
@@ -365,6 +366,22 @@ const RETRO_FRAG = /* glsl */ `
   uniform vec2 uGrid;
   uniform float uLevels;
   varying vec2 vUv;
+
+  /* An 8x8 Bayer matrix, computed rather than looked up.
+     ---
+     The usual way to do this is a const array indexed by pixel position, which
+     works but needs dynamic indexing — restricted in GLSL ES 1.00 and a
+     needless dependency on which GLSL version three happens to compile for.
+     The matrix has a closed form instead: it is built by interleaving the bits
+     of x and y and reversing them, and these three lines are that, folded up.
+     bayer2 gives the 2x2; each larger one is the smaller one scaled into a
+     quarter of a cell and added to the next 2x2 down. Returns [0, 1). */
+  float bayer2(vec2 a) {
+    a = floor(a);
+    return fract(a.x / 2.0 + a.y * a.y * 0.75);
+  }
+  float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+  float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
 
   void main() {
     /* Snap to the centre of the cell this fragment falls in. Sampling the
@@ -394,12 +411,26 @@ const RETRO_FRAG = /* glsl */ `
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 
-    /* Round to the nearest level, not down to the bottom of the band. Flooring
-       loses up to a whole level of brightness on every surface, which across
-       the scene reads as someone having turned the lights off rather than as
-       a shallower palette. */
+    /* Ordered dither, then quantise — the same move the hero's line screen
+       makes, and the reason both can hold a picture in three or four tones.
+       ---
+       A plain 0.5 there would be a round-to-nearest: every surface snaps to
+       one level and a gradient becomes a hard band. Substituting the Bayer
+       value for that 0.5 means the matrix decides which of the two levels a
+       value sits between this particular cell takes, so a surface halfway
+       between two levels comes out as an even mix of both and reads as the
+       value in between. The ramp still does the quantising; the screen only
+       breaks the tie.
+       ---
+       Sampled on the *cell* rather than the fragment. The scene is already
+       being drawn onto a coarse grid, and a dither finer than that grid would
+       put a pattern inside each block instead of across them — which is a
+       texture on top of the pixels, not the pixels themselves. One threshold
+       per cell is what makes it read as one image. */
+    vec2 cell = floor(vUv * uGrid);
     gl_FragColor.rgb =
-      floor(gl_FragColor.rgb * (uLevels - 1.0) + 0.5) / (uLevels - 1.0);
+      floor(gl_FragColor.rgb * (uLevels - 1.0) + bayer8(cell)) /
+      (uLevels - 1.0);
   }
 `;
 
