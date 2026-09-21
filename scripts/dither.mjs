@@ -124,7 +124,7 @@ function ditherColour(
   rgb,
   width,
   height,
-  { levels = 4, gamma = 0.85, contrast = 1.12, saturation = 0.78 } = {},
+  { levels = 4, gamma = 0.85, contrast = 1.12, saturation = 0.55 } = {},
 ) {
   const out = Buffer.alloc(width * height * 3);
   const steps = levels - 1;
