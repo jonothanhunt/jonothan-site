@@ -192,11 +192,12 @@ const options = [
   /* Left, not centred. Centring suited pills of varying widths; a row of
      square boxes wants a common left edge to line up with the column of cards
      below it, and the label above it. */
+  /* One band under it, the same one the nav leaves above — see --band. */
   .filter {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
-    margin-block: 0 36px;
+    margin-block: 0 var(--band);
   }
 
   .filter label {
