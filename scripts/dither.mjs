@@ -78,12 +78,12 @@ const PHOTOS = [
   {
     name: "hero",
     from: "src/assets/site/header.jpg",
-    widths: [430, 600, 816],
+    widths: [860, 1200, 1632],
     // Grape, rose, sun — three of the seven inks the page already prints, dark
     // to light. The darkest is grape taken well down: `--grape` at #a08cff is
     // a mid tone and can't be the bottom of a ramp.
     tones: ["#2a1b6b", "#ff8fb8", "#ffc400"],
-    period: 5,
+    period: 3,
   },
 ];
 
@@ -127,9 +127,11 @@ function ditherGrey(grey, width, height, { gamma = 0.8, contrast = 1.25 } = {}) 
  * halftone looked like before anyone could hold a fine one, and what the ASCII
  * desk and the sampled client marks are already doing in their own ways.
  *
- * The period is in *baked* pixels, and the hero is baked at about half the
- * width it fills, so a period of 5 arrives on screen as a band nearly ten
- * pixels deep. That is deliberate: the lines are meant to be counted.
+ * The period is in *baked* pixels. The bake is now a little wider than the
+ * layout it fills, so a period of 3 arrives on screen as a band of about the
+ * same — fine enough to read as a printed screen rather than as a pattern laid
+ * over the top, which is what a period of 5 on a half-width bake gave: a
+ * ten-pixel band, more venetian blind than halftone.
  *
  * ## Why the tie-break, not the quantising
  *
@@ -183,8 +185,13 @@ async function buildPhotoTone({ name, from, widths, tones, period }) {
     const dest = path.join(OUT, `${name}-tone-${width}.png`);
     if (await isFresh(dest, src)) continue;
 
+    // Enlargement allowed, unlike the 1-bit pass. The source is 1223px and the
+    // largest bake is a third wider than that — which sounds wrong and isn't:
+    // what is being enlarged is the *canvas the screen is drawn on*, not the
+    // detail. A line screen needs rows to put lines on, and upscaling a
+    // photograph slightly before halftoning it is what a repro camera did.
     const { data, info } = await sharp(src)
-      .resize({ width, withoutEnlargement: true })
+      .resize({ width, withoutEnlargement: false })
       .greyscale()
       .raw()
       .toBuffer({ resolveWithObject: true });
