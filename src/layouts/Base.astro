@@ -111,6 +111,43 @@ const person = {
     <link rel="alternate" type="application/rss+xml" title="Jonothan Hunt" href="/rss.xml" />
     <meta name="theme-color" content="#e8e7e3" />
 
+    <!--
+      Theme, before the first paint.
+
+      This has to be an inline, blocking script in the head. Anything deferred
+      — a module, the nav's own script, a stylesheet media query — runs after
+      the browser has already painted, and the reader sees a frame of the light
+      page before it turns dark. There is no way around that ordering, which is
+      why this one script is allowed to be what it is.
+
+      Only the blog is themeable; everywhere else is explicitly light, so a
+      remembered choice doesn't follow the reader onto a page built for paper.
+    -->
+    <script is:inline>
+      (() => {
+        if (!location.pathname.startsWith("/blog")) {
+          document.documentElement.dataset.theme = "light";
+          return;
+        }
+        let stored = null;
+        try {
+          stored = localStorage.getItem("theme");
+        } catch {
+          /* private mode, or storage blocked */
+        }
+        const dark = stored === "dark";
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        // The browser's own chrome, on mobile. Set here rather than left to
+        // the static meta tag, or a dark page sits under a paper-coloured
+        // address bar.
+        if (dark) {
+          document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute("content", "#16161a");
+        }
+      })();
+    </script>
+
     <script
       type="application/ld+json"
       is:inline

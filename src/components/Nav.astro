@@ -34,11 +34,92 @@ const isHome = Astro.url.pathname === "/";
         <CopyEmail />
       </div>
     </details>
+
+    {
+      /* Blog only. The home page is built on a paper ground — the dithered
+         hero, the ink client strip, the desk — and none of it has a dark
+         counterpart, so offering the switch there would be offering something
+         that doesn't exist. Rendered only where it works rather than hidden
+         with CSS, so there is no dead control in the accessibility tree.
+
+         No JS, no theme: the button does nothing without script, so it is
+         hidden until the script that makes it work has run. */
+      isBlog && (
+        <button
+          class="nav-pill nav-theme"
+          type="button"
+          data-theme-toggle
+          hidden
+          aria-pressed="false"
+        >
+          <span class="sr-only">Dark mode</span>
+          <svg
+            class="i-sun"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <circle cx="8" cy="8" r="3.2" />
+            <path d="M8 .8v2.2M8 13v2.2M.8 8h2.2M13 8h2.2M2.9 2.9l1.6 1.6M11.5 11.5l1.6 1.6M13.1 2.9l-1.6 1.6M4.5 11.5l-1.6 1.6" />
+          </svg>
+          <svg
+            class="i-moon"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M13.5 10.2A5.8 5.8 0 0 1 5.8 2.5a5.8 5.8 0 1 0 7.7 7.7Z" />
+          </svg>
+        </button>
+      )
+    }
   </nav>
 </header>
 
 <script>
   const nav = document.querySelector<HTMLElement>("[data-nav]");
+
+  /* --- Theme -------------------------------------------------------------
+     The blog can be read dark. The choice is the reader's and it is
+     remembered; the OS preference is deliberately *not* consulted, because
+     this is a switch on one section of an otherwise light site rather than a
+     site-wide appearance setting — landing on the blog in dark because of a
+     system setting, having come from a home page that is always light, reads
+     as a bug.
+
+     The <html> attribute is set before first paint by the inline script in
+     Base.astro. This half only handles the button. */
+  const themeToggle =
+    document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+
+  if (themeToggle) {
+    const root = document.documentElement;
+    // The control works, so it can be seen.
+    themeToggle.hidden = false;
+
+    const sync = () => {
+      const dark = root.dataset.theme === "dark";
+      themeToggle.setAttribute("aria-pressed", String(dark));
+      themeToggle.querySelector(".sr-only")!.textContent = dark
+        ? "Switch to light"
+        : "Switch to dark";
+    };
+    sync();
+
+    themeToggle.addEventListener("click", () => {
+      const dark = root.dataset.theme !== "dark";
+      root.dataset.theme = dark ? "dark" : "light";
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", dark ? "#16161a" : "#e8e7e3");
+      try {
+        localStorage.setItem("theme", dark ? "dark" : "light");
+      } catch {
+        /* private mode, or storage blocked — the choice just won't persist */
+      }
+      sync();
+    });
+  }
 
   // Close the contact panel on outside click or Escape.
   const box = document.querySelector<HTMLDetailsElement>("details.contact");
@@ -196,6 +277,41 @@ const isHome = Astro.url.pathname === "/";
   .nav-pill,
   .brand {
     height: var(--nav-pill);
+  }
+
+  /* Square, so it reads as an icon in a row of words rather than as a very
+     short word. */
+  .nav-theme {
+    width: var(--nav-pill);
+    padding-inline: 0;
+    justify-content: center;
+    border: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  .nav-theme svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    /* Mitred, like every other icon on the site. */
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+
+  /* Whichever one you'd be switching *to*. */
+  .nav-theme .i-moon {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .nav-theme .i-sun {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .nav-theme .i-moon {
+    display: block;
   }
 
   .nav-pill::-webkit-details-marker {

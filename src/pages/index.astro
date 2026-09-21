@@ -50,8 +50,18 @@ const writingInks = await paletteRun(posts.map((post) => post.data.image));
 // It's baked to 1-bit by scripts/dither.mjs instead, at three widths, and the
 // widths have to be named here because a file in public/ has no metadata for
 // Astro to read. 40kB at full size, which is less than the source JPEG.
-const HERO_WIDTHS = [640, 900, 1223];
-const heroSrcset = HERO_WIDTHS.map((w) => `/dither/hero-${w}.png ${w}w`).join(", ");
+// Half what the layout asks for, so the browser scales every one of them up
+// and `image-rendering: pixelated` (see `.dither`) turns that into visible
+// square pixels rather than a soft enlargement. The `w` descriptors stay
+// honest — they describe the file, not the box — so the picking still works;
+// it just picks a small file for a big slot on purpose.
+const HERO_WIDTHS = [320, 450, 612];
+// `-colour-` for the ordered-dithered colour version, or drop it for the 1-bit
+// one — both are built, so this is the whole switch between them.
+const HERO_VARIANT = "colour-";
+const heroSrcset = HERO_WIDTHS.map(
+  (w) => `/dither/hero-${HERO_VARIANT}${w}.png ${w}w`,
+).join(", ");
 
 // The awards: three marks in a row and nothing else, as the site has always
 // had them. The citation text and the hairline box around each one are gone —
@@ -97,11 +107,11 @@ const awards = [
   <div class="page-photo" aria-hidden="true">
     <img
       class="page-photo__img dither fade-down"
-      src={`/dither/hero-${HERO_WIDTHS.at(-1)}.png`}
+      src={`/dither/hero-${HERO_VARIANT}${HERO_WIDTHS.at(-1)}.png`}
       srcset={heroSrcset}
       sizes="100vw"
-      width="1223"
-      height="611"
+      width="612"
+      height="306"
       alt=""
       loading="eager"
       fetchpriority="high"
@@ -120,6 +130,67 @@ const awards = [
              copy-paste, search results. At the end of a flex line it renders
              as nothing. -->
         <h1><span>Hey, I&rsquo;m{" "}</span><span>Jonothan.</span></h1>
+
+        <!--
+          The pixelate filter the heading above is drawn through.
+
+          None of the primitives does anything recognisable on its own:
+
+            feFlood      one opaque pixel, at (1, 1)
+            feBlend      clipped to a 2 x 2 box at the origin — so the result
+                         is a 2 x 2 tile with a single dot in it
+            feTile       that tile, repeated across the whole filter region
+            feComposite  the heading, kept only where a dot is: one sample per
+                         2 x 2 block and nothing in between
+            feComponent- the sample's alpha snapped to 0 or 1, so a block is
+              Transfer   either on or off
+            feMorphology each surviving sample dilated by 1, into a 3 x 3 block
+
+          The threshold is not optional. A sample taken from the edge of a
+          glyph carries that glyph's antialiasing, and dilating a half-opaque
+          pixel gives a half-opaque block — so without it every edge comes back
+          as a row of grey squares and the whole thing reads as a blurred
+          heading rather than a sampled one. `discrete` with two table values
+          is the whole step: below half goes to nothing, half and above goes to
+          solid.
+
+          The block is 3 x 3 on a 2 x 2 grid, which is deliberate and is the
+          only part of this that isn't the textbook version. Morphology grows a
+          pixel symmetrically, so it can only make odd-sized blocks — 3 x 3 is
+          the smallest it has, and on a matching 3 x 3 grid the steps were
+          coarser than they wanted to be. Sampling every 2px and overgrowing by
+          one gives the finer staircase, at the cost of neighbouring blocks
+          overlapping by a pixel. They are the same solid colour, so the
+          overlap is invisible; the type just sits a pixel bolder.
+
+          Building an exact 2 x 2 block instead — offset the sample left, merge,
+          offset up, merge — was tried and is worse. The offsets drag the
+          thresholded image across the edge of the filter region, which leaves
+          one-pixel slivers stranded outside the glyphs, and the merged copies
+          land half a pixel off the sampling grid so the result reads as two
+          grids fighting rather than as one.
+
+          `primitiveUnits` is left at its default of userSpaceOnUse, which is
+          what lets those numbers mean pixels. `color-interpolation-filters` is
+          not left at its default: filters composite in linear light unless
+          told otherwise, and compositing antialiased type in linear light puts
+          a pale fringe around every block.
+
+          Width and height of 0 rather than `display: none` — a filter inside a
+          hidden subtree stops resolving in some browsers.
+        -->
+        <svg class="sr-svg" width="0" height="0" aria-hidden="true" focusable="false">
+          <filter id="pixelate" color-interpolation-filters="sRGB">
+            <feFlood x="1" y="1" width="1" height="1"></feFlood>
+            <feBlend width="2" height="2"></feBlend>
+            <feTile></feTile>
+            <feComposite in="SourceGraphic" operator="in"></feComposite>
+            <feComponentTransfer>
+              <feFuncA type="discrete" tableValues="0 1"></feFuncA>
+            </feComponentTransfer>
+            <feMorphology operator="dilate" radius="1"></feMorphology>
+          </filter>
+        </svg>
 
         <p class="lede">
           Creative technologist and developer. Senior Director of Product
@@ -371,10 +442,49 @@ const awards = [
     }
   }
 
-  /* Two lines, stacked — "Jonothan." never wraps mid-word. */
+  /* Two lines, stacked — "Jonothan." never wraps mid-word.
+
+     Set in Lastik, which is the face the site has always had here, and then
+     drawn through a filter that samples it onto a 3px grid. The heading is the
+     one place a pixel *font* would have been the obvious answer and the wrong
+     one: Lastik is the site's own voice, and sampling it keeps that while
+     putting it on the same grid as the dithered photograph behind it, the
+     client marks below it and the desk further down. It is still live text —
+     selectable, searchable, read out — with a filter over it.
+
+     Weight 70 of Lastik's 50-100 axis, which is the original site's display
+     weight; 100 is the top of the axis and reads far too heavy. */
   .hero__body h1 {
     display: flex;
     flex-direction: column;
+    font-family: "Lastik", var(--display);
+    font-weight: 70;
+    /* Sentence case, not the caps every other heading on the site is set in.
+       Lastik is a serif with a proper lowercase and the original site used it
+       — set in caps it loses the ascenders and descenders that give the line
+       its shape, and at this size that is most of what there is to look at. */
+    text-transform: none;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    filter: url(#pixelate);
+  }
+
+  /* The grid is a fixed 2px in CSS pixels, so the blocks stay the same size
+     whatever the type does — which means the heading has to be big enough for
+     them to read as sampling rather than as damage. Below the breakpoint
+     --t-h1 drops to 2.5rem and the filter comes off. */
+  @media (max-width: 767px) {
+    .hero__body h1 {
+      filter: none;
+    }
+  }
+
+  /* An SVG that exists only to carry the filter. */
+  .sr-svg {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
   }
 
   .hero__body h1 span {
