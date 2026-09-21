@@ -6,17 +6,22 @@ const isHome = Astro.url.pathname === "/";
 ---
 
 <header class="site-head">
-  <nav class:list={{ "at-top": isHome }} aria-label="Main" data-nav data-home={isHome ? "" : undefined}>
-    <!-- Collapsed while the hero is on screen (the big "Hey, I'm Jonothan"
+  <nav
+    class:list={{ "at-top": isHome }}
+    aria-label="Main"
+    data-nav
+    data-home={isHome ? "" : undefined}
+  >
+    <!-- Collapsed while the hero is on screen (the big "HEY, I'M JONOTHAN"
          already says it), sliding in once you scroll past. -->
     <a class="brand" href="/" data-brand>
       <span>Jonothan</span>
     </a>
 
-    <a class="nav-pill t-work" href="/#work" data-link="work">Work</a>
+    <a class="nav-pill" href="/#work" data-link="work">Work</a>
 
     <a
-      class:list={["nav-pill", "t-blog", isBlog && "on"]}
+      class:list={["nav-pill", isBlog && "on"]}
       href="/blog"
       data-link="blog"
       aria-current={isBlog ? "page" : undefined}>Blog</a
@@ -24,7 +29,7 @@ const isHome = Astro.url.pathname === "/";
 
     <!-- Contact opens a panel in place. No page, no JS for the disclosure. -->
     <details class="contact">
-      <summary class="nav-pill t-contact">Contact</summary>
+      <summary class="nav-pill">Contact</summary>
       <div class="contact__panel">
         <CopyEmail />
       </div>
@@ -58,12 +63,6 @@ const isHome = Astro.url.pathname === "/";
     // middle of the viewport and then stays flipped for everything below,
     // because `boundingClientRect.top < 0` keeps reading true once the section
     // has gone by overhead.
-    //
-    // That means the bar changes width exactly once per scroll. Letting Work
-    // un-highlight again over the writing section would shrink its padding and
-    // re-centre the whole nav a second time, for no navigational gain — you
-    // are still below the work section, and everything below it is the same
-    // page. The brand rides the same latch so both move on one frame.
     if (work && workLink) {
       new IntersectionObserver(
         ([e]) => {
@@ -103,31 +102,24 @@ const isHome = Astro.url.pathname === "/";
     position: fixed;
     inset: 0 0 auto;
     z-index: 50;
-    /* Matches the page gutter, so the nav aligns with everything below it. */
     padding: var(--gap);
     display: flex;
     justify-content: center;
     pointer-events: none;
   }
 
-  /* Fully opaque with a soft shadow, where the original used a translucent
-     bar over backdrop-blur. Blur forces the compositor to re-filter whatever
-     is behind it on every scroll frame; a solid fill and a static shadow cost
-     nothing and read almost identically. */
+  /* A hard-edged bar: square, panel fill, one ink hairline. No shadow and no
+     blur — the frame does the separating, and both of the alternatives cost
+     the compositor something on every scroll frame for a bar that never
+     changes. */
   nav {
     pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 0;
     padding: var(--ui-pad);
-    border-radius: var(--pill);
-    background: #fffdf8;
-    /* Wide and faint rather than tight and dark — a large blur with a small
-       spread reads as the bar floating, where a short shadow reads as a
-       border. Static, so it costs one paint and nothing on scroll. */
-    box-shadow:
-      0 4px 12px rgb(88 28 135 / 0.05),
-      0 16px 48px rgb(88 28 135 / 0.09);
+    background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--rule-ink);
     user-select: none;
     -webkit-user-select: none;
   }
@@ -137,98 +129,79 @@ const isHome = Astro.url.pathname === "/";
     align-items: center;
     height: var(--ui-h);
     overflow: hidden;
-    font-family: var(--display);
-    font-weight: 70;
+    font-family: var(--mono);
+    font-weight: 800;
     font-size: var(--t-brand);
-    letter-spacing: -0.01em;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     text-decoration: none;
-    color: var(--heading);
-    /* Width and opacity animate; nothing else reflows around it. A plain
-       ease-in-out reads as calm next to the Work pill lighting up at the
-       same moment. */
-    max-width: 8em;
+    /* Width and opacity animate; nothing else reflows around it. */
+    max-width: 9em;
     opacity: 1;
-    padding-inline: 10px 8px;
-    /* The original's timing: 700ms on width and opacity together, on the
-       standard ease-in-out. It reads calmer than a fast-out curve because the
-       word grows and fades on exactly the same beat. */
+    padding-inline: 8px 10px;
     transition:
-      max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-      padding 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width 0.5s var(--ease-settle),
+      opacity 0.5s var(--ease-settle),
+      padding 0.5s var(--ease-settle);
   }
 
   .brand span {
     white-space: nowrap;
   }
 
-  /* Fades to 0.1 rather than 0, as the original does — the word is still
-     faintly there as it closes, which reads softer than a hard disappear. */
   nav.at-top .brand {
     max-width: 0;
-    opacity: 0.1;
+    opacity: 0;
     padding-inline: 0;
   }
 
-  /* Inactive sits at the narrower padding; active widens into a tinted
-     capsule. Only padding and colour animate, so it stays cheap. */
+  /* Resting: a hairline box. Active: the same box filled with ink, type
+     knocked out. The padding is identical in both states, so lighting one up
+     never re-centres the bar — which is what the old widening pill did. */
   .nav-pill {
     display: flex;
     align-items: center;
     height: var(--ui-h);
-    /* Measured off the original: 4px 12px inactive, widening to 16px when a
-       pill goes active. */
-    padding-inline: 12px;
-    border-radius: var(--pill);
-    font-family: var(--display);
-    font-weight: 70;
+    padding-inline: 11px;
+    font-family: var(--mono);
+    font-weight: 700;
     font-size: var(--t-nav);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
     list-style: none;
     transition:
-      padding 0.3s ease,
-      background-color 0.3s ease,
-      color 0.3s ease;
+      background-color 0.15s linear,
+      color 0.15s linear;
   }
 
   .nav-pill::-webkit-details-marker {
     display: none;
   }
 
+  /* Hairlines between the items rather than around each one, so the bar reads
+     as one divided strip instead of a row of separate buttons. */
+  .nav-pill + .nav-pill,
+  details.contact {
+    border-left: 1px solid var(--rule);
+  }
+
   .nav-pill.on,
   details[open] > .nav-pill {
-    padding-inline: 16px;
+    background: var(--ink);
+    color: var(--paper);
   }
 
-  /* The original's pairings: an -800 text colour on its -100 background.
-     Defined once in global.css so .pill--blog can match exactly. */
-  .t-work {
-    color: var(--pill-work-fg);
-  }
-  .t-work.on,
-  .t-work:hover {
-    background: var(--pill-work-bg);
+  @media (hover: hover) {
+    .nav-pill:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
   }
 
-  .t-blog {
-    color: var(--pill-blog-fg);
-  }
-  .t-blog.on,
-  .t-blog:hover {
-    background: var(--pill-blog-bg);
-  }
-
-  .t-contact {
-    color: var(--pill-contact-fg);
-  }
-  .t-contact:hover,
-  details[open] > .t-contact {
-    background: var(--pill-contact-bg);
-  }
-
-  /* --- Contact panel: same height and padding as the nav bar itself --- */
+  /* --- Contact panel: square, framed, same padding as the bar itself --- */
   .contact {
     position: relative;
   }
@@ -238,20 +211,17 @@ const isHome = Astro.url.pathname === "/";
     /* Offset is measured from the summary, so add back the nav's own padding
        to leave a true --gap between the bar and the panel. */
     top: calc(100% + var(--ui-pad) + var(--gap));
-    /* Offset is measured from the Contact summary, which sits a --ui-pad in
-       from the bar's edge — pulling out by that much lines the panel's right
-       edge up with the nav bar's own. */
     right: calc(-1 * var(--ui-pad));
     padding: var(--ui-pad);
-    border-radius: var(--pill);
-    background: #fffdf8;
-    animation: drop 0.28s ease;
+    background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--rule-ink);
+    animation: drop 0.2s linear;
   }
 
   @keyframes drop {
     from {
       opacity: 0;
-      transform: translateY(-6px);
+      transform: translateY(-4px);
     }
   }
 
@@ -269,8 +239,8 @@ const isHome = Astro.url.pathname === "/";
       display: none;
     }
     .nav-pill {
-      font-size: 1.05rem;
-      padding-inline: 0.7em;
+      padding-inline: 9px;
+      letter-spacing: 0.06em;
     }
     .contact__panel {
       right: -8px;

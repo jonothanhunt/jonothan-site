@@ -1,19 +1,32 @@
 ---
 import { Picture } from "astro:assets";
 import type { ImageMetadata } from "astro";
-import { bottomTint } from "../lib/tint";
+import { paletteFor, type Palette } from "../lib/palette";
 
+/**
+ * A card, laid out as a spec sheet rather than as a photo with a caption on
+ * it.
+ *
+ * The old card put the title over the bottom of the image and had to sample
+ * the photo to find a wash that its type would survive. This one gives the
+ * photo a panel of its own and prints the type on flat colour, which means
+ * the contrast is decided in the palette rather than measured per image — and
+ * the photo gets to be a duotone instead of a backdrop with a scrim on it.
+ */
 interface Props {
   href: string;
   eyebrow?: string;
   title: string;
   image?: ImageMetadata;
   alt?: string;
-  colour?: "sun" | "flame" | "grape" | "sea" | "sky" | "rose" | "leaf" | "paper";
+  /** Left unset, an image's own mean hue picks the ink. */
+  colour?: Palette;
   /** Renders taller and with larger type — for the lead item in a grid. */
   feature?: boolean;
   sizes?: string;
   loading?: "lazy" | "eager";
+  /** Printed hard right of the footer rule. The destination, usually. */
+  meta?: string;
 }
 
 const {
@@ -22,150 +35,150 @@ const {
   title,
   image,
   alt = "",
-  colour = "paper",
+  colour,
   feature = false,
-  // Mirrors the .grid tracks exactly: one column, then two from 720px, then
-  // three from 1080px, each inside a --gap gutter. The old flat "380px" was
-  // well under the ~476px a card actually gets on a 1500px screen, so the
-  // browser picked a variant too small and upscaled it.
-  sizes = "(max-width: 719px) calc(100vw - 32px), (max-width: 1079px) calc(50vw - 24px), calc(33.3vw - 21px)",
+  sizes = "(max-width: 767px) calc(100vw - 32px), calc(33.3vw - 21px)",
   loading = "lazy",
+  meta,
 } = Astro.props;
 
 const external = href.startsWith("http");
 
-// Sampled from the image's lower band at build time, so the overlay belongs to
-// the photo instead of being a flat black wash.
-const t = image ? await bottomTint(image) : null;
+// The ink comes from the photo unless the caller insists. One sharp pass per
+// image for the whole build, cached in the module.
+const ink: Palette = colour ?? (image ? await paletteFor(image) : "paper");
 
-// AVIF first — around 38% smaller than WebP on these photos — with WebP behind
-// it for anything that can't take AVIF. The width ladder reaches ~1300 so a 2x
-// screen at three columns gets a real pixel per device pixel, not an upscale.
+// The footer's value: whatever was passed, or the host it points at.
+const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : href);
 ---
 
 <a
-  class:list={["card", `block block--${colour}`, feature && "card--feature"]}
+  class:list={[
+    "card",
+    `block block--${ink}`,
+    "marks",
+    feature && "card--feature",
+  ]}
   href={href}
-  style={t && `--tint:${t.tint};--on-tint:${t.ink}`}
   {...external ? { target: "_blank", rel: "noopener noreferrer" } : {}}
 >
+  <div class="card__head">
+    <p class="eyebrow">{eyebrow ?? "Work"}</p>
+    <span class="dotgrid" aria-hidden="true"></span>
+  </div>
+
+  <h3 class="card__title">{title}</h3>
+
   {
     image && (
-      <Picture
-        class="card__img"
-        pictureAttributes={{ class: "card__pic" }}
-        src={image}
-        alt={alt}
-        formats={["avif", "webp"]}
-        fallbackFormat="webp"
-        widths={feature ? [480, 780, 1100, 1600, 2200] : [380, 560, 780, 1040, 1300]}
-        sizes={sizes}
-        loading={loading}
-        decoding="async"
-      />
+      <div class="card__media">
+        <Picture
+          class="card__img duo"
+          pictureAttributes={{ class: "card__pic" }}
+          src={image}
+          alt={alt}
+          formats={["avif", "webp"]}
+          fallbackFormat="webp"
+          widths={feature ? [480, 780, 1100, 1600] : [380, 560, 780, 1040]}
+          sizes={sizes}
+          loading={loading}
+          decoding="async"
+        />
+      </div>
     )
   }
-  <div class="card__text">
-    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-    <h3>{title}</h3>
-  </div>
+
+  <p class="card__foot spec">
+    <span>{external ? "Link" : "Read"}</span>
+    <span class="spec__rule" aria-hidden="true"></span>
+    <span class="spec__val out">{dest}</span>
+  </p>
 </a>
 
 <style>
   .card {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    /* min-h-80 on the original. The feature spans two rows, so it takes its
-       height from the grid rather than needing its own. */
+    gap: 12px;
     min-height: 320px;
+    /* The registration marks sit at inset 8px, so the content is held a step
+       further in than a plain block's --pad or it would collide with them. */
+    padding: 20px;
     text-decoration: none;
-    isolation: isolate;
-    transition: transform 0.18s ease;
+    /* Colour alone separates a block from the page; a paper card needs a
+       hairline to do the same job. */
+    transition: translate 0.15s linear;
+  }
+
+  .card.block--paper {
+    box-shadow: inset 0 0 0 1px var(--rule-mid);
+  }
+
+  .card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .card__title {
+    /* Balance is for a heading that gets two or three words a line; a card
+       title is short enough that balancing it strands a single word. */
+    text-wrap: pretty;
+  }
+
+  .card--feature .card__title {
+    font-size: var(--t-card-feature);
+    letter-spacing: -0.04em;
+  }
+
+  /* The photo takes whatever height is left, so a row of cards has its images
+     bottom-aligned however long the titles above them run. */
+  .card__media {
+    position: relative;
+    flex: 1;
+    min-height: 120px;
+    overflow: hidden;
+    /* Multiply needs something under it to tint. On a block of colour that's
+       the block; the image's own box must not paint a ground of its own in
+       between. */
+    background: transparent;
   }
 
   /* <picture> is only a wrapper for the format sources — it must not become a
-     box in the card's flex column, or it would take up a row of its own. With
-     display:contents it vanishes and the img positions against .card. */
+     box in the card's flex column, or it would take a row of its own. With
+     display:contents it vanishes and the img positions against .card__media. */
   .card__pic {
     display: contents;
   }
 
-  /* A card with a photo never shows its own colour — the image covers it. But
-     a rounded clip is antialiased, so at the corners each edge pixel is part
-     image and part whatever sits behind it, and a saturated block colour
-     reads as a bright outline tracing the curve. It shows up most on hover,
-     where the transform promotes the card to its own layer and the clip is
-     resolved differently.
-     Falling back to the sampled tint rather than the block colour means those
-     partial pixels blend into a colour taken from the photo itself, so there
-     is nothing to see — and it doubles as the placeholder while a lazy image
-     is still loading. */
-  .card:has(.card__img) {
-    background: var(--tint, transparent);
-  }
-
-  /* Image fills the block; the text sits on a scrim above it.
-     Overshoots by 1px so the parent's clip cuts the curve through solid image
-     rather than through the image's own antialiased edge — matching radii
-     would let the block colour beneath show as a fringe along the corner. The
-     radius is still inherited for browsers that skip the clip on a composited
-     layer. */
   .card__img {
     position: absolute;
-    inset: -1px;
-    width: calc(100% + 2px);
-    height: calc(100% + 2px);
-    /* The global `img { max-width: 100% }` would otherwise cap the overshoot
-       and leave the block's colour showing as a 1px sliver down one edge. */
+    inset: 0;
+    width: 100%;
+    height: 100%;
     max-width: none;
     object-fit: cover;
-    /* Radius grows with the box so the child's curve sits strictly outside
-       the parent's clip. Matching radii put the two antialiased curves on the
-       same pixels, and the block colour between them read as a ghost outline. */
-    border-radius: calc(var(--r-lg) + 1px);
-    z-index: -2;
   }
 
-  /* Overlay tinted with the image's own bottom colour, pushed light or dark
-     so the text always contrasts. Sits above the image (-2), below text. */
-  .card:has(.card__img)::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: calc(var(--r-lg) + 1px);
-    z-index: -1;
-    background: linear-gradient(
-      to top,
-      var(--tint) 0%,
-      var(--tint) 30%,
-      transparent 88%
-    );
+  .card__foot {
+    /* Hairline above the footer row, full width of the padding box. */
+    border-top: 1px solid currentColor;
+    padding-top: 10px;
+    opacity: 0.92;
   }
 
-  /* Descendant, not adjacent-sibling: wrapping the image in <picture> for the
-     AVIF sources meant `.card__img + .card__text` stopped matching, so cards
-     fell back to their block colour's white text and put white type on a pale
-     wash. */
-  .card:has(.card__img) .card__text {
-    color: var(--on-tint, #fff);
+  .card__foot .spec__rule {
+    /* The row already has a rule above it; a second one running through it
+       is one line too many. */
+    border-top-color: transparent;
   }
 
-  .card__text {
-    position: relative;
-  }
-
-  .card__text h3 {
-    margin-top: 0.25em;
-  }
-
-  .card--feature .card__text h3 {
-    font-size: var(--t-card-feature);
-  }
-
+  /* Cards lift on hover. `translate` rather than `transform` so it composes
+     with the sticker tilt and anything else that wants the transform. */
   @media (hover: hover) {
     .card:hover {
-      transform: translateY(-4px);
+      translate: 0 -3px;
     }
   }
 </style>

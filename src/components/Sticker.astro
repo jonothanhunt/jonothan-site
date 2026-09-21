@@ -2,12 +2,11 @@
 import type { ImageMetadata } from "astro";
 
 /**
- * A logo as a sticker.
+ * A logo as an iridescent sticker.
  *
- * Both variants work the same way: the artwork is never drawn, it's used as a
- * mask, and something is painted through its silhouette. `foil` paints an
- * iridescent gradient and gives it a hard black outline; `ink` paints flat
- * ink.
+ * The artwork is never drawn. It's used as a mask, and a holographic gradient
+ * is painted through its silhouette — so any mark with an alpha channel
+ * becomes foil without a second asset being drawn for it.
  *
  * The outline is the reason for the nested spans. CSS applies `filter` before
  * `mask`, so a `drop-shadow` on the masked element is clipped away by the very
@@ -24,7 +23,8 @@ interface Props {
   /** Describes the thing, for anyone who can't see it. Empty if decorative. */
   alt?: string;
   height?: number;
-  variant?: "foil" | "ink";
+  /** Overrides the width the artwork's own ratio would give it. */
+  width?: number;
   /** Degrees of tilt. Stickers are applied by hand, not typeset. */
   tilt?: number;
   class?: string;
@@ -34,7 +34,7 @@ const {
   src,
   alt = "",
   height = 40,
-  variant = "foil",
+  width: widthProp,
   tilt = 0,
   class: klass,
 } = Astro.props;
@@ -46,18 +46,18 @@ const url = typeof src === "string" ? src : src.src;
 // which is what every cutout the build produces is.
 const ratio =
   typeof src === "string" ? 1 : (src.width ?? 1) / (src.height ?? 1);
-const width = Math.round(height * ratio);
+const width = widthProp ?? Math.round(height * ratio);
 ---
 
 <span
-  class:list={["sticker", `sticker--${variant}`, klass]}
+  class:list={["sticker", klass]}
   style={`--sticker-src:url("${url}");--sticker-w:${width}px;--sticker-h:${height}px;${tilt ? `--sticker-tilt:${tilt}deg;` : ""}`}
   role={alt ? "img" : undefined}
   aria-label={alt || undefined}
   aria-hidden={alt ? undefined : "true"}
 >
   <span class="sticker__cut">
-    {variant === "foil" && <span class="sticker__foil"></span>}
+    <span class="sticker__foil"></span>
   </span>
 </span>
 
@@ -70,8 +70,7 @@ const width = Math.round(height * ratio);
     rotate: var(--sticker-tilt, 0deg);
   }
 
-  /* The silhouette. Both variants mask here; only what's painted through it
-     differs. */
+  /* The silhouette. */
   .sticker__cut {
     display: block;
     width: 100%;
@@ -87,23 +86,29 @@ const width = Math.round(height * ratio);
     mask-position: center;
   }
 
-  /* --- ink: a flat silhouette, and nothing else ---
-     Used for the client strip, where there are sixty-odd marks on screen at
-     once. One element each, no filter, no blend — a foil treatment at that
-     count would put a drop-shadow chain on every one of them. */
-  .sticker--ink .sticker__cut {
-    background: var(--ink);
-  }
-
-  /* --- foil: iridescent, outlined --- */
   /* Four chained drop-shadows at zero blur. Each one takes the result of the
      last, so the offsets compound into a solid ring rather than four separate
      shadows — a hard outline off the artwork's own alpha, at any size, with no
-     second asset. */
-  .sticker--foil {
+     second asset.
+
+     It is, though, a filter chain per sticker, which is why the client strip
+     doesn't use this component: sixty-odd marks each carrying four chained
+     drop-shadows is a lot of work for a row that scrolls. That strip gets a
+     single `brightness(0)` instead, which flattens a mark to ink without
+     needing a mask or a nested box at all. */
+  .sticker {
     filter:
       drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink))
       drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink));
+  }
+
+  /* The ring is drawn outside the artwork, so the box has to leave it room or
+     the filter's bounds clip it flat along whichever edge the mark reaches.
+     `box-sizing: border-box` is global, so this takes the 2px out of the art
+     rather than adding it to the box — which is what's wanted: the outline
+     occupies the space, and the sticker still measures what it says it does. */
+  .sticker {
+    padding: 2px;
   }
 
   /* Oversized and centred so that rotating it never brings an edge into the
@@ -138,7 +143,7 @@ const width = Math.round(height * ratio);
      than by animating a gradient — a gradient is repainted every frame, a
      rotation is handed to the compositor and costs nothing after the first. */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .sticker--foil:hover .sticker__foil {
+    .sticker:hover .sticker__foil {
       animation: foil 6s linear infinite;
     }
   }

@@ -104,6 +104,13 @@
       display: block;
       position: absolute;
       inset: 0 0 0 34%;
+      /* The characters are ink, and the panel behind them is a flat colour, so
+         multiply is all that's needed to print one into the other — the spaces
+         between characters carry no ink and leave the block untouched. The
+         parent block sets `isolation: isolate`, which keeps the blend group to
+         that block rather than the whole page. */
+      color: var(--ink);
+      mix-blend-mode: multiply;
       /* Held back until the scene reports its first real frame, so it eases
          in instead of popping. `is-ready` is set from the scene once the
          model and textures have resolved — not on canvas creation, which
@@ -116,10 +123,30 @@
       opacity: 1;
     }
 
+    /* The WebGL canvas is never seen: AsciiRenderer takes it to opacity 0 and
+       reads it back as a brightness grid. Sizing it is still what tells the
+       renderer how big a frame to draw. */
     .desk :global(canvas) {
       width: 100% !important;
       height: 100% !important;
       display: block;
+    }
+
+    /* AsciiEffect writes the grid into a <table> and sets the font on it
+       inline — Courier at a size derived from the resolution. Overriding needs
+       !important because of that, and both values matter:
+
+       the family, so the desk is drawn in the same face as the rest of the
+       page rather than in the browser's Courier; and the tracking, because the
+       effect computes one cell as 1/resolution px wide but sizes the text at
+       2/resolution px, which lands correctly only for a face whose advance is
+       exactly half its em. JetBrains Mono's is 0.6em, so each cell runs 0.1em
+       wide and the grid overflows to the right by a tenth. Pulling the
+       tracking back by that 0.1em lands the grid on the element exactly. */
+    .desk :global(table) {
+      font-family: var(--mono) !important;
+      letter-spacing: -0.1em !important;
+      font-weight: 500;
     }
   }
 

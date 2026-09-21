@@ -10,9 +10,12 @@ const { variant = "bar" } = Astro.props;
 
 <div class:list={["copy", `copy--${variant}`]}>
   <a class="copy__link" href={`mailto:${email}`}>
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="2.75" y="4.75" width="18.5" height="14.5" rx="2.25"></rect>
-      <path d="m3.5 7.5 8.5 5.6 8.5-5.6"></path>
+    {/* Square, 1px, mitred — drawn to the same rules as the registration
+        marks, so the two read as one set. Not a glyph: neither an envelope nor
+        a clipboard exists in JetBrains Mono, and reaching outside the family
+        for them would put a stranger's drawing next to its letterforms. */}
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M1.5 3.5h13v9h-13zM1.5 4l6.5 4.5L14.5 4"></path>
     </svg>
     {email}
   </a>
@@ -22,15 +25,14 @@ const { variant = "bar" } = Astro.props;
     data-copy={email}
     aria-label="Copy email address"
   >
-    <svg class="i-clip" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M8.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 20.5 5v9a1.5 1.5 0 0 1-1.5 1.5h-1.5"></path>
-      <rect x="3.5" y="8.5" width="12" height="12" rx="1.75"></rect>
+    <svg class="i-clip" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M5.5 4.5h-4v10h8v-10h-4zM5.5 4.5v-3h9v9h-1"></path>
     </svg>
-    <svg class="i-tick" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m4.5 12.5 5 5 10-10.5"></path>
+    <svg class="i-tick" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 8.5 6 12.5 14 3.5"></path>
     </svg>
     <span class="copy__label">Copy</span>
-    {/* The visible label never changes, so the icon swap is the only feedback
+    {/* The visible label never changes, so the glyph swap is the only feedback
         — which a screen reader can't see. This announces it instead. */}
     <span class="sr-only" data-status aria-live="polite"></span>
   </button>
@@ -41,8 +43,8 @@ const { variant = "bar" } = Astro.props;
   document.querySelectorAll<HTMLButtonElement>(".copy__btn").forEach((btn) => {
     const status = btn.querySelector("[data-status]");
     btn.addEventListener("click", async () => {
-      // The label stays "Copy" throughout — the clipboard icon becoming a tick
-      // is the feedback, so the button never changes width mid-interaction.
+      // The label stays "Copy" throughout — the glyph becoming a tick is the
+      // feedback, so the button never changes width mid-interaction.
       try {
         await navigator.clipboard.writeText(btn.dataset.copy ?? "");
         btn.classList.add("done");
@@ -61,91 +63,84 @@ const { variant = "bar" } = Astro.props;
 <style>
   .copy {
     display: inline-flex;
-    align-items: center;
-    border-radius: var(--pill);
-    background: #fffdf8;
+    align-items: stretch;
+    background: var(--panel);
     color: var(--ink);
-    /* Reads as an address and a plain action, not as UI chrome — so normal
-       body weight at the same 16px as every other control. */
-    font-weight: 400;
-    font-size: 1rem;
-    /* UI chrome isn't prose. */
+    font-family: var(--mono);
+    font-size: 0.8125rem;
     user-select: none;
     -webkit-user-select: none;
   }
 
   /* Standing on its own (in the contact block) it needs its own frame, so it
-     matches the nav bar: 8px around a 36px row. */
+     matches the nav bar: the bar's padding inside one ink hairline. */
   .copy--solo {
     padding: var(--ui-pad);
+    box-shadow: inset 0 0 0 1px var(--rule-ink);
   }
 
-  /* Same rose as the Contact pill in the nav, so the panel reads as that
-     control opened up rather than as a separate widget. */
   .copy__link,
   .copy__btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5em;
+    gap: 0.55em;
     height: var(--ui-h);
-    padding-inline: 12px;
-    border-radius: var(--pill);
-    color: #9f1239;
+    padding-inline: 11px;
+    letter-spacing: 0.02em;
     text-decoration: none;
     white-space: nowrap;
-    transition: background-color 0.2s;
+    transition:
+      background-color 0.15s linear,
+      color 0.15s linear;
   }
 
-  /* No min-width. It used to reserve room for the longest label state so the
-     button wouldn't resize on click, but 6.6em was sized against the older,
-     smaller, bolder type — at 16px/400 it holds "Copy" 21px wider than it
-     needs and the slack all collects on the right. Sizing to content costs a
-     small momentary widening when the label becomes "Copied", which happens
-     on the button you just pressed and settles on its own. */
-
-  /* A hairline between the two halves rather than a heavy border. It only
-     separates two resting halves, so it goes as soon as either is hovered —
-     the highlight already shows where one ends and the other begins, and the
-     line cutting into a filled capsule looks like a seam. */
-  .copy__link + .copy__btn::before {
-    content: "";
-    position: absolute;
-    margin-left: -12px;
-    width: 1px;
-    height: 1.15em;
-    background: rgb(0 0 0 / 0.15);
-    transition: opacity 0.2s;
+  /* The address is data; the action is a control. So the action gets the caps
+     and the tracking, and the address is left to read as an address. */
+  .copy__label {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
-  .copy:has(.copy__link:hover) .copy__btn::before,
-  .copy:has(.copy__btn:hover) .copy__btn::before {
-    opacity: 0;
-  }
-
+  /* One hairline between the two halves. It only separates two resting
+     halves, so it goes the moment either is hovered — by then the ink fill
+     shows where one ends and the other begins, and the line cutting into it
+     reads as a seam. */
   .copy__btn {
     position: relative;
+    border-left: 1px solid var(--rule);
+    transition:
+      background-color 0.15s linear,
+      color 0.15s linear,
+      border-color 0.15s linear;
+  }
+
+  .copy:has(.copy__link:hover) .copy__btn,
+  .copy:has(.copy__btn:hover) .copy__btn {
+    border-left-color: transparent;
   }
 
   svg {
-    width: 1.1em;
-    height: 1.1em;
+    width: 14px;
+    height: 14px;
     flex: none;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke-width: 1.4;
+    /* Mitred, not rounded. The whole point of the redesign is that no corner
+       on the site is curved, and a round linejoin is a curve. */
+    stroke-linecap: square;
+    stroke-linejoin: miter;
   }
 
-  /* Swap clipboard for tick on success — no layout change, so nothing jumps. */
+  /* Swap clipboard for tick on success — both boxes are the same size, so
+     nothing moves. */
   .i-tick {
     display: none;
   }
   .copy__btn.done .i-clip {
     display: none;
   }
-  /* Inherits currentColor like the clipboard it replaces — the shape carries
-     the message, so recolouring it as well would only break the row. */
   .copy__btn.done .i-tick {
     display: block;
   }
@@ -153,7 +148,8 @@ const { variant = "bar" } = Astro.props;
   @media (hover: hover) {
     .copy__link:hover,
     .copy__btn:hover {
-      background: #ffe4e6;
+      background: var(--ink);
+      color: var(--paper);
     }
   }
 </style>
