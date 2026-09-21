@@ -305,10 +305,18 @@ function Ready({ onReady }) {
    instead of graduating.
 
    Both halves matter and they are separate settings. PIXEL_SCALE is the grid,
-   as a fraction of the element — 0.48 puts roughly 350 cells across the panel
-   the desk occupies, which is about a VGA screen and about the right era.
-   LEVELS is the colour depth: 4 levels a channel is 64 colours, few enough
-   that a curved surface breaks into visible steps, which is the point.
+   as a fraction of the element — 0.62 puts roughly 450 cells across the panel
+   the desk occupies, a little finer than a VGA screen and still obviously a
+   grid.
+
+   LEVELS is the colour depth. Six a channel is 216 colours, which is the old
+   web-safe palette exactly, and is where this had to land: at four the whole
+   view through the window collapsed. That scene is five ridge planes separated
+   only by value — mountains receding into trees — and four levels gives the
+   shadows a single step, so every layer below the sun quantised to the same
+   black and the window turned into a slab. Six gives the darks two steps,
+   which is the least that reads as depth, and still bands the desk's own
+   surfaces hard enough to be the point.
 
    Deliberately *not* dithered. Ordered dithering is the site's house treatment
    and it is the natural thing to reach for here, but dithering exists to hide
@@ -335,8 +343,8 @@ function Ready({ onReady }) {
    pixel snapped to the centre of its cell, which is the same point sample a
    small framebuffer would have taken.
    ============================================================ */
-const PIXEL_SCALE = 0.48;
-const LEVELS = 4;
+const PIXEL_SCALE = 0.62;
+const LEVELS = 6;
 
 const RETRO_VERT = /* glsl */ `
   varying vec2 vUv;

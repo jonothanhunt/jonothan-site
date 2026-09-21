@@ -33,7 +33,22 @@
     U+25A0-25FF, U+2700-27BF;
 }
 
-/* Kept for article body copy only — see --body. */
+/* Body copy. Geist Pixel is a bitmap face drawn on a fixed grid, which is the
+   same idea as the dithered photographs, the sampled client marks and the
+   posterised desk — the page's one consistent argument is that everything on
+   it was made by a machine with a small number of pixels to spend.
+
+   The latin subset only, straight from Google Fonts. No unicode-range: it is
+   the last face in its own stack rather than one of a pair sharing a name, so
+   there is nothing for a range to arbitrate. */
+@font-face {
+  font-family: "Geist Pixel";
+  src: url("/fonts/geist-pixel-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* Still here, and still the fallback for anything Geist Pixel can't set. */
 @font-face {
   font-family: "Hyperlegible";
   src: url("/fonts/hyperlegible.woff2") format("woff2-variations");
@@ -103,12 +118,14 @@
   --mono:
     "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
-  /* Article body copy only. Mono is right for every label, heading and value
-     on the site, and wrong for six thousand words of an essay: a monospaced
-     face gives up the varying letter widths that make a line of prose
-     scannable. Everything that frames the writing is mono; the writing itself
-     is Hyperlegible, which is what the site already shipped. */
-  --body: "Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Body copy: the ledes, the contact block, an article. Mono is right for
+     every label, heading and value on the site and wrong for a paragraph — a
+     monospaced face gives up the varying letter widths that make a line of
+     prose scannable — so this is the other face, and it is now a pixel one.
+     Hyperlegible is kept behind it as the fallback. */
+  --body:
+    "Geist Pixel", "Hyperlegible", system-ui, -apple-system, "Segoe UI",
+    sans-serif;
   --display: var(--mono);
 
   /* ---- Type ------------------------------------------------------------
@@ -116,7 +133,10 @@
      at label sizes it needs positive tracking or the caps close up. Both are
      set per-role below rather than globally. */
   --t-body: 1rem;
-  --t-lede: 1.125rem;
+  /* Up from 1.125/1.25. Geist Pixel sets narrower than mono at the same size,
+     so the hero's lede came back from three lines to two and stopped holding
+     the corner under the heading. */
+  --t-lede: 1.25rem;
   --t-h1: 2.5rem;
   --t-h2: 1.75rem;
   --t-h3: 1.125rem;
@@ -157,7 +177,7 @@
   :root {
     --t-h1: 4rem;
     --t-h2: 2rem;
-    --t-lede: 1.25rem;
+    --t-lede: 1.5rem;
     --t-card-feature: 2rem;
     --t-prose-h2: 1.625rem;
     --t-prose-h3: 1.1875rem;
@@ -772,10 +792,15 @@ p {
   border: 0;
 }
 
+/* A pixel face has no optical sizes and no real tracking: the letterforms are
+   drawn on a grid, so pulling them together only closes the gaps the grid
+   provides. Hence no negative letter-spacing here, and a little more leading
+   than mono wanted — the glyphs are square and a tight line turns a paragraph
+   into a texture. */
 .lede {
+  font-family: var(--body);
   font-size: var(--t-lede);
-  line-height: 1.5;
-  letter-spacing: -0.015em;
+  line-height: 1.6;
 }
 
 /* A hairline across the page, with optional label. */

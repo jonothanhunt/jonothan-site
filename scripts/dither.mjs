@@ -226,12 +226,15 @@ async function buildCutout({ name, from, pick = "dark", lo = 0.4, hi = 0.6, size
  * whatever falls between samples, and several of these marks are mostly thin
  * strokes); the snap afterwards is what makes the edge a staircase.
  *
- * Flattened to ink, not left in brand colour. Eleven brand palettes next to
- * the page's seven inks was the one thing still arguing with the system, and
- * the pixelation is enough of a treatment on its own.
+ * The brand colours are kept in the file even though the strip prints these in
+ * ink. Eleven brand palettes next to the page's seven inks was the one thing
+ * still arguing with the system, so the flattening is done in CSS with a
+ * `brightness(0)` — which means hovering can simply drop the filter and the
+ * mark comes back in its own colours, with the sampling untouched. Baking the
+ * black in would have needed a second asset per logo to do the same.
  */
-const PIXEL_H = 17;
-const PIXEL_MAX_W = 68;
+const PIXEL_H = 22;
+const PIXEL_MAX_W = 88;
 /* How much bigger the vector is rendered before it is sampled down. High
    enough that each destination pixel averages a proper patch of the artwork
    rather than a few stray samples. */
@@ -286,9 +289,15 @@ async function buildPixel({ name, cut = false, lo = 0.2, hi = 0.5 }) {
 
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      // Box-average the coverage this destination pixel stands for.
+      // Box-average the coverage this destination pixel stands for, and its
+      // colour with it. The colour is weighted by the source alpha so that the
+      // transparent ground around a mark can't wash it out.
       let sum = 0;
       let n = 0;
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      let weight = 0;
       for (let sy = y * k; sy < Math.min((y + 1) * k, info.height); sy++) {
         for (let sx = x * k; sx < Math.min((x + 1) * k, info.width); sx++) {
           const i = (sy * info.width + sx) * 4;
@@ -301,12 +310,21 @@ async function buildPixel({ name, cut = false, lo = 0.2, hi = 0.5 }) {
           } else {
             sum += a;
           }
+          r += data[i] * a;
+          g += data[i + 1] * a;
+          b += data[i + 2] * a;
+          weight += a;
           n++;
         }
       }
-      // Snap. Half coverage or more is a pixel; anything less is not. RGB is
-      // left black throughout — only the alpha is ever read.
-      out[(y * W + x) * 4 + 3] = n && sum / n >= 0.5 ? 255 : 0;
+      const o = (y * W + x) * 4;
+      if (weight > 0) {
+        out[o] = Math.round(r / weight);
+        out[o + 1] = Math.round(g / weight);
+        out[o + 2] = Math.round(b / weight);
+      }
+      // Snap. Half coverage or more is a pixel; anything less is not.
+      out[o + 3] = n && sum / n >= 0.5 ? 255 : 0;
     }
   }
 

@@ -1,7 +1,7 @@
 ---
 import PostRow from "./PostRow.astro";
 import { tagSlug, tagLabel, type Post } from "../lib/posts";
-import { COLOURS } from "../lib/palette";
+import { COLOURS, paletteRun } from "../lib/palette";
 
 interface Props {
   posts: Post[];
@@ -16,13 +16,21 @@ const { posts, tags, openSlug } = Astro.props;
 // when it's active, and a filter row is a set of controls. Losing the colour
 // also loses the thing the old row had to fight — six tints next to seven
 // block colours below it.
+// No counts. A filter chip is a control, and a number inside it is a second
+// thing to read before you can use the first — the list underneath answers
+// "how many" the moment you press it.
+// The list resolves its inks as a run, so no two rows in a column print on the
+// same colour — a post without an image falls back to the rotating palette.
+// Resolving them one at a time put two `sun` cards together more often than
+// chance would, because the photographs cluster warm.
+const inks = await paletteRun(
+  posts.map((post) => post.data.image),
+  COLOURS,
+);
+
 const options = [
-  { slug: "all", label: "All", count: posts.length },
-  ...tags.map(({ tag, count }) => ({
-    slug: tagSlug(tag),
-    label: tagLabel(tag),
-    count,
-  })),
+  { slug: "all", label: "All" },
+  ...tags.map(({ tag }) => ({ slug: tagSlug(tag), label: tagLabel(tag) })),
 ];
 ---
 
@@ -47,19 +55,10 @@ const options = [
     ))
   }
 
-  <p class="spec filter__head">
-    <span>Writing</span>
-    <span class="spec__rule" aria-hidden="true"></span>
-    <span class="spec__val">{posts.length} posts</span>
-  </p>
-
   <div class="filter" role="group" aria-label="Filter posts by tag">
     {
       options.map((o) => (
-        <label class="pill" for={`tag-${o.slug}`}>
-          {o.label}
-          <small>{o.count}</small>
-        </label>
+        <label class="pill" for={`tag-${o.slug}`}>{o.label}</label>
       ))
     }
   </div>
@@ -69,7 +68,7 @@ const options = [
       posts.map((post, i) => (
         <PostRow
           post={post}
-          colour={COLOURS[i % COLOURS.length]}
+          colour={inks[i]}
           open={post.id === openSlug}
           loading={i < 2 ? "eager" : "lazy"}
         />
@@ -197,7 +196,7 @@ const options = [
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
-    margin-block: 20px 36px;
+    margin-block: 0 36px;
   }
 
   .filter label {
@@ -205,20 +204,6 @@ const options = [
     /* No transition on selection. Switching a filter re-lays out the list
        underneath, so easing the chip's colour just delays the feedback for
        something that has already happened. Hover still eases — see .pill. */
-  }
-
-  /* The count, set as a value rather than as part of the label — same
-     relationship as every spec row on the site. */
-  .filter small {
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    opacity: 0.5;
-  }
-
-  /* No border under it: the spec row's own rule already runs from the label
-     to the right edge, and a second line below it read as a double rule. */
-  .filter__head {
-    padding-bottom: 0;
   }
 
   .sr-only:focus-visible + .filter label,
@@ -232,10 +217,13 @@ const options = [
     outline-offset: 2px;
   }
 
-  /* Vertical list — one post per row, full width of the column. */
+  /* Vertical list — one post per row, full width of the column. The gap is
+     wider than the grid's: these are full-bleed photographs stacked one above
+     another in a single column, and at --gap two of them read as one tall
+     image with a seam rather than as two cards. */
   .list {
     display: flex;
     flex-direction: column;
-    gap: var(--gap);
+    gap: calc(var(--gap) * 2.5);
   }
 </style>

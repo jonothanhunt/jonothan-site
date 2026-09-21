@@ -383,7 +383,10 @@ const awards = [
 
   .hero__body .lede {
     max-width: 30rem;
-    text-wrap: pretty;
+    /* Balanced rather than pretty: three lines of roughly equal length under
+       a two-line heading reads as a block, where `pretty` left a long first
+       line over a short last one. */
+    text-wrap: balance;
   }
 
   .hero__body .lede a {

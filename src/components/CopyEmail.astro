@@ -61,10 +61,13 @@ const { variant = "bar" } = Astro.props;
 </script>
 
 <style>
+  /* Two halves a pixel apart, not one panel with a line drawn down it — the
+     same construction as the nav bar, and for the same reason. Each half
+     paints its own ground; the join is a real gap. */
   .copy {
     display: inline-flex;
     align-items: stretch;
-    background: var(--panel);
+    gap: 1px;
     color: var(--ink);
     font-family: var(--mono);
     font-size: 0.8125rem;
@@ -72,21 +75,21 @@ const { variant = "bar" } = Astro.props;
     -webkit-user-select: none;
   }
 
-  /* Standing on its own, in the contact block, it needs the bar's padding so
-     the panel reads as the same object the nav drops. No frame: in the nav it
-     sits inside a panel that has none, and on the teal block the fill already
-     separates it from the ground. */
-  .copy--solo {
-    padding: var(--ui-pad);
-  }
+  /* Nothing here. It used to carry the nav bar's padding so the two read as
+     the same object; the nav has since dropped its own, for the same reason
+     this one drops it — an ink fill that stops a few pixels short of every
+     edge reads as a chip inside a box rather than as half of a control. The
+     two halves are the bar. */
 
   .copy__link,
   .copy__btn {
     display: inline-flex;
     align-items: center;
     gap: 0.55em;
-    height: var(--ui-h);
-    padding-inline: 11px;
+    /* The full bar height, so hovering either half fills it top to bottom. */
+    height: var(--ui-h-solo);
+    padding-inline: 13px;
+    background: var(--panel);
     letter-spacing: 0.02em;
     text-decoration: none;
     white-space: nowrap;
@@ -100,18 +103,8 @@ const { variant = "bar" } = Astro.props;
     text-transform: uppercase;
   }
 
-  /* One hairline between the two halves. It only separates two resting
-     halves, so it goes the moment either is hovered — by then the ink fill
-     shows where one ends and the other begins, and the line cutting into it
-     reads as a seam. */
   .copy__btn {
     position: relative;
-    border-left: 1px solid var(--rule);
-  }
-
-  .copy:has(.copy__link:hover) .copy__btn,
-  .copy:has(.copy__btn:hover) .copy__btn {
-    border-left-color: transparent;
   }
 
   svg {
