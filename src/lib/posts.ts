@@ -53,5 +53,3 @@ export const formatDate = (d: Date) =>
     timeZone: "UTC",
   });
 
-/** Rotating palette so consecutive cards differ. */
-export const COLOURS = ["sun", "sea", "rose", "sky", "grape", "leaf", "flame"] as const;

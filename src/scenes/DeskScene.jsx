@@ -1,6 +1,12 @@
 import { Suspense, useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, useTexture, MeshPortalMaterial, Float } from "@react-three/drei";
+import {
+  useGLTF,
+  useTexture,
+  MeshPortalMaterial,
+  Float,
+  AsciiRenderer,
+} from "@react-three/drei";
 import * as THREE from "three";
 import "./materials.js";
 
@@ -290,6 +296,15 @@ function Ready({ onReady }) {
   return null;
 }
 
+/* The character ramp, sparse to dense.
+ *
+ * AsciiEffect indexes it by brightness, and a transparent pixel is forced to
+ * full brightness — so with `invert` off, the empty background lands on the
+ * first character and the scene's darks land on the last. That's why the first
+ * entry has to be a space: it's what makes the canvas read as ink on paper
+ * rather than as a solid rectangle of type. */
+const RAMP = " .:-=+*#%@";
+
 export default function DeskScene({ onReady }) {
   const [visible, setVisible] = useState(false);
 
@@ -298,7 +313,10 @@ export default function DeskScene({ onReady }) {
       orthographic
       // frameloop is driven manually so the GPU idles when off-screen.
       frameloop={visible ? "always" : "never"}
-      dpr={[1, 1.5]}
+      /* No point rendering above 1×. The WebGL frame is only ever read back at
+         `resolution` — around a tenth of the element's size — so every extra
+         device pixel is sampled straight back out again. */
+      dpr={1}
       camera={{ near: 0.1, far: 1000, position: [-1.8, 1.6, 3.5], rotation: [-0.42, -0.4, -0.1] }}
       gl={{ alpha: true, antialias: false, powerPreference: "default" }}
       style={{ background: "transparent" }}
@@ -314,12 +332,31 @@ export default function DeskScene({ onReady }) {
         });
       }}
     >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[0, 10, 5]} intensity={3.2} />
+      {/* Deliberately underlit. The ramp maps dark to dense, so the scene's
+          brightness *is* its ink coverage: lit the way it was for a colour
+          render, the desk came out as a scattering of full stops. */}
+      <ambientLight intensity={0.25} />
+      <directionalLight position={[0, 10, 5]} intensity={1.1} />
       <Suspense fallback={null}>
         <Desk />
         <Ready onReady={onReady} />
       </Suspense>
+      {/* 0.11 gives roughly a 75 × 20 grid in the panel the desk occupies —
+          about 1,500 characters a frame. AsciiEffect rebuilds the table's
+          innerHTML every frame, so the grid size is the cost, and at this
+          resolution it's a couple of kilobytes of string rather than the
+          40,000 characters the default 0.15 would ask for at this width.
+
+          `invert` off and `color` off: one colour, set from CSS, so the whole
+          thing can be multiplied into the block behind it. */}
+      <AsciiRenderer
+        characters={RAMP}
+        resolution={0.11}
+        invert={false}
+        color={false}
+        fgColor="currentColor"
+        bgColor="transparent"
+      />
     </Canvas>
   );
 }

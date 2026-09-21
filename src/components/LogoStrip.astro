@@ -43,11 +43,12 @@ const track = [...half, ...half];
 </div>
 
 <style>
-  /* No panel behind it, as on the original — the logos sit straight on the
-     page and the mask alone gives the row its ends. */
+  /* No panel behind it — the logos sit straight on the page and the mask alone
+     gives the row its ends. */
   .strip {
     overflow: hidden;
-    padding: 22px 0;
+    padding: 20px 0;
+    border-block: 1px solid var(--rule);
     -webkit-mask-image: linear-gradient(
       90deg,
       transparent,
@@ -87,12 +88,18 @@ const track = [...half, ...half];
   /* Logos vary wildly in aspect ratio — a wordmark like Duracell would
      otherwise dwarf a square mark. Cap the width at 3:1 and let object-fit
      scale the wide ones down rather than letting them stretch the row. */
+  /* Flattened to ink. `brightness(0)` takes every non-transparent pixel to
+     black and leaves alpha alone, which is the same silhouette the foil
+     stickers get from a mask — but as one filter on one element, which is what
+     a strip of sixty-odd marks needs. Eleven brand colours competing in a
+     credit row was the one thing on the page still arguing with the palette. */
   img {
-    height: 30px;
+    height: 28px;
     width: auto;
-    max-width: 90px;
+    max-width: 88px;
     object-fit: contain;
-    opacity: 0.9;
+    filter: brightness(0);
+    opacity: 0.75;
   }
 
   @keyframes slide {

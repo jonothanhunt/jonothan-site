@@ -58,17 +58,22 @@ const person = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Fonts are render-critical, so fetch them alongside the CSS. -->
+    <!-- Fonts are render-critical, so fetch them alongside the CSS. Both
+         JetBrains Mono faces are preloaded: the layout is drawn from the
+         symbol face as much as it is written in the text one, so arriving
+         second would mean every rule, mark and meter on the page swapping in
+         late. Hyperlegible is not — it only sets article body copy, which is
+         never the first thing on screen. -->
     <link
       rel="preload"
-      href="/fonts/lastik.woff2"
+      href="/fonts/jetbrains-mono.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/hyperlegible.woff2"
+      href="/fonts/jetbrains-mono-symbols.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -104,7 +109,7 @@ const person = {
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="Jonothan Hunt" href="/rss.xml" />
-    <meta name="theme-color" content="#f6f1e8" />
+    <meta name="theme-color" content="#e8e7e3" />
 
     <script
       type="application/ld+json"

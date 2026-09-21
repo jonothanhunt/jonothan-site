@@ -1,6 +1,7 @@
 ---
 import PostRow from "./PostRow.astro";
-import { COLOURS, tagSlug, tagLabel, type Post } from "../lib/posts";
+import { tagSlug, tagLabel, type Post } from "../lib/posts";
+import { COLOURS } from "../lib/palette";
 
 interface Props {
   posts: Post[];
@@ -10,17 +11,11 @@ interface Props {
 }
 const { posts, tags, openSlug } = Astro.props;
 
-// The original's playful chip palette: a -100 fill with -800 text, going to a
-// solid -600 when selected. Cycled by position so the row reads as a set.
-const CHIPS = [
-  { bg: "#ccfbf1", fg: "#115e59", on: "#0d9488" },
-  { bg: "#ffedd5", fg: "#9a3412", on: "#ea580c" },
-  { bg: "#e0f2fe", fg: "#075985", on: "#0284c7" },
-  { bg: "#f3e8ff", fg: "#6b21a8", on: "#9333ea" },
-  { bg: "#fef9c3", fg: "#854d0e", on: "#ca8a04" },
-  { bg: "#ffe4e6", fg: "#9f1239", on: "#e11d48" },
-];
-
+// The chips used to carry six pastel fills of their own. They don't need to:
+// every control on the site is now the same hairline box that fills with ink
+// when it's active, and a filter row is a set of controls. Losing the colour
+// also loses the thing the old row had to fight — six tints next to seven
+// block colours below it.
 const options = [
   { slug: "all", label: "All", count: posts.length },
   ...tags.map(({ tag, count }) => ({
@@ -28,7 +23,7 @@ const options = [
     label: tagLabel(tag),
     count,
   })),
-].map((o, i) => ({ ...o, chip: CHIPS[i % CHIPS.length] }));
+];
 ---
 
 <div class="blog">
@@ -52,15 +47,18 @@ const options = [
     ))
   }
 
+  <p class="spec filter__head">
+    <span>Writing</span>
+    <span class="spec__rule" aria-hidden="true"></span>
+    <span class="spec__val">{posts.length} posts</span>
+  </p>
+
   <div class="filter" role="group" aria-label="Filter posts by tag">
     {
       options.map((o) => (
-        <label
-          class="pill"
-          for={`tag-${o.slug}`}
-          style={`--chip-bg:${o.chip.bg};--chip-fg:${o.chip.fg};--chip-on:${o.chip.on}`}
-        >
+        <label class="pill" for={`tag-${o.slug}`}>
           {o.label}
+          <small>{o.count}</small>
         </label>
       ))
     }
@@ -89,7 +87,9 @@ const options = [
         slug === "all"
           ? ""
           : `#tag-${slug}:checked~.list>.row:not([data-tags~="${slug}"]){display:none}`;
-      const on = `#tag-${slug}:checked~.filter label[for="tag-${slug}"]{background:var(--chip-on);color:#fff}`;
+      // The selected chip is the same inversion every active control on the
+      // site uses, so it matches the nav's Blog pill exactly.
+      const on = `#tag-${slug}:checked~.filter label[for="tag-${slug}"]{background:var(--ink);color:var(--paper);box-shadow:inset 0 0 0 1px var(--ink)}`;
       return hide + on;
     })
     .join("")}
@@ -190,28 +190,34 @@ const options = [
      out the rows instead of leaving one or two orphans on the last line. */
   /* Room on both sides so the row reads as its own band between the nav and
      the list, rather than crowding either. */
+  /* Left, not centred. Centring suited pills of varying widths; a row of
+     square boxes wants a common left edge to line up with the column of cards
+     below it, and the label above it. */
   .filter {
-    display: block;
-    text-align: center;
-    text-wrap: balance;
-    margin-block: 32px 40px;
-    margin-inline: -3px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-block: 20px 36px;
   }
 
   .filter label {
     cursor: pointer;
-    margin: 3px;
-    vertical-align: middle;
-    background: var(--chip-bg);
-    color: var(--chip-fg);
     /* No transition on selection. Switching a filter re-lays out the list
        underneath, so easing the chip's colour just delays the feedback for
        something that has already happened. Hover still eases — see .pill. */
   }
 
+  /* The count, set as a value rather than as part of the label — same
+     relationship as every spec row on the site. */
   .filter small {
-    opacity: 0.55;
-    font-size: 0.8em;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    opacity: 0.5;
+  }
+
+  .filter__head {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule-mid);
   }
 
   .sr-only:focus-visible + .filter label,
@@ -221,8 +227,8 @@ const options = [
 
   /* Keyboard focus lands on the hidden input; show it on its label. */
   #tag-all:focus-visible ~ .filter label[for="tag-all"] {
-    outline: 3px solid var(--ink);
-    outline-offset: 3px;
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
   }
 
   /* Vertical list — one post per row, full width of the column. */
