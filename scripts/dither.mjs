@@ -71,7 +71,11 @@ const threshold = (x, y) => ((BAYER[y % N][x % N] + 0.5) / (N * N)) * 255;
 const PHOTOS = [
   // The source is 1223px wide, so there's no point asking for more than that —
   // `withoutEnlargement` would only hand back a second copy of the same image.
-  { name: "hero", from: "src/assets/site/header.jpg", widths: [640, 900, 1223] },
+  // Deliberately smaller than the box they fill: the hero is drawn at half
+  // the layout's width and scaled back up through `image-rendering: pixelated`,
+  // so the dither pattern comes out as squares you can count rather than as a
+  // fine grain that disappears at a glance.
+  { name: "hero", from: "src/assets/site/header.jpg", widths: [320, 450, 612] },
 ];
 
 /**
@@ -95,6 +99,84 @@ function ditherGrey(grey, width, height, { gamma = 0.8, contrast = 1.25 } = {}) 
     }
   }
   return out;
+}
+
+/**
+ * Three channels in, a small palette out.
+ *
+ * The same ordered dither as `ditherGrey`, run per channel against `levels`
+ * steps rather than two. Between two steps the Bayer matrix decides which of
+ * them a pixel takes, so the image keeps its gradients — three levels a channel
+ * is twenty-seven colours, and dithered they read as far more than that, where
+ * posterised flat they would band into unrecognisable slabs.
+ *
+ * Three rather than four. At four the quantisation is fine enough that the
+ * matrix rarely has to choose, so the dither stops being visible and the hero
+ * just looks like a photograph again — which is the one thing it should not
+ * look like on this page.
+ *
+ * The gamma lift is the same idea and for the same reason as the grey pass:
+ * half of an 8-bit image's range describes the top stop of brightness, so a
+ * photograph quantised straight from its sRGB values puts most of the picture
+ * in the bottom step or two.
+ */
+function ditherColour(
+  rgb,
+  width,
+  height,
+  { levels = 4, gamma = 0.85, contrast = 1.12 } = {},
+) {
+  const out = Buffer.alloc(width * height * 3);
+  const steps = levels - 1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // 0–1, matching `threshold`'s 0–255 scale below.
+      const t = threshold(x, y) / 255;
+      for (let c = 0; c < 3; c++) {
+        const i = (y * width + x) * 3 + c;
+        let v = rgb[i] / 255;
+        v = Math.pow(v, gamma);
+        v = (v - 0.5) * contrast + 0.5;
+        v = Math.min(1, Math.max(0, v));
+
+        // Which two of the available steps this value sits between, and how
+        // far along it is. The matrix turns that fraction into a choice.
+        const scaled = v * steps;
+        const lower = Math.floor(scaled);
+        const frac = scaled - lower;
+        const step = Math.min(steps, lower + (frac > t ? 1 : 0));
+        out[i] = Math.round((step / steps) * 255);
+      }
+    }
+  }
+  return out;
+}
+
+async function buildPhotoColour({ name, from, widths, levels = 3 }) {
+  const src = path.join(ROOT, from);
+  for (const width of widths) {
+    const dest = path.join(OUT, `${name}-colour-${width}.png`);
+    if (await isFresh(dest, src)) continue;
+
+    const { data, info } = await sharp(src)
+      .resize({ width, withoutEnlargement: true })
+      .removeAlpha()
+      .toColourspace("srgb")
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const dithered = ditherColour(data, info.width, info.height, { levels });
+
+    await sharp(dithered, {
+      raw: { width: info.width, height: info.height, channels: 3 },
+    })
+      // Indexed, because the output only ever holds `levels ** 3` colours and
+      // a palette PNG stores that in a fraction of what truecolour would.
+      .png({ palette: true, colours: levels ** 3, compressionLevel: 9, effort: 10 })
+      .toFile(dest);
+
+    report(dest);
+  }
 }
 
 async function buildPhoto({ name, from, widths }) {
@@ -396,6 +478,7 @@ await Promise.all([
 ]);
 await Promise.all([
   ...PHOTOS.map(buildPhoto),
+  ...PHOTOS.map(buildPhotoColour),
   ...CUTOUTS.map(buildCutout),
   ...PIXELS.map(buildPixel),
   // Fade down into the page, and back up out of it.

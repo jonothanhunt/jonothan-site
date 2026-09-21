@@ -48,6 +48,19 @@
   font-display: swap;
 }
 
+/* The original site's display face, back for the hero heading and nothing
+   else. The metric overrides are what stop the fallback reflowing the two
+   biggest lines on the page while the file is in flight. */
+@font-face {
+  font-family: "Lastik";
+  src: url("/fonts/lastik.woff2") format("woff2-variations");
+  font-weight: 50 100;
+  font-display: swap;
+  size-adjust: 105%;
+  ascent-override: 92%;
+  descent-override: 22%;
+}
+
 /* Still here, and still the fallback for anything Geist Pixel can't set. */
 @font-face {
   font-family: "Hyperlegible";
@@ -69,6 +82,14 @@
   --ink: #0e0e0c;
   --ink-rgb: 14 14 12;
   --ink-soft: #6c6a64;
+
+  /* The same two, pinned. `--paper` and `--ink` swap under a dark theme;
+     these never do. They are for the handful of things whose ground is a
+     fixed colour and so whose type has to be a fixed colour too — chiefly a
+     block, which prints the same bright ink in either theme and needs black
+     type on it either way. */
+  --ink-fixed: #0e0e0c;
+  --paper-fixed: #e8e7e3;
 
   /* Hairlines. Everything structural is one of these three weights and
      nothing else — it's what keeps a page of squares from turning into a
@@ -179,6 +200,31 @@
      motif. Drawn rather than set, so they don't depend on a glyph existing. */
   --mark-reg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M4.5 0v9M0 4.5h9'/%3E%3Ccircle cx='4.5' cy='4.5' r='2.5'/%3E%3C/svg%3E");
 }
+
+/* ============================================================
+   Dark
+
+   Opt-in, and only where a page asks for it — `data-theme` is set on <html>
+   by the switch in the nav, which only appears on the blog. The home page is
+   a light page: its hero, its client strip and its desk are all built on a
+   paper ground and none of them has a dark counterpart.
+
+   The whole theme is a swap of two colours and the greys derived from them.
+   The seven block colours are untouched: they are screen-printed inks and an
+   ink does not change because the paper did. What does change is that a block
+   can no longer let its type inherit — see `--ink-fixed`.
+   ============================================================ */
+:root[data-theme="dark"] {
+  --paper: #16161a;
+  --paper-rgb: 22 22 26;
+  /* A half-step *up* from the page, same as in light — which here means
+     lighter rather than darker. */
+  --panel: #23232a;
+  --ink: #e8e7e3;
+  --ink-rgb: 232 231 227;
+  --ink-soft: #9c9a94;
+}
+
 
 @media (min-width: 768px) {
   :root {
@@ -360,6 +406,19 @@ p {
   overflow: hidden;
   isolation: isolate;
   background: var(--block-ground, transparent);
+}
+
+/* A coloured block prints black type whatever the page is doing around it.
+   Left to inherit, every one of them came out with light type on a bright
+   ground the moment the theme flipped. */
+.block--sun,
+.block--flame,
+.block--grape,
+.block--sea,
+.block--sky,
+.block--rose,
+.block--leaf {
+  color: var(--ink-fixed);
 }
 
 .block--sun {
