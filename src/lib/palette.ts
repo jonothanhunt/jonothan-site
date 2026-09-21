@@ -85,8 +85,10 @@ function resolveFile(src: string): string | undefined {
   return index.get(`${stem}.${ext}`);
 }
 
-// One sharp pass per image for the whole build, not per card.
-const cache = new Map<string, Promise<Palette>>();
+// One sharp pass per image for the whole build, not per card. The hue is
+// cached rather than the ink, because the ink is no longer a property of the
+// image alone — see `paletteRun`.
+const cache = new Map<string, Promise<number | null>>();
 
 /** sRGB → HSL, hue in degrees, the rest 0–1. */
 function toHsl(r: number, g: number, b: number) {
@@ -112,9 +114,10 @@ const hueGap = (a: number, b: number) => {
   return d > 180 ? 360 - d : d;
 };
 
-async function compute(src: string): Promise<Palette> {
+/** The photo's dominant hue in degrees, or null if it carries no colour. */
+async function compute(src: string): Promise<number | null> {
   const file = resolveFile(src);
-  if (!file || !fs.existsSync(file)) return "paper";
+  if (!file || !fs.existsSync(file)) return null;
 
   try {
     // A 24×24 thumbnail, not a single pixel. Averaging a whole photograph to
@@ -151,29 +154,71 @@ async function compute(src: string): Promise<Palette> {
     // paper panel rather than an invented ink. The threshold is on the mean
     // weight rather than on one sampled saturation, so it answers "is there
     // colour in this picture" instead of "is this one pixel colourful".
-    if (colour / total < 0.02) return "paper";
+    if (colour / total < 0.02) return null;
 
     // The fullest bucket, then its own weighted mean hue — the bucket alone
     // would quantise every photo to one of 24 hues before the palette gets to
     // quantise it to one of seven.
     let peak = 0;
     for (let b = 1; b < BUCKETS; b++) if (hist[b] > hist[peak]) peak = b;
-    const centre = (peak + 0.5) * (360 / BUCKETS);
-
-    return INKS.reduce((best, ink) =>
-      hueGap(centre, ink.hue) < hueGap(centre, best.hue) ? ink : best,
-    ).name;
+    return (peak + 0.5) * (360 / BUCKETS);
   } catch {
-    return "paper";
+    return null;
   }
 }
 
-/** The palette ink whose hue is closest to the image's mean colour. */
-export function paletteFor(img: ImageMetadata): Promise<Palette> {
+/** The sampled hue, memoised for the build. */
+function hueFor(img: ImageMetadata): Promise<number | null> {
   let hit = cache.get(img.src);
   if (!hit) {
     hit = compute(img.src);
     cache.set(img.src, hit);
   }
   return hit;
+}
+
+/** The seven inks, nearest hue first. */
+const ranked = (hue: number): Palette[] =>
+  [...INKS]
+    .sort((a, b) => hueGap(hue, a.hue) - hueGap(hue, b.hue))
+    .map((ink) => ink.name);
+
+/** The palette ink whose hue is closest to the image's mean colour. */
+export async function paletteFor(img: ImageMetadata): Promise<Palette> {
+  const hue = await hueFor(img);
+  return hue === null ? "paper" : ranked(hue)[0];
+}
+
+/**
+ * The inks for a row of cards, read in order, with no ink used twice in a row.
+ *
+ * Photographs cluster: the site's own work is warm, so sampling each card
+ * honestly and independently puts two `sun` cards side by side more often than
+ * chance would — which reads as a mistake rather than as a derived colour. So
+ * a card whose first choice was just taken by the card before it drops to its
+ * second, which is the next ink round the wheel and still a colour the photo
+ * genuinely leans toward.
+ *
+ * Only the *first* choice is defended. A card is never pushed further than one
+ * step, and `paper` is exempt: a monochrome photo has no hue to nudge, and two
+ * paper cards together read as a deliberate pair rather than as a repeat.
+ */
+export async function paletteRun(
+  images: (ImageMetadata | undefined)[],
+): Promise<Palette[]> {
+  const hues = await Promise.all(
+    images.map((img) => (img ? hueFor(img) : Promise.resolve(null))),
+  );
+
+  const out: Palette[] = [];
+  let previous: Palette | undefined;
+  for (const hue of hues) {
+    const ink =
+      hue === null
+        ? "paper"
+        : (ranked(hue).find((name) => name !== previous) ?? ranked(hue)[0]);
+    out.push(ink);
+    previous = ink;
+  }
+  return out;
 }

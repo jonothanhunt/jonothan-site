@@ -151,10 +151,6 @@ async function buildPhoto({ name, from, widths }) {
 const CUTOUTS = [
   // White drum knocked out of a red square.
   { name: "drum", from: "src/assets/logos/the_drum_logo.jpeg", pick: "dark", lo: 0.2, hi: 0.5 },
-  // White wordmark knocked out of the NHS blue.
-  { name: "nhs", from: "src/assets/logos/nhs_logo.svg", pick: "dark", lo: 0.2, hi: 0.5 },
-  // A dotted EE knocked out of a teal field.
-  { name: "ee", from: "src/assets/logos/ee_logo.svg", pick: "dark", lo: 0.2, hi: 0.45 },
 ];
 
 async function buildCutout({ name, from, pick = "dark", lo = 0.4, hi = 0.6, size = 320 }) {
@@ -202,6 +198,119 @@ async function buildCutout({ name, from, pick = "dark", lo = 0.4, hi = 0.6, size
   await sharp(rgba, {
     raw: { width: info.width, height: info.height, channels: 4 },
   })
+    .png({ compressionLevel: 9, effort: 10 })
+    .toFile(dest);
+
+  report(dest);
+}
+
+/* ------------------------------------------------------------------ pixels */
+
+/**
+ * The client logos, sampled down to a handful of pixels and flattened to ink.
+ *
+ * The strip wants marks that look like they were drawn before anyone had
+ * antialiasing: hard, square, visibly sampled. None of that can be done to an
+ * SVG in the browser. `image-rendering: pixelated` only has an effect when
+ * there are fewer source pixels than the box needs, and a vector has exactly
+ * as many as it is asked for — so the sampling has to happen here, and so does
+ * the thing that actually sells it, which is the *threshold*.
+ *
+ * That is the part a plain `resize` will not give you. Every resampling kernel
+ * sharp has, `nearest` included, hands back a soft alpha at the edges, and a
+ * soft alpha blown up 2x is a blurred pixel rather than a big one — it reads
+ * as a small logo that has been stretched, which is exactly the look this is
+ * trying to avoid. So the downsample is done by hand: box-average the coverage
+ * over each destination pixel, then snap it to 0 or 255. Averaging first is
+ * what keeps a one-pixel stroke alive at this size (point-sampling drops
+ * whatever falls between samples, and several of these marks are mostly thin
+ * strokes); the snap afterwards is what makes the edge a staircase.
+ *
+ * Flattened to ink, not left in brand colour. Eleven brand palettes next to
+ * the page's seven inks was the one thing still arguing with the system, and
+ * the pixelation is enough of a treatment on its own.
+ */
+const PIXEL_H = 17;
+const PIXEL_MAX_W = 68;
+/* How much bigger the vector is rendered before it is sampled down. High
+   enough that each destination pixel averages a proper patch of the artwork
+   rather than a few stray samples. */
+const PIXEL_OVERSAMPLE = 8;
+
+const PIXELS = [
+  { name: "adobe" },
+  { name: "beko" },
+  { name: "bt" },
+  { name: "coca_cola" },
+  { name: "duracell" },
+  { name: "microsoft" },
+  { name: "tiktok" },
+  { name: "unilever" },
+  /* Three of the eleven carry their mark as a hole in a filled field rather
+     than as a shape on nothing. Their own alpha is a solid rectangle or
+     lozenge, so flattening it to ink fills the hole and loses the brand — the
+     silhouette has to be cut from luminance instead, the same way the awards'
+     Drum mark is. `lo`/`hi` are where the field ends and the knockout begins. */
+  // A dotted EE knocked out of a teal field.
+  { name: "ee", cut: true, lo: 0.2, hi: 0.45 },
+  // The hexagon's white counter-change triangles, and the wordmark beside it.
+  { name: "hsbc", cut: true, lo: 0.15, hi: 0.4 },
+  // White wordmark knocked out of the NHS blue.
+  { name: "nhs", cut: true, lo: 0.2, hi: 0.5 },
+];
+
+async function buildPixel({ name, cut = false, lo = 0.2, hi = 0.5 }) {
+  const src = path.join(ROOT, `src/assets/logos/${name}_logo.svg`);
+  const dest = path.join(OUT_ASSETS, `${name}-pixel.png`);
+  if (await isFresh(dest, src)) return;
+
+  const k = PIXEL_OVERSAMPLE;
+  const { data, info } = await sharp(src, { density: 72 * k })
+    .resize({
+      width: PIXEL_MAX_W * k,
+      height: PIXEL_H * k,
+      fit: "inside",
+      withoutEnlargement: false,
+    })
+    .ensureAlpha()
+    .toColourspace("srgb")
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  // The oversampled image is `fit: inside`, so its height is PIXEL_H * k but
+  // its width is whatever the mark's own ratio gave it. Round rather than
+  // floor, so a mark doesn't lose its last column to integer division.
+  const W = Math.max(1, Math.round(info.width / k));
+  const H = Math.max(1, Math.round(info.height / k));
+  const out = Buffer.alloc(W * H * 4);
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      // Box-average the coverage this destination pixel stands for.
+      let sum = 0;
+      let n = 0;
+      for (let sy = y * k; sy < Math.min((y + 1) * k, info.height); sy++) {
+        for (let sx = x * k; sx < Math.min((x + 1) * k, info.width); sx++) {
+          const i = (sy * info.width + sx) * 4;
+          const a = data[i + 3] / 255;
+          if (cut) {
+            const lum =
+              (0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2]) / 255;
+            const level = Math.min(1, Math.max(0, (1 - lum - lo) / (hi - lo)));
+            sum += level * a;
+          } else {
+            sum += a;
+          }
+          n++;
+        }
+      }
+      // Snap. Half coverage or more is a pixel; anything less is not. RGB is
+      // left black throughout — only the alpha is ever read.
+      out[(y * W + x) * 4 + 3] = n && sum / n >= 0.5 ? 255 : 0;
+    }
+  }
+
+  await sharp(out, { raw: { width: W, height: H, channels: 4 } })
     .png({ compressionLevel: 9, effort: 10 })
     .toFile(dest);
 
@@ -270,6 +379,7 @@ await Promise.all([
 await Promise.all([
   ...PHOTOS.map(buildPhoto),
   ...CUTOUTS.map(buildCutout),
+  ...PIXELS.map(buildPixel),
   // Fade down into the page, and back up out of it.
   buildRamp("ramp-down"),
   buildRamp("ramp-up", { reverse: true }),

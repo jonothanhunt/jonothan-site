@@ -215,9 +215,10 @@ const options = [
     opacity: 0.5;
   }
 
+  /* No border under it: the spec row's own rule already runs from the label
+     to the right edge, and a second line below it read as a double rule. */
   .filter__head {
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--rule-mid);
+    padding-bottom: 0;
   }
 
   .sr-only:focus-visible + .filter label,

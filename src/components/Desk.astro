@@ -104,13 +104,12 @@
       display: block;
       position: absolute;
       inset: 0 0 0 34%;
-      /* The characters are ink, and the panel behind them is a flat colour, so
-         multiply is all that's needed to print one into the other — the spaces
-         between characters carry no ink and leave the block untouched. The
-         parent block sets `isolation: isolate`, which keeps the blend group to
-         that block rather than the whole page. */
-      color: var(--ink);
-      mix-blend-mode: multiply;
+      /* No blend mode. The ASCII version was ink — characters printed into the
+         block with `multiply`, which worked because the gaps between them
+         carried none. The retro pass is a colour image with a hard alpha, so
+         it sits on the block rather than printing into it; multiplying it just
+         drove every channel toward the block's own colour and took the desk to
+         black. */
       /* Held back until the scene reports its first real frame, so it eases
          in instead of popping. `is-ready` is set from the scene once the
          model and textures have resolved — not on canvas creation, which
@@ -123,10 +122,13 @@
       opacity: 1;
     }
 
-    /* The WebGL canvas is never seen: AsciiRenderer takes it to opacity 0 and
-       reads it back as a brightness grid. Sizing it is still what tells the
-       renderer how big a frame to draw. */
+    /* The canvas is what you see now, rather than a source the ASCII effect
+       read back and hid. `pixelated` is belt and braces — the retro pass
+       already magnifies its own low-resolution target through a
+       NearestFilter — but it also covers the browser scaling the canvas
+       between its drawing buffer and its CSS size. */
     .desk :global(canvas) {
+      image-rendering: pixelated;
       width: 100% !important;
       height: 100% !important;
       display: block;

@@ -92,7 +92,10 @@
   --ui-h-solo: calc(var(--ui-h) + var(--ui-pad) * 2);
 
   --nav-pill: calc(var(--ui-h) + var(--ui-pad) * 2);
-  --nav-space: calc(var(--gap) * 2 + var(--nav-pill));
+  /* What a page leaves clear at the top for the fixed bar. The bar sits on
+     the edge now rather than a --gap below it, so this is its own height plus
+     one gap of breathing room under it. */
+  --nav-space: calc(var(--gap) + var(--nav-pill));
 
   /* One face, one stack. The symbol subset shares the family name, so a glyph
      the variable file doesn't carry is picked up by the other face without
@@ -318,41 +321,47 @@ p {
    that touches it. Isolated, the group is the block and nothing outside it is
    ever consulted.
    ============================================================ */
+/* Each modifier sets `--block-ground` rather than `background` directly, and
+   this rule paints it. The variable is the point: a label printed *over* a
+   card's photograph has to sit on the card's own ink to stay readable, and
+   reading it from the block means a chip inside any block is the right colour
+   without the colour having to be passed down through markup. */
 .block {
   border-radius: 0;
   padding: var(--pad);
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  background: var(--block-ground, transparent);
 }
 
 .block--sun {
-  background: var(--sun);
+  --block-ground: var(--sun);
 }
 .block--flame {
-  background: var(--flame);
+  --block-ground: var(--flame);
 }
 .block--grape {
-  background: var(--grape);
+  --block-ground: var(--grape);
 }
 .block--sea {
-  background: var(--sea);
+  --block-ground: var(--sea);
 }
 .block--sky {
-  background: var(--sky);
+  --block-ground: var(--sky);
 }
 .block--rose {
-  background: var(--rose);
+  --block-ground: var(--rose);
 }
 .block--leaf {
-  background: var(--leaf);
+  --block-ground: var(--leaf);
 }
 .block--paper {
-  background: var(--panel);
+  --block-ground: var(--panel);
 }
 /* Inverted, as the reference's label chips are: ink ground, paper type. */
 .block--ink {
-  background: var(--ink);
+  --block-ground: var(--ink);
   color: var(--paper);
 }
 
@@ -367,13 +376,80 @@ p {
 }
 
 /* ============================================================
+   Caption plates
+
+   A line of type on a ground of its own, as the reference's captions are.
+   Built with `box-decoration-break: clone` so every line box gets its own
+   plate, which is what stops a two-line title from printing a slab of colour
+   beside its shorter line.
+
+   The awkward part is that an inline background covers the *content area* —
+   the font's own ascent plus descent — and not the line box. So a plate's
+   height is the content area plus its padding, and whether consecutive plates
+   meet, gap or overlap depends on the leading.
+
+   Making them meet exactly is not expressible. Chrome rounds the ascent and
+   the descent to whole pixels *separately*, so JetBrains Mono's 1.02 + 0.30em
+   box comes out as 23px at 18px type and 43px at 32px — ratios of 1.278 and
+   1.344 for the same font. Any single number in a `calc` is therefore wrong at
+   most sizes, and a gap of even half a pixel shows as a seam of photograph
+   between two plates.
+
+   So they are made to overlap on purpose, by a whole `--plate-overhang` at top
+   and bottom, which swallows the rounding whichever way it goes. A plate then
+   sticks out past its own block by that much, which is why anything aligning
+   plates to an edge — a card title against the bottom of its card — offsets
+   itself by the same amount rather than sitting at 0. Otherwise the overhang
+   falls outside the card and is clipped, and the last line loses the padding
+   the first line kept.
+   ============================================================ */
+:root {
+  /* JetBrains Mono's em box: hhea ascent 1.02 + descent 0.30. */
+  --mono-content: 1.32;
+  --plate-pad-y: 4px;
+  --plate-pad-x: 9px;
+  --plate-overhang: 2px;
+}
+
+.plate {
+  line-height: calc(
+    var(--mono-content) * 1em + (var(--plate-pad-y) - var(--plate-overhang)) * 2
+  );
+}
+
+/* The extra 2px under every plate is slack, not padding.
+   ---
+   Between two lines it is invisible: the plates already overlap and are the
+   same colour. It exists for the *last* line, where the plate has to reach an
+   edge it is being clipped at. `--plate-overhang` is a fixed 2px but the real
+   overhang moves by up to half a pixel either way with the metric rounding
+   above, and layout can land the block on a fraction of a pixel on top of
+   that — so a plate aimed exactly at the edge sometimes stops one or two
+   pixels short of it, and a stripe of photograph shows under the title.
+   Overshooting by 2px and letting the clip do the work means it never does,
+   and the visible padding is still decided by the offset rather than by this. */
+.plate > span {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: var(--plate-pad-y) var(--plate-pad-x)
+    calc(var(--plate-pad-y) + 2px);
+  background: var(--block-ground);
+}
+
+/* ============================================================
    Registration marks
 
    Crosshairs in the corners of a block, as on a printer's proof. Two
    background layers on one pseudo-element rather than four positioned
    children, so the whole motif costs nothing in the box tree.
+
+   `--all` is a standalone class, not a modifier: it creates the
+   pseudo-element itself and then overrides only the layers. Pairing it with
+   `.marks` still works, but is no longer required — needing both is what left
+   the contact block and the 404 without any crosshairs at all.
    ============================================================ */
-.marks::before {
+.marks::before,
+.marks--all::before {
   content: "";
   position: absolute;
   inset: 8px;
@@ -510,10 +586,12 @@ p {
   white-space: nowrap;
   user-select: none;
   -webkit-user-select: none;
-  transition:
-    background-color 0.15s linear,
-    color 0.15s linear,
-    box-shadow 0.15s linear;
+  /* No transition. A control has two states and the pointer is already on it
+     by the time the fill arrives — easing between them delays the answer to
+     something the reader has already done. Every hover and active state on the
+     site switches rather than fades; the only easing left anywhere is the
+     nav's brand sliding out of the way, which is a layout change rather than
+     feedback. */
 }
 
 .pill--blog {

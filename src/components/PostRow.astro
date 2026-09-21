@@ -31,42 +31,48 @@ const ink: Palette = image ? await paletteFor(image) : colour;
 ---
 
 <details class="row" open={open} id={post.id} data-tags={tagTokens}>
-  <summary class:list={["card", `block block--${ink}`, "marks"]}>
-    <div class="card__head">
-      <p class="eyebrow">
-        <time datetime={date.toISOString()}>{formatDate(date)}</time>
-        {type.length > 0 ? ` · ${type.map(tagLabel).join(" · ")}` : ""}
-      </p>
-      <span class="dotgrid" aria-hidden="true"></span>
-    </div>
-
-    <h2>{title}</h2>
-
+  <summary
+    class:list={[
+      "card",
+      `block block--${ink}`,
+      // Registration marks only where the corners are free. Once the
+      // photograph fills the card all four carry a plate, and a crosshair
+      // behind one is a smudge under the type. Same rule as Card.astro.
+      !image && "marks",
+      !image && "card--bare",
+    ]}
+  >
     {
       image && (
-        <div class="card__media">
-          <Picture
-            class="card__img duo"
-            pictureAttributes={{ class: "card__pic" }}
-            src={image}
-            alt=""
-            formats={["avif", "webp"]}
-            fallbackFormat="webp"
-            widths={[560, 900, 1200, 1800]}
-            sizes="(max-width: 940px) calc(100vw - 32px), 888px"
-            loading={loading}
-            decoding="async"
-          />
-        </div>
+        <Picture
+          class="card__img duo"
+          pictureAttributes={{ class: "card__pic" }}
+          src={image}
+          alt=""
+          formats={["avif", "webp"]}
+          fallbackFormat="webp"
+          widths={[560, 900, 1200, 1800]}
+          sizes="(max-width: 940px) calc(100vw - 32px), 888px"
+          loading={loading}
+          decoding="async"
+        />
       )
     }
 
-    <p class="card__foot spec">
-      <span class="card__cue" aria-hidden="true"></span>
-      <span>Read</span>
-      <span class="spec__rule" aria-hidden="true"></span>
-      <span class="spec__val">/blog/{post.id}</span>
+    <p class="card__chip card__eyebrow">
+      <span class="eyebrow">
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        {type.length > 0 ? ` · ${type.map(tagLabel).join(" · ")}` : ""}
+      </span>
     </p>
+
+    <p class="card__chip card__meta">
+      <span>
+        <span class="card__cue" aria-hidden="true"></span>/blog/{post.id}
+      </span>
+    </p>
+
+    <h2 class="card__chip card__title plate"><span>{title}</span></h2>
   </summary>
 
   <!-- Sits below the card, directly on the page background — no panel. -->
@@ -108,19 +114,23 @@ const ink: Palette = image ? await paletteFor(image) : colour;
   }
 
   /* --- Card (always visible) --- */
-  /* Same anatomy as Card.astro: a label row, the title, the photo in a panel
-     of its own, a spec row along the bottom. The one difference is that this
-     one is a summary — it opens the post rather than going anywhere. */
+  /* Same anatomy as Card.astro, and for the same reason: the photograph fills
+     the card and the three pieces of text sit on plates over it — the date and
+     tags top left, the path top right, the title bottom left. The one
+     difference is that this one is a summary, so it opens the post below
+     rather than going anywhere, and the top-right plate carries the +/−
+     disclosure cue where a link card carries an arrow. */
   .card {
     position: relative;
+    display: block;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
     min-height: 240px;
-    padding: 20px;
+    padding: 0;
     list-style: none;
-    transition: translate 0.15s linear;
+  }
+
+  .card--bare {
+    padding: 20px;
   }
 
   .card.block--paper {
@@ -131,28 +141,7 @@ const ink: Palette = image ? await paletteFor(image) : colour;
     display: none;
   }
 
-  .card__head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .card h2 {
-    font-size: var(--t-card-row);
-    letter-spacing: -0.03em;
-    text-wrap: pretty;
-  }
-
-  .card__media {
-    position: relative;
-    flex: 1;
-    min-height: 120px;
-    overflow: hidden;
-    background: transparent;
-  }
-
-  /* See Card.astro — the <picture> wrapper must not become a flex item. */
+  /* See Card.astro — the <picture> wrapper must not become a box of its own. */
   .card__pic {
     display: contents;
   }
@@ -166,32 +155,84 @@ const ink: Palette = image ? await paletteFor(image) : colour;
     object-fit: cover;
   }
 
-  .card__foot {
-    border-top: 1px solid currentColor;
-    padding-top: 10px;
+  .card__chip {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    max-width: calc(100% - 24px);
   }
 
-  .card__foot .spec__rule {
-    border-top-color: transparent;
+  /* One line each and always will be, so these take the plate on the block
+     rather than on the inline — see "Caption plates" in global.css for why
+     that matters. */
+  .card__eyebrow,
+  .card__meta {
+    padding: 6px var(--plate-pad-x);
+    line-height: 1;
+    background: var(--block-ground);
+  }
+
+  .card--bare .card__eyebrow,
+  .card--bare .card__meta,
+  .card--bare .card__title > span {
+    padding: 0;
+    background: none;
+  }
+
+  .card__eyebrow {
+    top: 0;
+    left: 0;
+  }
+
+  .card__meta {
+    top: 0;
+    right: 0;
+    font-family: var(--mono);
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .card__title {
+    /* Offset by the plate's overhang rather than sitting at 0 — see
+       "Caption plates" in global.css. */
+    bottom: var(--plate-overhang);
+    left: 0;
+    font-size: var(--t-card-row);
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .card--bare .card__title {
+    position: static;
+    margin-top: 12px;
+    line-height: 1.15;
   }
 
   /* Disclosure cue: + closed, − open. A glyph rather than a rotating chevron,
      and specifically these two — both are one character wide in a monospaced
-     face, so the row's label never changes width when it opens. The minus is
+     face, so the plate never changes width when the row opens. The minus is
      U+2212 rather than a hyphen so it sits at the same optical weight and
      height as the plus. */
   .card__cue::before {
     content: "+";
     font-weight: 700;
+    margin-right: 0.5em;
   }
 
   .row[open] .card__cue::before {
     content: "\2212";
   }
 
+  /* Same as the grid cards: hovering drops the photograph out of `multiply`
+     and lets it print in its own colours. No easing — two states, not two ends
+     of a range — and pointer devices only, because on a touch screen the
+     hover lasts exactly as long as the tap that is already opening the row. */
   @media (hover: hover) {
-    .card:hover {
-      translate: 0 -3px;
+    .card:hover .card__img {
+      mix-blend-mode: normal;
+      filter: none;
     }
   }
 
@@ -226,8 +267,7 @@ const ink: Palette = image ? await paletteFor(image) : colour;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .row::details-content,
-    .card {
+    .row::details-content {
       transition: none;
     }
   }

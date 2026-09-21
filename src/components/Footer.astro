@@ -10,14 +10,8 @@ const links = [
 ---
 
 <footer class="site-foot">
-  <div class="shell">
-    <!-- A colophon rather than a row of links: label, rule, value, the way
-         every other factual row on the site is set. -->
-    <p class="spec foot__row">
-      <span>Jonothan Hunt</span>
-      <span class="spec__rule" aria-hidden="true"></span>
-      <span class="spec__val">Creative technologist &#x2014; London</span>
-    </p>
+  <div class="shell foot">
+    <p class="foot__name">Jonothan Hunt <span>&#x00A9; {year}</span></p>
 
     <ul class="foot__links">
       {
@@ -31,11 +25,7 @@ const links = [
       }
     </ul>
 
-    <p class="spec foot__row foot__row--last">
-      <span>&#x00A9; {year}</span>
-      <span class="spec__rule" aria-hidden="true"></span>
-      <span class="spec__val">Astro &#x00B7; No trackers &#x00B7; jonothan.dev</span>
-    </p>
+    <p class="foot__colophon">Astro &#x00B7; No trackers</p>
   </div>
 </footer>
 
@@ -44,36 +34,48 @@ const links = [
     color: var(--ink);
   }
 
-  .site-foot .shell {
+  /* One line on desktop: name, links, colophon, with a single hairline closing
+     the page off above it. It used to be three stacked spec rows, each with a
+     rule of its own — three lines of type and three lines of rule for six
+     words and four links, and the two rules stacked up against the section
+     divider above them read as a fence. */
+  .foot {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .foot__row {
-    /* Hairline over the first row, so the footer is closed off from the page
-       above it without a panel. */
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px 24px;
     border-top: 1px solid var(--rule-mid);
-    padding-top: 12px;
+    padding-top: 14px;
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
-  .foot__row--last {
-    border-top-color: var(--rule);
+  .foot__name {
+    margin: 0;
+  }
+
+  .foot__name span {
+    color: var(--ink-soft);
+  }
+
+  /* Pushed hard right of the links, and dropped below them before there is
+     room for all three on one line. */
+  .foot__colophon {
+    margin: 0 0 0 auto;
     color: var(--ink-soft);
   }
 
   .foot__links {
     display: flex;
     flex-wrap: wrap;
-    /* The separator is the gap plus a hairline, drawn per item below — a
-         gap alone reads as a list, the rules read as a set of fields. */
+    /* The separator is the gap plus a hairline, drawn per item below — a gap
+       alone reads as a list, the rules read as a set of fields. */
     gap: 0 18px;
     list-style: none;
+    margin: 0;
     padding: 0;
-    font-size: var(--t-label);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
   }
 
   .foot__links li + li {

@@ -56,98 +56,70 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
   class:list={[
     "card",
     `block block--${ink}`,
-    "marks",
+    // Registration marks only on a card with nothing in its corners. Once the
+    // photograph fills the card, all four corners carry a plate, and a
+    // crosshair behind one is just a smudge under the type.
+    !image && "marks",
     feature && "card--feature",
+    !image && "card--bare",
   ]}
   href={href}
   {...external ? { target: "_blank", rel: "noopener noreferrer" } : {}}
 >
-  <div class="card__head">
-    <p class="eyebrow">{eyebrow ?? "Work"}</p>
-    <span class="dotgrid" aria-hidden="true"></span>
-  </div>
-
-  <h3 class="card__title">{title}</h3>
-
   {
     image && (
-      <div class="card__media">
-        <Picture
-          class="card__img duo"
-          pictureAttributes={{ class: "card__pic" }}
-          src={image}
-          alt={alt}
-          formats={["avif", "webp"]}
-          fallbackFormat="webp"
-          widths={feature ? [480, 780, 1100, 1600] : [380, 560, 780, 1040]}
-          sizes={sizes}
-          loading={loading}
-          decoding="async"
-        />
-      </div>
+      <Picture
+        class="card__img duo"
+        pictureAttributes={{ class: "card__pic" }}
+        src={image}
+        alt={alt}
+        formats={["avif", "webp"]}
+        fallbackFormat="webp"
+        widths={feature ? [480, 780, 1100, 1600] : [380, 560, 780, 1040]}
+        sizes={sizes}
+        loading={loading}
+        decoding="async"
+      />
     )
   }
 
-  <p class="card__foot spec">
-    <span>{external ? "Link" : "Read"}</span>
-    <span class="spec__rule" aria-hidden="true"></span>
-    <span class="spec__val out">{dest}</span>
-  </p>
+  <p class="card__chip card__eyebrow"><span class="eyebrow">{eyebrow ?? "Work"}</span></p>
+  <p class="card__chip card__meta"><span class="out">{dest}</span></p>
+  <h3 class="card__chip card__title plate"><span>{title}</span></h3>
 </a>
 
 <style>
+  /* A block of colour with the photograph multiplied across the whole of it,
+     and the three pieces of text set on chips over the top — category at the
+     top left, destination at the top right, title at the bottom left.
+     Previously the photo had a panel of its own in a flex column below the
+     title, which made every card a header and a picture; giving the image the
+     whole card makes the card the picture, and the type reads as something
+     applied to it. */
   .card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    position: relative;
+    display: block;
     min-height: 320px;
-    /* The registration marks sit at inset 8px, so the content is held a step
-       further in than a plain block's --pad or it would collide with them. */
-    padding: 20px;
+    /* The chips are inset from the edge rather than held in by the card's
+       padding, and the registration marks own the corners, so the box needs no
+       padding of its own. */
+    padding: 0;
     text-decoration: none;
-    /* Colour alone separates a block from the page; a paper card needs a
-       hairline to do the same job. */
-    transition: translate 0.15s linear;
+  }
+
+  /* No photograph: the title has nothing to sit over, so the card is set as a
+     plain block and the chips lose their ground. */
+  .card--bare {
+    padding: 20px;
   }
 
   .card.block--paper {
     box-shadow: inset 0 0 0 1px var(--rule-mid);
   }
 
-  .card__head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .card__title {
-    /* Balance is for a heading that gets two or three words a line; a card
-       title is short enough that balancing it strands a single word. */
-    text-wrap: pretty;
-  }
-
-  .card--feature .card__title {
-    font-size: var(--t-card-feature);
-    letter-spacing: -0.04em;
-  }
-
-  /* The photo takes whatever height is left, so a row of cards has its images
-     bottom-aligned however long the titles above them run. */
-  .card__media {
-    position: relative;
-    flex: 1;
-    min-height: 120px;
-    overflow: hidden;
-    /* Multiply needs something under it to tint. On a block of colour that's
-       the block; the image's own box must not paint a ground of its own in
-       between. */
-    background: transparent;
-  }
-
   /* <picture> is only a wrapper for the format sources — it must not become a
-     box in the card's flex column, or it would take a row of its own. With
-     display:contents it vanishes and the img positions against .card__media. */
+     box of its own. With display:contents it vanishes and the img positions
+     against the card. */
   .card__pic {
     display: contents;
   }
@@ -161,24 +133,130 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
     object-fit: cover;
   }
 
-  .card__foot {
-    /* Hairline above the footer row, full width of the padding box. */
-    border-top: 1px solid currentColor;
-    padding-top: 10px;
-    opacity: 0.92;
+  /* One chip, three positions. The ground is the card's own block colour, read
+     from `--block-ground`, so the type sits on the same ink the card is
+     printed in and stays legible over any part of the photograph — which is
+     what the reference does with its magenta caption plates. */
+  /* The plate is on the *inline* span, not on the chip.
+     ---
+     A title runs to two lines more often than not, and the two are rarely the
+     same length. With the ground on the block, the plate is a rectangle as
+     wide as the longest line, so a short second line leaves a slab of empty
+     colour beside it. `box-decoration-break: clone` gives every line box its
+     own copy of the background and its own padding, so each line gets a plate
+     that ends where the words do — which is what the reference does, and what
+     a caption plate is.
+     ---
+     The vertical padding is deliberately more than half the leading, so
+     consecutive plates overlap rather than leaving a hairline of photograph
+     between them. Same colour, so the overlap is invisible. */
+  .card__chip {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    max-width: calc(100% - 24px);
   }
 
-  .card__foot .spec__rule {
-    /* The row already has a rule above it; a second one running through it
-       is one line too many. */
-    border-top-color: transparent;
+  /* Only the title needs the per-line treatment — the other two are one line
+     each and always will be, so they take the plate on the block. That is not
+     tidiness: an inline background covers the *content area*, which sits
+     inside the line box by however much half-leading the line-height gives it,
+     so an inline plate at `top: 0` hangs a few pixels below the card's edge
+     and its apparent padding changes with the line-height. On the block there
+     is no half-leading in the way, and `line-height: 1` makes the plate the
+     type plus its padding and nothing else. */
+  .card__eyebrow,
+  .card__meta {
+    padding: 6px var(--plate-pad-x);
+    line-height: 1;
+    background: var(--block-ground);
   }
 
-  /* Cards lift on hover. `translate` rather than `transform` so it composes
-     with the sticker tilt and anything else that wants the transform. */
+
+
+  /* An unphotographed card has no image to sit over, so a plate around each
+     line would be a box drawn for no reason. */
+  .card--bare .card__chip {
+    position: static;
+    max-width: none;
+  }
+
+  .card--bare .card__eyebrow,
+  .card--bare .card__meta,
+  .card--bare .card__title > span {
+    padding: 0;
+    background: none;
+  }
+
+  .card--bare .card__title {
+    line-height: 1.15;
+  }
+
+  /* Hard into the corners. The plate is the padding — a gap between it and
+     the card's edge would read as a second, softer frame inside the block, and
+     the block already has an edge. */
+  .card__eyebrow {
+    top: 0;
+    left: 0;
+  }
+
+  .card__meta {
+    top: 0;
+    right: 0;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .card__title {
+    /* Not 0 — see "Caption plates" in global.css. The plate overhangs this
+       block, so aligning the *block* to the card's edge would push the
+       overhang outside it, where the card's own `overflow: hidden` cuts it
+       off and the last line comes out with less padding under it than the
+       first line has over it. Offsetting by the overhang puts the plate on
+       the edge instead of the box. */
+    bottom: var(--plate-overhang);
+    left: 0;
+    /* Balanced, not pretty. Now that each line carries its own plate, the
+       lines' relative lengths are a visible part of the shape — two plates of
+       roughly equal width read as deliberate, where a long one over a short
+       one reads as a ragged edge. */
+    text-wrap: balance;
+  }
+
+  .card--feature .card__title {
+    font-size: var(--t-card-feature);
+    letter-spacing: -0.04em;
+  }
+
+  .card--bare .card__title {
+    margin-top: 12px;
+  }
+
+  .card--bare .card__meta {
+    margin-top: auto;
+  }
+
+  /* Hovering takes the photograph out of `multiply` and lets it print in its
+     own colours — the card stops being a duotone for as long as you hold it.
+     Cheaper than it looks: dropping the blend mode and the filter is a
+     compositor change, and the decoded image is already in hand.
+
+     Deliberately not eased. A duotone and a full-colour photograph are two
+     states, not two ends of a range, and a quarter-second crossfade between
+     them reads as the image loading rather than as a switch. Nothing else
+     moves: the plates keep their size, the card keeps its position.
+
+     Pointer devices only. On a touch screen a `:hover` state lasts exactly as
+     long as the tap that is already navigating away, so it would read as a
+     flicker on the way out of the page rather than as a reveal. */
   @media (hover: hover) {
-    .card:hover {
-      translate: 0 -3px;
+    .card:hover .card__img {
+      mix-blend-mode: normal;
+      filter: none;
     }
   }
 </style>

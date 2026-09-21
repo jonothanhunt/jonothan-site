@@ -1,41 +1,60 @@
 ---
-import { Image } from "astro:assets";
 
-// Eagerly collected at build time so each logo keeps its intrinsic size.
+/**
+ * The client strip: brand marks in their own colours, rasterised small and
+ * drawn back at double size so the sampling shows.
+ *
+ * An earlier pass flattened every mark to ink with `brightness(0)`, which
+ * settled the argument between eleven brand palettes and the site's seven inks
+ * by silencing one side — and cost three of the marks their meaning, because
+ * NHS, EE and HSBC all carry theirs as a hole in a filled field and a flatten
+ * fills the hole. Pixelating instead keeps the colour *and* the counter-change
+ * and still reads as one treatment applied to all eleven, which is what the
+ * flatten was for.
+ *
+ * The sampling and the hard alpha threshold both happen at build time — see
+ * PIXELS in scripts/dither.mjs. They have to: `image-rendering: pixelated`
+ * only does anything when there are fewer source pixels than the box needs,
+ * and an SVG has exactly as many as it is asked for. The marks arrive here as
+ * ordinary assets with their own dimensions, 15px tall, every pixel either
+ * fully opaque or fully clear, and are drawn at 30 — one source pixel to a
+ * hard 2×2 block.
+ *
+ * Deliberately a plain <img> and not <Image>. The asset is already at exactly
+ * the size it wants to be, and putting it back through the image service would
+ * re-encode a 1-bit alpha channel as lossy webp — which puts soft pixels back
+ * around every edge, which is the entire thing this is avoiding.
+ */
 const files = import.meta.glob<{ default: ImageMetadata }>(
-  "../assets/logos/{adobe,beko,bt,coca_cola,duracell,ee,hsbc,microsoft,nhs,tiktok,unilever}_logo.svg",
+  "../assets/generated/*-pixel.png",
   { eager: true },
 );
 
-// Two of the eleven are drawn as a white mark on a filled field rather than as
-// a shape on nothing, and `brightness(0)` takes every opaque pixel to black —
-// so those two flattened to a solid rectangle. Their silhouettes are cut from
-// their own luminance by scripts/dither.mjs instead, and arrive here as
-// ordinary assets with their own dimensions. The filter still applies and is
-// simply a no-op on them: the cutouts are already black.
-import nhsCutout from "../assets/generated/nhs-cutout.png";
-import eeCutout from "../assets/generated/ee-cutout.png";
-
-const CUTOUTS: Record<string, ImageMetadata> = {
-  nhs: nhsCutout,
-  ee: eeCutout,
-};
+/* Twice the baked height, so every source pixel lands on a whole 2×2 block and
+   no edge is ever sampled between two of them. */
+const SCALE = 2;
 
 const logos = Object.entries(files)
   .map(([path, mod]) => {
-    const name = path.split("/").pop()!.replace("_logo.svg", "");
+    const name = path.split("/").pop()!.replace("-pixel.png", "");
     return {
-      src: CUTOUTS[name] ?? mod.default,
+      src: mod.default,
       alt: `${name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} logo`,
     };
   })
   .sort((a, b) => a.alt.localeCompare(b.alt));
 
 // The animation slides the track by half its width, so the two halves have to
-// be identical — and each half has to be at least as wide as the viewport, or
-// the run ends mid-screen and leaves a gap on the right. One pass of eleven
-// logos is roughly 1600px, so three passes per half covers past 4K.
-const PASSES_PER_HALF = 3;
+// be identical — and each half has to be at least as wide as the widest
+// viewport, or the run ends mid-screen and leaves a gap on the right. Four
+// passes of eleven is comfortably past 4K with room to spare.
+//
+// Every mark loads eagerly. They are a couple of hundred bytes each, and
+// `lazy` was the other half of the gap on the right: a browser decides what to
+// defer from where an element *is*, and a marquee's are all off-screen at load
+// and then arrive at speed. They popped in as they reached the edge, which
+// read as the loop breaking rather than as images loading.
+const PASSES_PER_HALF = 4;
 const half = Array.from({ length: PASSES_PER_HALF }, () => logos).flat();
 const track = [...half, ...half];
 ---
@@ -45,7 +64,14 @@ const track = [...half, ...half];
     {
       track.map(({ src, alt }, i) => (
         <li>
-          <Image src={src} alt={i < logos.length ? alt : ""} height={30} loading="lazy" />
+          <img
+            src={src.src}
+            alt={i < logos.length ? alt : ""}
+            width={src.width * SCALE}
+            height={src.height * SCALE}
+            loading="eager"
+            decoding="sync"
+          />
         </li>
       ))
     }
@@ -53,12 +79,13 @@ const track = [...half, ...half];
 </div>
 
 <style>
-  /* No panel behind it — the logos sit straight on the page and the mask alone
-     gives the row its ends. */
+  /* No panel behind it and no rules above or below — the logos sit straight on
+     the page and the mask alone gives the row its ends. The two hairlines that
+     used to bracket it made a band of something that isn't one: the strip is a
+     run of marks drifting past, not a table row. */
   .strip {
     overflow: hidden;
-    padding: 20px 0;
-    border-block: 1px solid var(--rule);
+    padding: 26px 0;
     -webkit-mask-image: linear-gradient(
       90deg,
       transparent,
@@ -95,21 +122,13 @@ const track = [...half, ...half];
     align-items: center;
   }
 
-  /* Logos vary wildly in aspect ratio — a wordmark like Duracell would
-     otherwise dwarf a square mark. Cap the width at 3:1 and let object-fit
-     scale the wide ones down rather than letting them stretch the row. */
-  /* Flattened to ink. `brightness(0)` takes every non-transparent pixel to
-     black and leaves alpha alone, which is the same silhouette the foil
-     stickers get from a mask — but as one filter on one element, which is what
-     a strip of sixty-odd marks needs. Eleven brand colours competing in a
-     credit row was the one thing on the page still arguing with the palette. */
+  /* `pixelated` turns off the smoothing the browser would otherwise apply on
+     the way up, which is the other half of the effect — the baked hard alpha
+     is the first half. The width and height attributes carry the doubled size,
+     so nothing here has to restate it. */
   img {
-    height: 28px;
-    width: auto;
-    max-width: 88px;
-    object-fit: contain;
-    filter: brightness(0);
-    opacity: 0.75;
+    image-rendering: pixelated;
+    opacity: 0.8;
   }
 
   @keyframes slide {

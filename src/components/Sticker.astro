@@ -1,18 +1,44 @@
 ---
+import { getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
 /**
- * A logo as an iridescent sticker.
+ * A logo as a die-cut holographic sticker.
  *
- * The artwork is never drawn. It's used as a mask, and a holographic gradient
- * is painted through its silhouette — so any mark with an alpha channel
- * becomes foil without a second asset being drawn for it.
+ * The artwork is drawn, and the foil is laid over it. An earlier pass used the
+ * artwork only as a *mask* and painted a holographic gradient through its
+ * silhouette, which gave a clean foil shape but threw the mark away with the
+ * detail: the Cannes statuette read as a blob, D&AD as a bare hexagon, The
+ * Drum as a square. These are awards — the mark is the point — so the logo
+ * stays legible and the foil is a finish on it rather than a replacement.
  *
- * The outline is the reason for the nested spans. CSS applies `filter` before
- * `mask`, so a `drop-shadow` on the masked element is clipped away by the very
- * mask that gives it a shape. Splitting them — filter on the outer span, mask
- * on the inner — lets the shadow ring form outside the silhouette, which is
- * where an outline goes.
+ * Three concentric layers, outward from the middle:
+ *
+ *   art      the logo, foiled
+ *   keyline  a hairline of ink hugging the artwork
+ *   bleed    a band of unprinted holographic substrate past the keyline
+ *
+ * A fourth, a white die-cut edge outside the bleed, was tried and dropped: at
+ * this size it read as a halo round the mark rather than as the backing card
+ * showing, and it separated the sticker from the page instead of sitting it
+ * on it.
+ *
+ * ## Why the rings are masks and not drop-shadows
+ *
+ * The obvious way to ring a shape is a chain of `drop-shadow`s at zero blur.
+ * It does not hold up, for two reasons. Each filter in a chain takes the
+ * result of the last, so the offsets *compound*: four shadows at 1.5px give a
+ * ring 1.5px thick along the axes and 3px thick at the corners, and the more
+ * directions you add to smooth the diagonals the more uneven it gets. And CSS
+ * applies `filter` before `mask`, so a shadow cast by either foil layer would
+ * be clipped away by the very mask that gives it its shape.
+ *
+ * So each ring is its own layer: a flat colour, or the substrate gradient,
+ * masked by the artwork's silhouette *dilated* by that ring's radius. The
+ * dilation is the union of the same mask drawn once per direction on a circle
+ * of that radius — mask layers composite with `add` by default, so the union
+ * costs nothing to express — which makes a ring exactly as thick as it says it
+ * is, the whole way round, whatever the shape underneath.
  *
  * `src` may be an imported asset or a URL string, so a mask baked by
  * scripts/dither.mjs (for a logo that arrived without an alpha channel) drops
@@ -39,30 +65,83 @@ const {
   class: klass,
 } = Astro.props;
 
-const url = typeof src === "string" ? src : src.src;
-
 // A mask has no intrinsic size, so the box has to be given one. Width comes
 // from the artwork's own ratio where that's known; a plain URL gets a square,
 // which is what every cutout the build produces is.
 const ratio =
   typeof src === "string" ? 1 : (src.width ?? 1) / (src.height ?? 1);
 const width = widthProp ?? Math.round(height * ratio);
+
+// Raster art goes through the image service so a 40px icon isn't an 80kB PNG.
+// SVG is left alone: there is nothing to resize, and the service passes it
+// through unchanged anyway.
+const raster =
+  typeof src !== "string" && src.format !== "svg"
+    ? await getImage({ src, width: width * 2, height: height * 2 })
+    : null;
+const url = raster?.src ?? (typeof src === "string" ? src : src.src);
+
+// Ring widths, outward from the artwork. Each is genuinely this many px thick,
+// so they read as trim at these sizes rather than as an outline.
+const KEY = 0.75;
+const BLEED = 0.85;
+
+/**
+ * One ring's mask, as inline custom properties.
+ *
+ * `steps` samples the circle. Twelve is enough that a curve — the statuette's
+ * shoulder, the hexagon's corners — comes back round rather than faceted;
+ * eight leaves visible flats once the radius passes a couple of pixels. The
+ * centre layer fills the silhouette itself, so each ring is the dilation
+ * *including* the shape and the layer in front of it covers the middle again.
+ */
+function ring(radius: number, steps = 12) {
+  const positions = ["center"];
+  for (let i = 0; i < steps; i++) {
+    const a = (i / steps) * Math.PI * 2;
+    const x = (Math.cos(a) * radius).toFixed(2);
+    const y = (Math.sin(a) * radius).toFixed(2);
+    positions.push(`calc(50% + ${x}px) calc(50% + ${y}px)`);
+  }
+  return [
+    `--ring-layers:${positions.map(() => "var(--sticker-src)").join(", ")}`,
+    `--ring-sizes:${positions.map(() => "var(--sticker-w) var(--sticker-h)").join(", ")}`,
+    `--ring-pos:${positions.join(", ")}`,
+    // Room for the offsets. A mask layer pushed past the element's own box is
+    // clipped there, so the box has to be the artwork plus the radius, all
+    // round.
+    `inset:-${radius}px`,
+  ].join(";");
+}
 ---
 
 <span
   class:list={["sticker", klass]}
   style={`--sticker-src:url("${url}");--sticker-w:${width}px;--sticker-h:${height}px;${tilt ? `--sticker-tilt:${tilt}deg;` : ""}`}
-  role={alt ? "img" : undefined}
-  aria-label={alt || undefined}
-  aria-hidden={alt ? undefined : "true"}
 >
-  <span class="sticker__cut">
-    <span class="sticker__foil"></span>
+  <span
+    class="sticker__ring sticker__bleed"
+    style={ring(KEY + BLEED)}
+    aria-hidden="true"></span>
+  <span class="sticker__ring sticker__key" style={ring(KEY)} aria-hidden="true"
+  ></span>
+
+  <span class="sticker__body">
+    <img class="sticker__art" src={url} {alt} loading="eager" decoding="async" />
+    <span class="sticker__foil" aria-hidden="true"></span>
+    <span class="sticker__sheen" aria-hidden="true"></span>
   </span>
 </span>
 
 <style>
+  /* The element measures the *artwork*. All three rings are drawn outside it,
+     so a sticker's declared size is the size of the mark and the edge is trim
+     — which is what a die cut is. Nothing here clips, so whatever the sticker
+     sits in has to leave the trim room; the awards row does that with its
+     gap. */
   .sticker {
+    position: relative;
+    isolation: isolate;
     display: inline-block;
     width: var(--sticker-w);
     height: var(--sticker-h);
@@ -70,12 +149,82 @@ const width = widthProp ?? Math.round(height * ratio);
     rotate: var(--sticker-tilt, 0deg);
   }
 
-  /* The silhouette. */
-  .sticker__cut {
+  /* A ring: the silhouette dilated by its own radius, filled. `inset` and the
+     three mask properties arrive on the element's style attribute, from
+     `ring()` above. */
+  .sticker__ring {
+    position: absolute;
+    pointer-events: none;
+    -webkit-mask-image: var(--ring-layers);
+    mask-image: var(--ring-layers);
+    -webkit-mask-size: var(--ring-sizes);
+    mask-size: var(--ring-sizes);
+    -webkit-mask-position: var(--ring-pos);
+    mask-position: var(--ring-pos);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
+  .sticker__key {
+    background: var(--ink);
+  }
+
+  /* Unprinted holographic stock. Paler than the foil over the artwork, which
+     is the difference between substrate and print — at full saturation the
+     band competed with the mark it is there to frame. A child rather than a
+     background, so the sweep can rotate on hover; the parent's mask clips it
+     to the dilated silhouette. */
+  .sticker__bleed::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 260%;
+    height: 260%;
+    translate: -50% -50%;
+    background-image: conic-gradient(
+      from 200deg at 40% 20%,
+      #a9f0e0,
+      #ffc4ec,
+      #c9bcff,
+      #fff0b0,
+      #b6e4ff,
+      #ffc4ec,
+      #a9f0e0
+    );
+  }
+
+  /* The artwork, in a stacking context of its own — without one the two blend
+     layers would blend with the rings behind them rather than with the art. */
+  .sticker__body {
+    position: absolute;
+    inset: 0;
+    isolation: isolate;
+  }
+
+  /* Luminance compressed before the foil lands on it.
+     ---
+     `color` takes hue and saturation from the foil and lightness from the
+     artwork, which means pure black and pure white are immune to it: the White
+     Pencil is drawn as black lines on a white body, so untouched it came
+     through the whole treatment as a flat black pencil with no foil in it at
+     all. Pulling both ends toward the middle gives the blend somewhere to
+     land. The range left is about 0.2–0.8, which is still most of the
+     artwork's contrast — the lines read, they just aren't ink and paper. */
+  .sticker__art {
     display: block;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    object-fit: contain;
+    filter: contrast(0.7) brightness(1.08) saturate(0.8);
+  }
+
+  /* Both finish layers share the artwork's silhouette, undilated. */
+  .sticker__foil,
+  .sticker__sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
     -webkit-mask-image: var(--sticker-src);
     mask-image: var(--sticker-src);
     -webkit-mask-size: contain;
@@ -86,71 +235,77 @@ const width = widthProp ?? Math.round(height * ratio);
     mask-position: center;
   }
 
-  /* Four chained drop-shadows at zero blur. Each one takes the result of the
-     last, so the offsets compound into a solid ring rather than four separate
-     shadows — a hard outline off the artwork's own alpha, at any size, with no
-     second asset.
-
-     It is, though, a filter chain per sticker, which is why the client strip
-     doesn't use this component: sixty-odd marks each carrying four chained
-     drop-shadows is a lot of work for a row that scrolls. That strip gets a
-     single `brightness(0)` instead, which flattens a mark to ink without
-     needing a mask or a nested box at all. */
-  .sticker {
-    filter:
-      drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink))
-      drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink));
-  }
-
-  /* The ring is drawn outside the artwork, so the box has to leave it room or
-     the filter's bounds clip it flat along whichever edge the mark reaches.
-     `box-sizing: border-box` is global, so this takes the 2px out of the art
-     rather than adding it to the box — which is what's wanted: the outline
-     occupies the space, and the sticker still measures what it says it does. */
-  .sticker {
-    padding: 2px;
-  }
-
-  /* Oversized and centred so that rotating it never brings an edge into the
-     silhouette. Two layers: the holographic sweep, and a specular highlight
-     across the top-left that stops it reading as flat rainbow. */
-  .sticker__foil {
-    position: relative;
-    display: block;
+  /* Oversized and centred, so the sweep never brings its own edge into the
+     silhouette — including while it rotates on hover.
+     ---
+     The size is also what places the conic gradient's convergence point. A
+     conic centre is a pinch — every hue meets at it — and at `42% 34%` of this
+     box it landed a little way *inside* the top of the mark, where it read as
+     a crease in the foil rather than as foil. `20%` lifts it to about a
+     quarter of the layer's height above the top edge: clear of the artwork,
+     but still close enough that the arcs crossing it are tight and several
+     hues cross the mark. Pushing it far away flattens the whole sticker to one
+     colour, which is worse than the crease was. */
+  .sticker__foil::before,
+  .sticker__sheen::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 260%;
     height: 260%;
-    margin: -80% 0 0 -80%;
-    background-image:
-      linear-gradient(
-        118deg,
-        rgb(255 255 255 / 0.75) 0%,
-        rgb(255 255 255 / 0.1) 20%,
-        rgb(255 255 255 / 0) 38%
-      ),
-      conic-gradient(
-        from 200deg at 42% 34%,
-        #5ce6c6,
-        #ff9fe0,
-        #9b86ff,
-        #ffe873,
-        #74d5ff,
-        #ff9fe0,
-        #5ce6c6
-      );
+    translate: -50% -50%;
+  }
+
+  .sticker__foil {
+    mix-blend-mode: color;
+  }
+
+  .sticker__foil::before {
+    background-image: conic-gradient(
+      from 200deg at 40% 20%,
+      #35d6b0,
+      #ff6fd0,
+      #7a5cff,
+      #ffd83a,
+      #37b6ff,
+      #ff6fd0,
+      #35d6b0
+    );
+  }
+
+  /* Lower opacity than the foil: this layer exists to stop the flat extremes
+     reading as flat, not to light the whole mark. */
+  .sticker__sheen {
+    mix-blend-mode: overlay;
+    opacity: 0.55;
+  }
+
+  .sticker__sheen::before {
+    background-image: linear-gradient(
+      118deg,
+      rgb(255 255 255 / 0.95) 0%,
+      rgb(255 255 255 / 0.25) 22%,
+      rgb(0 0 0 / 0) 40%,
+      rgb(0 0 0 / 0.25) 72%,
+      rgb(255 255 255 / 0.6) 100%
+    );
   }
 
   /* The sheen only moves on hover, and it moves by rotating an element rather
      than by animating a gradient — a gradient is repainted every frame, a
      rotation is handed to the compositor and costs nothing after the first. */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .sticker:hover .sticker__foil {
+    .sticker:hover .sticker__foil::before,
+    .sticker:hover .sticker__sheen::before,
+    .sticker:hover .sticker__bleed::before {
       animation: foil 6s linear infinite;
     }
   }
 
   @keyframes foil {
     to {
-      transform: rotate(360deg);
+      rotate: 360deg;
     }
   }
 </style>
