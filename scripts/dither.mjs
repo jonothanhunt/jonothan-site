@@ -30,8 +30,21 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../..");
-const OUT = path.join(ROOT, "public/dither");
 const SELF = fileURLToPath(import.meta.url);
+
+/* Two destinations, and which one an output goes to is decided by who reads
+   it.
+
+   public/ — the hero, whose srcset is written by hand because a file here has
+             no metadata for Astro to read, and the mask ramps, which are named
+             by CSS.
+
+   src/assets/generated/ — the logo cutouts. These are imported like any other
+             asset, so Astro hashes them, serves them at the right size, and
+             hands the component their width and height. A cutout in public/
+             would have to be sized by guesswork. */
+const OUT = path.join(ROOT, "public/dither");
+const OUT_ASSETS = path.join(ROOT, "src/assets/generated");
 
 /* The classic 8×8 Bayer matrix. Ordered dithering scales its cells to
    thresholds and compares each pixel against the one under it — the matrix is
@@ -112,40 +125,78 @@ async function buildPhoto({ name, from, widths }) {
 /* ----------------------------------------------------------------- cutouts */
 
 /**
- * Logos that carry no alpha of their own, turned into silhouettes.
+ * Marks whose artwork is a filled field rather than a shape, turned into
+ * silhouettes.
  *
- * The foil stickers paint an iridescent gradient through a mask, so they need
- * an image whose *alpha* is the mark. A logo supplied as a flat JPEG — a white
- * mark on a solid red square, say — has none, so its luminance becomes its
- * alpha instead: `pick: "light"` keeps the bright mark, `pick: "dark"` keeps a
- * dark mark on a light ground.
+ * Two things on the site need a mark's *alpha* to be the mark: the foil
+ * stickers paint a gradient through it as a mask, and the client strip
+ * flattens marks to ink with `brightness(0)`, which takes every opaque pixel
+ * to black and so turns a white-on-blue logo into a black rectangle. Both fail
+ * on the same input for the same reason, and both are fixed by deriving alpha
+ * from luminance.
  *
- * Alpha is left as a smooth ramp rather than thresholded. Everything else here
- * is deliberately 1-bit, but a sticker's outline is drawn by a `drop-shadow`
- * ring off this alpha, and a hard-edged mask would make that ring jagged.
+ * All three of these are a mark knocked out of a filled field, so what wants
+ * to be ink is the field and what wants to be clear is the mark — `pick:
+ * "dark"`, which keeps the darker of the two. `pick: "light"` is the other way
+ * round, for a bright mark that is itself the shape.
+ *
+ * `lo`/`hi` are the levels the ramp is taken between. Without them The Drum's
+ * red field — luminance around 0.36 either way up — came through at a third
+ * opacity and the sticker read as a pale square. Everything past `lo` goes
+ * fully clear, everything past `hi` fully opaque, and the short ramp between
+ * keeps the edge antialiased: the rest of this script is deliberately 1-bit,
+ * but a sticker's outline is a `drop-shadow` ring off this alpha, and a
+ * hard-edged mask makes that ring jagged.
  */
 const CUTOUTS = [
-  { name: "drum", from: "src/assets/logos/the_drum_logo.jpeg", pick: "light" },
+  // White drum knocked out of a red square.
+  { name: "drum", from: "src/assets/logos/the_drum_logo.jpeg", pick: "dark", lo: 0.2, hi: 0.5 },
+  // White wordmark knocked out of the NHS blue.
+  { name: "nhs", from: "src/assets/logos/nhs_logo.svg", pick: "dark", lo: 0.2, hi: 0.5 },
+  // A dotted EE knocked out of a teal field.
+  { name: "ee", from: "src/assets/logos/ee_logo.svg", pick: "dark", lo: 0.2, hi: 0.45 },
 ];
 
-async function buildCutout({ name, from, pick = "dark", size = 320 }) {
+async function buildCutout({ name, from, pick = "dark", lo = 0.4, hi = 0.6, size = 320 }) {
   const src = path.join(ROOT, from);
-  const dest = path.join(OUT, `${name}-cutout.png`);
+  const dest = path.join(OUT_ASSETS, `${name}-cutout.png`);
   if (await isFresh(dest, src)) return;
 
   const { data, info } = await sharp(src)
+    // `inside` rather than a width alone, so a wide wordmark and a square mark
+    // both come back within the same box and keep their own ratio — which is
+    // what Astro then reads the dimensions from.
     .resize({ width: size, height: size, fit: "inside", withoutEnlargement: true })
-    .greyscale()
+    // Full RGBA, and luminance computed by hand below. The source's own alpha
+    // has to survive the pass: `greyscale()` reports a transparent pixel as
+    // black, and under `pick: "dark"` black is maximally opaque, so every SVG
+    // came back as a filled rectangle with its logo somewhere inside. And
+    // greyscale collapses the image to *one* channel, which `ensureAlpha`
+    // then makes two rather than four — so reading alpha at the fourth byte
+    // read the luminance again, and every field came out as faint as it was
+    // dark. Asking for four channels up front avoids both.
+    .ensureAlpha()
+    .toColourspace("srgb")
     .raw()
     .toBuffer({ resolveWithObject: true });
 
+  const stride = 4;
   const rgba = Buffer.alloc(info.width * info.height * 4);
-  for (let i = 0; i < data.length; i++) {
-    const v = data[i];
-    const a = pick === "light" ? v : 255 - v;
-    // Black RGB throughout — the mask only ever reads the alpha, and leaving
-    // the colour channels black keeps the file down to one flat plane.
-    rgba[i * 4 + 3] = a;
+  for (let i = 0; i < info.width * info.height; i++) {
+    const lum =
+      (0.3 * data[i * stride] +
+        0.59 * data[i * stride + 1] +
+        0.11 * data[i * stride + 2]) /
+      255;
+    const v = pick === "light" ? lum : 1 - lum;
+    const level = Math.min(1, Math.max(0, (v - lo) / (hi - lo)));
+    // Scaled by the source's own alpha, so nothing outside the artwork is
+    // ever painted whichever way round `pick` is.
+    const a = level * (data[i * stride + 3] / 255);
+    // Black RGB throughout. Only the alpha is ever read — as a mask, or by a
+    // `brightness(0)` that would flatten the colour anyway — and leaving the
+    // colour channels flat keeps the file to one plane.
+    rgba[i * 4 + 3] = Math.round(a * 255);
   }
 
   await sharp(rgba, {
@@ -212,7 +263,10 @@ function report(dest) {
   console.log(`  dither  ${path.relative(ROOT, dest)}  ${kb}kB`);
 }
 
-await fs.mkdir(OUT, { recursive: true });
+await Promise.all([
+  fs.mkdir(OUT, { recursive: true }),
+  fs.mkdir(OUT_ASSETS, { recursive: true }),
+]);
 await Promise.all([
   ...PHOTOS.map(buildPhoto),
   ...CUTOUTS.map(buildCutout),

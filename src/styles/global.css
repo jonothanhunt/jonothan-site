@@ -117,7 +117,7 @@
   --t-h1: 2.5rem;
   --t-h2: 1.75rem;
   --t-h3: 1.125rem;
-  --t-card-feature: 1.75rem;
+  --t-card-feature: 1.5rem;
   --t-card-row: 1.375rem;
   --t-nav: 0.8125rem;
   --t-brand: 0.9375rem;
@@ -155,7 +155,7 @@
     --t-h1: 4rem;
     --t-h2: 2rem;
     --t-lede: 1.25rem;
-    --t-card-feature: 2.5rem;
+    --t-card-feature: 2rem;
     --t-prose-h2: 1.625rem;
     --t-prose-h3: 1.1875rem;
     --hero-pad: 32px;
@@ -478,11 +478,11 @@ p {
 
 /* The dot-grid motif from the reference's card corners. */
 .dotgrid {
-  width: 18px;
-  height: 18px;
-  background-image: var(--dot-2);
+  width: 20px;
+  height: 20px;
+  background-image: var(--dot-1);
   background-size: 4px 4px;
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 /* ============================================================
