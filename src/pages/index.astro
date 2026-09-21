@@ -137,38 +137,34 @@ const awards = [
           None of the primitives does anything recognisable on its own:
 
             feFlood      one opaque pixel, at (1, 1)
-            feBlend      clipped to a 2 x 2 box at the origin — so the result
-                         is a 2 x 2 tile with a single dot in it
+            feBlend      clipped to a 3 x 3 box at the origin — so the result
+                         is a 3 x 3 tile with a single dot at its centre
             feTile       that tile, repeated across the whole filter region
             feComposite  the heading, kept only where a dot is: one sample per
-                         2 x 2 block and nothing in between
+                         3 x 3 block and nothing in between
             feComponent- the sample's alpha snapped to 0 or 1, so a block is
               Transfer   either on or off
-            feMorphology each surviving sample dilated by 1, into a 3 x 3 block
+            feMorphology each surviving sample dilated by 1, which grows it
+                         back into the 3 x 3 block it was sampled from
 
-          The threshold is not optional. A sample taken from the edge of a
-          glyph carries that glyph's antialiasing, and dilating a half-opaque
-          pixel gives a half-opaque block — so without it every edge comes back
-          as a row of grey squares and the whole thing reads as a blurred
-          heading rather than a sampled one. `discrete` with two table values
-          is the whole step: below half goes to nothing, half and above goes to
-          solid.
+          The threshold is the one addition to the original. A sample taken
+          from the edge of a glyph carries that glyph's antialiasing, and
+          dilating a half-opaque pixel gives a half-opaque block — so without
+          it every edge comes back as a row of grey squares and the whole thing
+          reads as a blurred heading rather than a sampled one. `discrete` with
+          two table values is the whole step: below half goes to nothing, half
+          and above goes to solid.
 
-          The block is 3 x 3 on a 2 x 2 grid, which is deliberate and is the
-          only part of this that isn't the textbook version. Morphology grows a
-          pixel symmetrically, so it can only make odd-sized blocks — 3 x 3 is
-          the smallest it has, and on a matching 3 x 3 grid the steps were
-          coarser than they wanted to be. Sampling every 2px and overgrowing by
-          one gives the finer staircase, at the cost of neighbouring blocks
-          overlapping by a pixel. They are the same solid colour, so the
-          overlap is invisible; the type just sits a pixel bolder.
-
-          Building an exact 2 x 2 block instead — offset the sample left, merge,
-          offset up, merge — was tried and is worse. The offsets drag the
-          thresholded image across the edge of the filter region, which leaves
-          one-pixel slivers stranded outside the glyphs, and the merged copies
-          land half a pixel off the sampling grid so the result reads as two
-          grids fighting rather than as one.
+          The tile and the block have to be the same size, and this is why the
+          grid can't go finer than 3px. feMorphology grows a pixel
+          symmetrically, so the only block sizes it can make are odd, and 3 is
+          the smallest that does anything. Sampling every 2px and dilating to
+          3 x 3 was tried, to get a finer staircase: the blocks then overlap
+          their neighbours by a pixel, and along a diagonal those overlaps fill
+          the inside of every corner, so the contour comes back bevelled. It
+          reads as rounded, which is the opposite of the point. Building an
+          exact 2 x 2 out of offsets and merges was tried too, and drags
+          one-pixel slivers across the edge of the filter region.
 
           `primitiveUnits` is left at its default of userSpaceOnUse, which is
           what lets those numbers mean pixels. `color-interpolation-filters` is
@@ -182,7 +178,7 @@ const awards = [
         <svg class="sr-svg" width="0" height="0" aria-hidden="true" focusable="false">
           <filter id="pixelate" color-interpolation-filters="sRGB">
             <feFlood x="1" y="1" width="1" height="1"></feFlood>
-            <feBlend width="2" height="2"></feBlend>
+            <feBlend width="3" height="3"></feBlend>
             <feTile></feTile>
             <feComposite in="SourceGraphic" operator="in"></feComposite>
             <feComponentTransfer>
@@ -469,7 +465,7 @@ const awards = [
     filter: url(#pixelate);
   }
 
-  /* The grid is a fixed 2px in CSS pixels, so the blocks stay the same size
+  /* The grid is a fixed 3px in CSS pixels, so the blocks stay the same size
      whatever the type does — which means the heading has to be big enough for
      them to read as sampling rather than as damage. Below the breakpoint
      --t-h1 drops to 2.5rem and the filter comes off. */
