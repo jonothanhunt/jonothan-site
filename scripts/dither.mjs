@@ -75,7 +75,16 @@ const PHOTOS = [
   // the layout's width and scaled back up through `image-rendering: pixelated`,
   // so the dither pattern comes out as squares you can count rather than as a
   // fine grain that disappears at a glance.
-  { name: "hero", from: "src/assets/site/header.jpg", widths: [430, 600, 816] },
+  {
+    name: "hero",
+    from: "src/assets/site/header.jpg",
+    widths: [430, 600, 816],
+    // Grape, rose, sun — three of the seven inks the page already prints, dark
+    // to light. The darkest is grape taken well down: `--grape` at #a08cff is
+    // a mid tone and can't be the bottom of a ramp.
+    tones: ["#2a1b6b", "#ff8fb8", "#ffc400"],
+    period: 5,
+  },
 ];
 
 /**
@@ -102,95 +111,91 @@ function ditherGrey(grey, width, height, { gamma = 0.8, contrast = 1.25 } = {}) 
 }
 
 /**
- * Three channels in, a small palette out.
+ * One channel of grey in, a three-tone print out.
  *
- * The same ordered dither as `ditherGrey`, run per channel against `levels`
- * steps rather than two. Between two steps the Bayer matrix decides which of
- * them a pixel takes, so the image keeps its gradients — three levels a channel
- * is twenty-seven colours, and dithered they read as far more than that, where
- * posterised flat they would band into unrecognisable slabs.
+ * The hero is a tri-tone rather than a duotone or a full-colour dither: a dark,
+ * a mid and a light, with the photograph's luminance deciding which of them
+ * each pixel takes. Two tones lost the audience entirely — everything below the
+ * stage lights collapsed into one flat field — and a fourth started to look
+ * like a photograph again, which is the one thing it should not look like here.
  *
- * Three rather than four. At four the quantisation is fine enough that the
- * matrix rarely has to choose, so the dither stops being visible and the hero
- * just looks like a photograph again — which is the one thing it should not
- * look like on this page.
+ * ## The screen
+ *
+ * A line screen rather than the Bayer matrix the rest of this file uses. The
+ * threshold varies down the rows only, so the pixels that flip join up into
+ * horizontal lines instead of scattering into dots — which is what a coarse
+ * halftone looked like before anyone could hold a fine one, and what the ASCII
+ * desk and the sampled client marks are already doing in their own ways.
+ *
+ * The period is in *baked* pixels, and the hero is baked at about half the
+ * width it fills, so a period of 5 arrives on screen as a band nearly ten
+ * pixels deep. That is deliberate: the lines are meant to be counted.
+ *
+ * ## Why the tie-break, not the quantising
+ *
+ * With more than two tones the screen stops deciding on-or-off. The ramp
+ * decides which two tones a value sits between; the screen only decides which
+ * of the two this particular pixel takes. That is the whole difference between
+ * a dither and a posterise, and it is why the mid-tone reads as a real third
+ * colour rather than as a band.
  *
  * The gamma lift is the same idea and for the same reason as the grey pass:
  * half of an 8-bit image's range describes the top stop of brightness, so a
  * photograph quantised straight from its sRGB values puts most of the picture
- * in the bottom step or two.
+ * in the bottom tone.
  */
-function ditherColour(
-  rgb,
+function ditherTone(
+  grey,
   width,
   height,
-  { levels = 4, gamma = 0.85, contrast = 1.12, saturation = 0.55 } = {},
+  { tones, period = 5, gamma = 0.85, contrast = 1.12 } = {},
 ) {
+  const steps = tones.length - 1;
+  const ramp = tones.map((c) =>
+    [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)),
+  );
   const out = Buffer.alloc(width * height * 3);
-  const steps = levels - 1;
-  const px = [0, 0, 0];
 
   for (let y = 0; y < height; y++) {
+    // The screen: one threshold per row, repeating every `period` rows.
+    const t = ((y % period) + 0.5) / period;
     for (let x = 0; x < width; x++) {
-      const base = (y * width + x) * 3;
-      // 0–1, matching `threshold`'s 0–255 scale below.
-      const t = threshold(x, y) / 255;
+      const i = y * width + x;
+      let v = Math.pow(grey[i] / 255, gamma);
+      v = Math.min(1, Math.max(0, (v - 0.5) * contrast + 0.5));
 
-      // Pulled toward its own luminance before anything else happens to it.
-      // Done here rather than as a CSS filter on the finished image so the
-      // palette itself is the calmer one, and the dither pattern is worked out
-      // from the values that are actually going to be shown — desaturating
-      // afterwards would leave the dots arranged for colours that no longer
-      // exist. Rec. 709 weights, so the greens don't go flat first.
-      const lum =
-        (0.2126 * rgb[base] + 0.7152 * rgb[base + 1] + 0.0722 * rgb[base + 2]) /
-        255;
+      const scaled = v * steps;
+      const lower = Math.floor(scaled);
+      const level = Math.min(steps, lower + (scaled - lower > t ? 1 : 0));
 
-      for (let c = 0; c < 3; c++) {
-        let v = rgb[base + c] / 255;
-        v = lum + (v - lum) * saturation;
-        v = Math.pow(Math.max(0, v), gamma);
-        v = (v - 0.5) * contrast + 0.5;
-        v = Math.min(1, Math.max(0, v));
-
-        // Which two of the available steps this value sits between, and how
-        // far along it is. The matrix turns that fraction into a choice.
-        const scaled = v * steps;
-        const lower = Math.floor(scaled);
-        const frac = scaled - lower;
-        const step = Math.min(steps, lower + (frac > t ? 1 : 0));
-        px[c] = Math.round((step / steps) * 255);
-      }
-
-      out[base] = px[0];
-      out[base + 1] = px[1];
-      out[base + 2] = px[2];
+      const c = ramp[level];
+      out[i * 3] = c[0];
+      out[i * 3 + 1] = c[1];
+      out[i * 3 + 2] = c[2];
     }
   }
   return out;
 }
 
-async function buildPhotoColour({ name, from, widths, levels = 3 }) {
+async function buildPhotoTone({ name, from, widths, tones, period }) {
   const src = path.join(ROOT, from);
   for (const width of widths) {
-    const dest = path.join(OUT, `${name}-colour-${width}.png`);
+    const dest = path.join(OUT, `${name}-tone-${width}.png`);
     if (await isFresh(dest, src)) continue;
 
     const { data, info } = await sharp(src)
       .resize({ width, withoutEnlargement: true })
-      .removeAlpha()
-      .toColourspace("srgb")
+      .greyscale()
       .raw()
       .toBuffer({ resolveWithObject: true });
 
-    const dithered = ditherColour(data, info.width, info.height, { levels });
+    const dithered = ditherTone(data, info.width, info.height, { tones, period });
 
     await sharp(dithered, {
       raw: { width: info.width, height: info.height, channels: 3 },
     })
-      // Indexed, because the output only ever holds `levels ** 3` colours and
-      // a palette PNG stores that in a fraction of what truecolour would.
-      .png({ palette: true, colours: levels ** 3, compressionLevel: 9, effort: 10 })
+      // Indexed on three colours, which is where PNG is at its very best.
+      .png({ palette: true, colours: tones.length, compressionLevel: 9, effort: 10 })
       .toFile(dest);
 
     report(dest);
@@ -496,7 +501,7 @@ await Promise.all([
 ]);
 await Promise.all([
   ...PHOTOS.map(buildPhoto),
-  ...PHOTOS.map(buildPhotoColour),
+  ...PHOTOS.map(buildPhotoTone),
   ...CUTOUTS.map(buildCutout),
   ...PIXELS.map(buildPixel),
   // Fade down into the page, and back up out of it.

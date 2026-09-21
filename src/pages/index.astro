@@ -56,9 +56,9 @@ const writingInks = await paletteRun(posts.map((post) => post.data.image));
 // honest — they describe the file, not the box — so the picking still works;
 // it just picks a small file for a big slot on purpose.
 const HERO_WIDTHS = [430, 600, 816];
-// `-colour-` for the ordered-dithered colour version, or drop it for the 1-bit
+// `-tone-` for the three-tone line-screen version, or drop it for the 1-bit
 // one — both are built, so this is the whole switch between them.
-const HERO_VARIANT = "colour-";
+const HERO_VARIANT = "tone-";
 const heroSrcset = HERO_WIDTHS.map(
   (w) => `/dither/hero-${HERO_VARIANT}${w}.png ${w}w`,
 ).join(", ");
