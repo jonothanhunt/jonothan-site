@@ -794,13 +794,15 @@ p {
 
 /* A pixel face has no optical sizes and no real tracking: the letterforms are
    drawn on a grid, so pulling them together only closes the gaps the grid
-   provides. Hence no negative letter-spacing here, and a little more leading
-   than mono wanted — the glyphs are square and a tight line turns a paragraph
-   into a texture. */
+   provides. Hence no negative letter-spacing here.
+   ---
+   The leading is tighter than a sans would take. Geist Pixel's glyphs are
+   short and flat-topped, so the usual 1.5–1.6 left the lines floating apart as
+   three separate statements rather than reading as one paragraph. */
 .lede {
   font-family: var(--body);
   font-size: var(--t-lede);
-  line-height: 1.6;
+  line-height: 1.35;
 }
 
 /* A hairline across the page, with optional label. */
