@@ -30,7 +30,12 @@ if (fs.existsSync(dir)) {
   hydrates only when scrolled to. Posts without a demo never pay for it, and
   neither does anyone who doesn't reach this part of the page.
 -->
-<div class="demo" style={`--h:${height}px`}>
+<!--
+  The id lets the feed link at one specific demo rather than the top of the
+  post — three of them sit in the progressive-blur article. html already sets
+  scroll-padding-top: var(--nav-space), so the target clears the floating nav.
+-->
+<div id={`demo-${name}`} class="demo" style={`--h:${height}px`}>
   <Sandbox client:visible files={files} height={height} view={view} />
 </div>
 

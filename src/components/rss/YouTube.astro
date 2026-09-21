@@ -1,0 +1,64 @@
+---
+/**
+ * YouTube, as a real embed.
+ *
+ * Feed readers render item HTML in a webview, and the mainstream ones allow
+ * iframes from YouTube specifically — NetNewsWire, Reeder, Miniflux, FreshRSS,
+ * Inoreader. So the player goes in the feed and plays in place rather than
+ * bouncing someone out to a browser.
+ *
+ * Two deliberate differences from the on-site facade:
+ *
+ * No autoplay. On the site the reader has just pressed a play button. In a
+ * feed the article merely opened, and nothing should start making noise on its
+ * own.
+ *
+ * The sizing is inline. Readers strip <style> blocks, so a scoped stylesheet
+ * would take the dimensions with it; they keep style attributes and the
+ * width/height attributes, which are themselves the fallback if the inline
+ * style is dropped too.
+ *
+ * The link underneath is the safety net for the readers that do strip iframes,
+ * where the embed would otherwise leave an empty gap and nothing else.
+ */
+interface Props {
+  url: string;
+}
+const { url } = Astro.props;
+
+const id =
+  url.match(/(?:youtu\.be\/|v\/|embed\/|live\/|watch\?v=|&v=)([^#&?]{11})/)
+    ?.[1] ?? "";
+const start = url.match(/[?&]t=(\d+)/)?.[1];
+
+const src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&iv_load_policy=3${
+  start ? `&start=${start}` : ""
+}`;
+const watch = `https://www.youtube.com/watch?v=${id}${start ? `&t=${start}` : ""}`;
+---
+
+{
+  /* Same fallback as the TikTok one: a youtube.com URL the id regex can't
+     read (a playlist, say) still becomes a link, never nothing. */
+  !id ? (
+    <p>
+      <a href={url}>▶ Watch on YouTube</a>
+    </p>
+  ) : (
+    <figure>
+      <iframe
+        src={src}
+        title="YouTube video"
+        width="560"
+        height="315"
+        style="width:100%;max-width:560px;aspect-ratio:16/9;height:auto;border:0"
+        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      />
+      <figcaption>
+        <a href={watch}>▶ Watch on YouTube</a>
+      </figcaption>
+    </figure>
+  )
+}

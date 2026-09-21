@@ -1,0 +1,44 @@
+---
+/**
+ * A silent looping clip, as a real <video> element.
+ *
+ * These were animated GIFs before the migration, so they keep a GIF's
+ * behaviour here — muted, looping, autoplaying — with controls added, because
+ * unlike a GIF someone may want to stop it. preload="metadata" means a reader
+ * scrolling past an article pays for the poster and a header, not the file.
+ *
+ * <video> has something an iframe doesn't: content inside the element renders
+ * only when the element itself isn't supported. So the link is a real fallback
+ * rather than a permanent second line, and a reader that strips the tag
+ * outright still leaves the link behind.
+ *
+ * Both files live in public/, so their URLs are stable; renderForFeed makes
+ * them absolute.
+ */
+interface Props {
+  src: string;
+  poster?: string;
+  caption?: string;
+}
+const { src, caption } = Astro.props;
+const poster = Astro.props.poster ?? src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
+---
+
+<figure>
+  <video
+    src={src}
+    poster={poster}
+    controls
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    width="640"
+    style="width:100%;max-width:640px;height:auto"
+    aria-label={caption}
+  >
+    <a href={src}>Play the video</a>
+  </video>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
