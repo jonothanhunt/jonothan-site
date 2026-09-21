@@ -165,6 +165,15 @@ const proseInk = ink === "paper" ? "sun" : ink;
     display: contents;
   }
 
+  /* Held back to 60% at rest, so the block's colour carries the card and the
+     photograph reads as something printed into it rather than as the card
+     itself. Full strength on hover, with the blend and the duotone filter
+     dropped at the same instant — the image arrives all at once rather than
+     brightening into place.
+
+     On a touch screen there is no hover, so the card stays at 60% — which is
+     the same bargain the duotone already makes there, and the reason the
+     titles sit on plates rather than on the picture. */
   .card__img {
     position: absolute;
     inset: 0;
@@ -172,6 +181,7 @@ const proseInk = ink === "paper" ? "sun" : ink;
     height: 100%;
     max-width: none;
     object-fit: cover;
+    opacity: 0.6;
   }
 
   .card__chip {
@@ -262,6 +272,7 @@ const proseInk = ink === "paper" ? "sun" : ink;
     .card:hover .card__img {
       mix-blend-mode: normal;
       filter: none;
+      opacity: 1;
     }
   }
 
