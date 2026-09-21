@@ -30,9 +30,23 @@ const files = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 
-/* Twice the baked height, so every source pixel lands on a whole 2×2 block and
-   no edge is ever sampled between two of them. */
-const SCALE = 2;
+/* The height every mark is drawn at, in CSS pixels — what the strip was before
+   any of this, and what it goes back to.
+   ---
+   The magnification follows from it rather than the other way round. It was a
+   flat 2x for a while, which made each source pixel a clean 2x2 block and left
+   room for only seventeen pixels of mark height at this size: tidy, and too
+   coarse to read — BT came out as a blob. Baking at 22 and drawing at 28 is
+   about 1.27x, which is not a whole number, so the blocks are no longer all
+   the same size.
+   ---
+   That turns out not to matter, because the effect was never really the grid.
+   The hard alpha baked in by scripts/dither.mjs is what makes these look
+   drawn-before-antialiasing, and an uneven staircase reads as a staircase
+   either way. On a 2x screen — which is where this is mostly seen — it lands
+   on two and a half device pixels a side: fine enough to keep a wordmark
+   legible, coarse enough to stay obviously sampled. */
+const DISPLAY_H = 28;
 
 const logos = Object.entries(files)
   .map(([path, mod]) => {
@@ -67,8 +81,8 @@ const track = [...half, ...half];
           <img
             src={src.src}
             alt={i < logos.length ? alt : ""}
-            width={src.width * SCALE}
-            height={src.height * SCALE}
+            width={Math.round((src.width * DISPLAY_H) / src.height)}
+            height={DISPLAY_H}
             loading="eager"
             decoding="sync"
           />
@@ -126,9 +140,27 @@ const track = [...half, ...half];
      the way up, which is the other half of the effect — the baked hard alpha
      is the first half. The width and height attributes carry the doubled size,
      so nothing here has to restate it. */
+  /* Flattened to ink at rest. `brightness(0)` takes every opaque pixel to
+     black and leaves the alpha alone, which is why the three counter-change
+     marks still need their silhouette cut from luminance at build time —
+     otherwise the knockout fills in.
+
+     On hover the filter simply comes off and the mark prints in the colours
+     baked into the file. Nothing else changes: the sampling, the hard alpha
+     and the magnification are all the same, so it is the same pixel art in
+     colour rather than a different image. Pointer devices only — on a touch
+     screen there is no hover to speak of. */
   img {
     image-rendering: pixelated;
+    filter: brightness(0);
     opacity: 0.8;
+  }
+
+  @media (hover: hover) {
+    li:hover img {
+      filter: none;
+      opacity: 1;
+    }
   }
 
   @keyframes slide {

@@ -205,6 +205,16 @@ export async function paletteFor(img: ImageMetadata): Promise<Palette> {
  */
 export async function paletteRun(
   images: (ImageMetadata | undefined)[],
+  /**
+   * What to print an entry on when it has no photograph to sample.
+   *
+   * Left unset it is `paper`, which is the honest answer for a card whose
+   * image is monochrome. A list where some entries have no image at all is a
+   * different case — a column of paper cards among coloured ones reads as
+   * missing rather than as plain — so those callers pass the rotating palette
+   * and get the first colour in it that the previous card didn't take.
+   */
+  fallback?: readonly Palette[],
 ): Promise<Palette[]> {
   const hues = await Promise.all(
     images.map((img) => (img ? hueFor(img) : Promise.resolve(null))),
@@ -212,11 +222,21 @@ export async function paletteRun(
 
   const out: Palette[] = [];
   let previous: Palette | undefined;
+  let spare = 0;
   for (const hue of hues) {
-    const ink =
-      hue === null
-        ? "paper"
-        : (ranked(hue).find((name) => name !== previous) ?? ranked(hue)[0]);
+    let ink: Palette;
+    if (hue !== null) {
+      const order = ranked(hue);
+      ink = order.find((name) => name !== previous) ?? order[0];
+    } else if (fallback?.length) {
+      // Walk the rotation rather than indexing by position, so a run of
+      // image-less entries still cycles instead of repeating.
+      ink = fallback[spare % fallback.length];
+      if (ink === previous) ink = fallback[++spare % fallback.length];
+      spare++;
+    } else {
+      ink = "paper";
+    }
     out.push(ink);
     previous = ink;
   }

@@ -83,8 +83,11 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
     )
   }
 
-  <p class="card__chip card__eyebrow"><span class="eyebrow">{eyebrow ?? "Work"}</span></p>
-  <p class="card__chip card__meta"><span class="out">{dest}</span></p>
+  <div class="card__top">
+    <p class="card__chip"><span>{eyebrow ?? "Work"}</span></p>
+    <p class="card__chip card__meta"><span class="out">{dest}</span></p>
+  </div>
+
   <h3 class="card__chip card__title plate"><span>{title}</span></h3>
 </a>
 
@@ -150,39 +153,66 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
      The vertical padding is deliberately more than half the leading, so
      consecutive plates overlap rather than leaving a hairline of photograph
      between them. Same colour, so the overlap is invisible. */
+  /* Hard into the corners. The plate is the padding — a gap between it and
+     the card's edge would read as a second, softer frame inside the block, and
+     the block already has an edge. */
   .card__chip {
-    position: absolute;
-    z-index: 1;
     margin: 0;
-    max-width: calc(100% - 24px);
   }
 
-  /* Only the title needs the per-line treatment — the other two are one line
-     each and always will be, so they take the plate on the block. That is not
-     tidiness: an inline background covers the *content area*, which sits
-     inside the line box by however much half-leading the line-height gives it,
-     so an inline plate at `top: 0` hangs a few pixels below the card's edge
-     and its apparent padding changes with the line-height. On the block there
-     is no half-leading in the way, and `line-height: 1` makes the plate the
-     type plus its padding and nothing else. */
-  .card__eyebrow,
-  .card__meta {
-    padding: 6px var(--plate-pad-x);
+  /* The two top plates are one row, not two independently placed boxes.
+     ---
+     Absolutely positioned separately they had no relationship: on a narrow
+     card a long category and a long destination simply overlapped, and there
+     was nothing in the layout to stop them. In a row they push against each
+     other and the flex gap holds.
+     ---
+     The row also owns the type. Placed separately, the category plate
+     inherited the card's 16px font on its own block and only set 11px on the
+     span inside it — and `line-height: 1` resolves against the *block's* font,
+     not the span's, so its line box was 16px against the destination's 11 and
+     the two plates came out five pixels different in height for the same size
+     of text. Setting the type once, on the row, is what makes them match. */
+  .card__top {
+    position: absolute;
+    z-index: 1;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: 0.1em;
     line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .card__top .card__chip {
+    min-width: 0;
+    padding: 6px var(--plate-pad-x);
     background: var(--block-ground);
+  }
+
+  /* Inherit, so nothing inside a plate can reintroduce the mismatch above. */
+  .card__top .card__chip > span {
+    font: inherit;
+    letter-spacing: inherit;
+    line-height: 1;
   }
 
 
 
   /* An unphotographed card has no image to sit over, so a plate around each
      line would be a box drawn for no reason. */
-  .card--bare .card__chip {
+  .card--bare .card__top,
+  .card--bare .card__title {
     position: static;
     max-width: none;
   }
 
-  .card--bare .card__eyebrow,
-  .card--bare .card__meta,
+  .card--bare .card__top .card__chip,
   .card--bare .card__title > span {
     padding: 0;
     background: none;
@@ -192,26 +222,14 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
     line-height: 1.15;
   }
 
-  /* Hard into the corners. The plate is the padding — a gap between it and
-     the card's edge would read as a second, softer frame inside the block, and
-     the block already has an edge. */
-  .card__eyebrow {
-    top: 0;
-    left: 0;
-  }
-
   .card__meta {
-    top: 0;
-    right: 0;
     text-align: right;
-    font-family: var(--mono);
-    font-size: var(--t-label);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
   }
 
   .card__title {
+    position: absolute;
+    z-index: 1;
+    max-width: calc(100% - 24px);
     /* Not 0 — see "Caption plates" in global.css. The plate overhangs this
        block, so aligning the *block* to the card's edge would push the
        overhang outside it, where the card's own `overflow: hidden` cuts it
@@ -234,10 +252,6 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
 
   .card--bare .card__title {
     margin-top: 12px;
-  }
-
-  .card--bare .card__meta {
-    margin-top: auto;
   }
 
   /* Hovering takes the photograph out of `multiply` and lets it print in its

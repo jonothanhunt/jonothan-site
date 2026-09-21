@@ -116,21 +116,37 @@ const isHome = Astro.url.pathname === "/";
      shadow and no blur — the fill alone is enough to lift it off the page,
      and the hairline was a third edge in a row that already reads as a set of
      boxes. */
+  /* The bar is not a panel with things on it — it is the things, set a pixel
+     apart.
+     ---
+     No padding: with a --ui-pad ring around them an active pill's ink stopped
+     short of every edge, so the bar read as a black chip floating on a white
+     one. The pills carry that padding as height instead, so the bar measures
+     what it always did and a fill reaches the edge.
+     ---
+     No background either, and a 1px gap between the items. The separators used
+     to be hairlines drawn on a continuous panel; now the panel is actually
+     broken and the page shows through the joins. On the hero that means the
+     photograph, which is the point — the bar reads as cut from the page rather
+     than laid over it. */
   nav {
     pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 0;
-    padding: var(--ui-pad);
-    background: var(--panel);
+    gap: 1px;
     user-select: none;
     -webkit-user-select: none;
+  }
+
+  nav > *,
+  .nav-pill {
+    background: var(--panel);
   }
 
   .brand {
     display: flex;
     align-items: center;
-    height: var(--ui-h);
+    height: var(--nav-pill);
     overflow: hidden;
     font-family: var(--mono);
     font-weight: 800;
@@ -177,15 +193,13 @@ const isHome = Astro.url.pathname === "/";
     list-style: none;
   }
 
-  .nav-pill::-webkit-details-marker {
-    display: none;
+  .nav-pill,
+  .brand {
+    height: var(--nav-pill);
   }
 
-  /* Hairlines between the items rather than around each one, so the bar reads
-     as one divided strip instead of a row of separate buttons. */
-  .nav-pill + .nav-pill,
-  details.contact {
-    border-left: 1px solid var(--rule);
+  .nav-pill::-webkit-details-marker {
+    display: none;
   }
 
   .nav-pill.on,
@@ -202,8 +216,11 @@ const isHome = Astro.url.pathname === "/";
   }
 
   /* --- Contact panel: square, framed, same padding as the bar itself --- */
+  /* Transparent, so the 1px joins either side of it stay open. Its summary
+     paints itself like every other pill. */
   .contact {
     position: relative;
+    background: none;
   }
 
   /* Joined to the bar rather than floating under it: same fill, same padding,
@@ -214,16 +231,14 @@ const isHome = Astro.url.pathname === "/";
      The offset is measured from the summary, so the nav's own bottom padding
      is added back to reach the bar's edge, and the panel is pulled out by the
      same amount on the right so its side lines up with the bar's. */
+  /* Flush under the bar and flush around its contents. Any padding here is a
+     band of panel between the bar and the address, and it shows most on hover,
+     where the address fills with ink and the gap around it turns into a
+     visible ledge. */
   .contact__panel {
     position: absolute;
-    top: calc(100% + var(--ui-pad));
-    right: calc(-1 * var(--ui-pad));
-    /* No padding on top. The bar's own bottom padding is already there, above
-       this edge, so a second band of panel above the address put a stripe of
-       nothing between two things that are meant to read as one — and it showed
-       most on hover, where the address fills with ink and the gap above it
-       turns into a visible ledge. */
-    padding: 0 var(--ui-pad) var(--ui-pad);
+    top: 100%;
+    right: 0;
     background: var(--panel);
     animation: drop 0.2s linear;
   }

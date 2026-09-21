@@ -7,7 +7,7 @@ import TikTok from "./mdx/TikTok.astro";
 import Video from "./mdx/Video.astro";
 import CodeDemo from "./mdx/CodeDemo.astro";
 import { formatDate, tagSlug, tagLabel, type Post } from "../lib/posts";
-import { paletteFor, type Palette } from "../lib/palette";
+import type { Palette } from "../lib/palette";
 
 interface Props {
   post: Post;
@@ -25,9 +25,10 @@ const tagTokens = type.map(tagSlug).join(" ");
 // that is already on the page — no request, no import, no loading state.
 const { Content } = await render(post);
 
-// The ink comes from the post's own image where it has one, so the list reads
-// as a set of printed plates rather than a rotation through a fixed palette.
-const ink: Palette = image ? await paletteFor(image) : colour;
+// The ink is decided by the list, not by the row: it comes from the post's own
+// photograph, but the choice has to see its neighbours to keep two of them off
+// the same colour. See `paletteRun`, and PostGrid, which calls it.
+const ink: Palette = colour;
 ---
 
 <details class="row" open={open} id={post.id} data-tags={tagTokens}>
@@ -59,18 +60,24 @@ const ink: Palette = image ? await paletteFor(image) : colour;
       )
     }
 
-    <p class="card__chip card__eyebrow">
-      <span class="eyebrow">
-        <time datetime={date.toISOString()}>{formatDate(date)}</time>
-        {type.length > 0 ? ` · ${type.map(tagLabel).join(" · ")}` : ""}
-      </span>
-    </p>
+    <div class="card__top">
+      <p class="card__chip">
+        <span>
+          <time datetime={date.toISOString()}>{formatDate(date)}</time>
+          {type.length > 0 ? ` · ${type.map(tagLabel).join(" · ")}` : ""}
+        </span>
+      </p>
 
-    <p class="card__chip card__meta">
-      <span>
-        <span class="card__cue" aria-hidden="true"></span>/blog/{post.id}
-      </span>
-    </p>
+      {/* The path used to be printed here, as a link card prints its
+          destination. It ran to forty characters on a long slug, which on a
+          narrow card left nothing for the date beside it — and it was never
+          the useful half: this card opens the post in place rather than going
+          anywhere, so what it owes the reader is the state of the disclosure,
+          not a URL they are not about to follow. */}
+      <p class="card__chip card__meta">
+        <span><span class="card__cue" aria-hidden="true"></span>Read</span>
+      </p>
+    </div>
 
     <h2 class="card__chip card__title plate"><span>{title}</span></h2>
   </summary>
@@ -156,45 +163,56 @@ const ink: Palette = image ? await paletteFor(image) : colour;
   }
 
   .card__chip {
-    position: absolute;
-    z-index: 1;
     margin: 0;
-    max-width: calc(100% - 24px);
   }
 
-  /* One line each and always will be, so these take the plate on the block
-     rather than on the inline — see "Caption plates" in global.css for why
-     that matters. */
-  .card__eyebrow,
-  .card__meta {
-    padding: 6px var(--plate-pad-x);
+  /* One row for both top plates, and the row owns the type so the two are the
+     same height — see Card.astro, which carries the full note on why placing
+     them separately made them differ. */
+  .card__top {
+    position: absolute;
+    z-index: 1;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: 0.1em;
     line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .card__top .card__chip {
+    min-width: 0;
+    padding: 6px var(--plate-pad-x);
     background: var(--block-ground);
   }
 
-  .card--bare .card__eyebrow,
-  .card--bare .card__meta,
+  .card__top .card__chip > span {
+    font: inherit;
+    letter-spacing: inherit;
+    line-height: 1;
+  }
+
+  .card--bare .card__top,
+  .card--bare .card__title {
+    position: static;
+    max-width: none;
+  }
+
+  .card--bare .card__top .card__chip,
   .card--bare .card__title > span {
     padding: 0;
     background: none;
   }
 
-  .card__eyebrow {
-    top: 0;
-    left: 0;
-  }
-
-  .card__meta {
-    top: 0;
-    right: 0;
-    font-family: var(--mono);
-    font-size: var(--t-label);
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
   .card__title {
+    position: absolute;
+    z-index: 1;
+    max-width: calc(100% - 24px);
     /* Offset by the plate's overhang rather than sitting at 0 — see
        "Caption plates" in global.css. */
     bottom: var(--plate-overhang);
@@ -205,7 +223,6 @@ const ink: Palette = image ? await paletteFor(image) : colour;
   }
 
   .card--bare .card__title {
-    position: static;
     margin-top: 12px;
     line-height: 1.15;
   }
