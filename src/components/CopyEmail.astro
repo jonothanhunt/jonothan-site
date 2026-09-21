@@ -72,11 +72,12 @@ const { variant = "bar" } = Astro.props;
     -webkit-user-select: none;
   }
 
-  /* Standing on its own (in the contact block) it needs its own frame, so it
-     matches the nav bar: the bar's padding inside one ink hairline. */
+  /* Standing on its own, in the contact block, it needs the bar's padding so
+     the panel reads as the same object the nav drops. No frame: in the nav it
+     sits inside a panel that has none, and on the teal block the fill already
+     separates it from the ground. */
   .copy--solo {
     padding: var(--ui-pad);
-    box-shadow: inset 0 0 0 1px var(--rule-ink);
   }
 
   .copy__link,
@@ -89,9 +90,6 @@ const { variant = "bar" } = Astro.props;
     letter-spacing: 0.02em;
     text-decoration: none;
     white-space: nowrap;
-    transition:
-      background-color 0.15s linear,
-      color 0.15s linear;
   }
 
   /* The address is data; the action is a control. So the action gets the caps
@@ -109,10 +107,6 @@ const { variant = "bar" } = Astro.props;
   .copy__btn {
     position: relative;
     border-left: 1px solid var(--rule);
-    transition:
-      background-color 0.15s linear,
-      color 0.15s linear,
-      border-color 0.15s linear;
   }
 
   .copy:has(.copy__link:hover) .copy__btn,

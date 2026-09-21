@@ -296,6 +296,191 @@ function Ready({ onReady }) {
   return null;
 }
 
+/* ============================================================
+   The retro pass
+
+   The desk drawn the way a machine that couldn't afford to draw it properly
+   would have: sampled onto a coarse grid with no filtering between the cells,
+   and every channel crushed to a handful of levels so the shading bands
+   instead of graduating.
+
+   Both halves matter and they are separate settings. PIXEL_SCALE is the grid,
+   as a fraction of the element — 0.48 puts roughly 350 cells across the panel
+   the desk occupies, which is about a VGA screen and about the right era.
+   LEVELS is the colour depth: 4 levels a channel is 64 colours, few enough
+   that a curved surface breaks into visible steps, which is the point.
+
+   Deliberately *not* dithered. Ordered dithering is the site's house treatment
+   and it is the natural thing to reach for here, but dithering exists to hide
+   banding and banding is what we're after — a Bayer pattern would trade the
+   steps for noise and lose the era.
+
+   ## Why the grid is in the shader and not in the framebuffer
+
+   The obvious implementation is to render the scene into a small target and
+   blow it up through a NearestFilter, and that is what this did first. It
+   renders the same picture and costs a sixth of the fill — but it puts the
+   window's portal out of action, and the reason is worth keeping.
+
+   `MeshPortalMaterial` does not sample its texture through the mesh's own UVs.
+   The portal is a full-screen render of another scene, and the window samples
+   it by *screen position* — `gl_FragCoord` over the canvas resolution it was
+   given when it mounted. Render the main scene into a target a sixth of the
+   size and every fragment's `gl_FragCoord` is in that smaller space, so the
+   window reads the bottom-left sixth of its own texture, which is empty. The
+   window came out black and nothing about it looked like a sampling problem.
+
+   So the scene is rendered at full size, where screen space is what the portal
+   expects, and the grid is applied when the result is drawn back — each output
+   pixel snapped to the centre of its cell, which is the same point sample a
+   small framebuffer would have taken.
+   ============================================================ */
+const PIXEL_SCALE = 0.48;
+const LEVELS = 4;
+
+const RETRO_VERT = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = vec4(position.xy, 0.0, 1.0);
+  }
+`;
+
+const RETRO_FRAG = /* glsl */ `
+  /* No pars includes up here, deliberately. three injects the
+     tone-mapping and colour-space declarations into every ShaderMaterial it
+     compiles, whether or not the shader asks for them, so including them by
+     hand redefines toneMappingExposure and every tone-mapping function and
+     the fragment shader fails to compile. Only the two call-site chunks at
+     the bottom of main() are ours to add. */
+  uniform sampler2D tDiffuse;
+  uniform vec2 uGrid;
+  uniform float uLevels;
+  varying vec2 vUv;
+
+  void main() {
+    /* Snap to the centre of the cell this fragment falls in. Sampling the
+       centre rather than the corner is what makes it a point sample of the
+       scene rather than of the seam between two cells. */
+    vec2 uv = (floor(vUv * uGrid) + 0.5) / uGrid;
+    vec4 texel = texture2D(tDiffuse, uv);
+
+    /* Un-premultiply. The render target holds the scene composited onto
+       nothing, so a half-covered edge pixel arrives with its colour already
+       scaled by its own alpha — quantising that scales the colour by the
+       coverage as well as by the level, and every silhouette edge comes back
+       a band darker than the surface behind it. */
+    vec3 colour = texel.a > 0.0 ? texel.rgb / texel.a : texel.rgb;
+
+    /* Alpha is quantised too, and hard. A soft edge on a blown-up pixel reads
+       as a blurred pixel, which is the one thing this pass exists to avoid. */
+    gl_FragColor = vec4(colour, step(0.5, texel.a));
+
+    /* Tone map and encode first, quantise second. These two chunks are the
+       pipeline the scene would have gone through had it been drawn straight to
+       the canvas, and they run here because it wasn't. Quantising after them
+       also puts the steps where they belong: the levels are evenly spaced in
+       what the eye sees rather than in linear light, where three quarters of
+       them would land in the highlights and the shadows would band in one
+       jump. */
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+
+    /* Round to the nearest level, not down to the bottom of the band. Flooring
+       loses up to a whole level of brightness on every surface, which across
+       the scene reads as someone having turned the lights off rather than as
+       a shallower palette. */
+    gl_FragColor.rgb =
+      floor(gl_FragColor.rgb * (uLevels - 1.0) + 0.5) / (uLevels - 1.0);
+  }
+`;
+
+/**
+ * Renders the scene to a texture, then draws it back through the grid.
+ *
+ * `useFrame` with a priority takes the render loop over from R3F entirely —
+ * at priority 0 R3F draws the scene itself after the callbacks run, which
+ * would paint the un-pixelated version straight over this one. The priority
+ * has to be above the portal's, which runs its own pass at 0 to fill the
+ * window's texture before the main scene reads it.
+ *
+ * ## The colour space, which is not optional
+ *
+ * three only tone maps and encodes to sRGB when it is drawing to the *canvas*.
+ * Render into a target and it deliberately does neither: the texture holds
+ * raw linear light, because that is what a texture should hold. Draw that
+ * texture back out without putting it through the pipeline it skipped and
+ * every value is interpreted as though it were already sRGB — mid-grey renders
+ * at half its intended brightness, and the whole scene comes back looking as
+ * if someone had dimmed it. The desk went from a lit workspace to a silhouette
+ * this way, and it reads as a lighting problem rather than as a colour-space
+ * one, which is what makes it worth a paragraph.
+ *
+ * So the quad's shader includes three's own `tonemapping_fragment` and
+ * `colorspace_fragment` chunks and runs them itself. It has to be those rather
+ * than a hand-rolled gamma curve: the renderer's tone mapping is configurable
+ * from the Canvas, and these chunks compile to whichever one is set.
+ */
+function Retro() {
+  const { gl, scene, camera, size } = useThree();
+
+  const target = useMemo(
+    () =>
+      new THREE.WebGLRenderTarget(1, 1, {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        // No mipmaps: they are a chain of progressively blurrier copies, and
+        // sampling one is exactly the smoothing this is avoiding.
+        generateMipmaps: false,
+        depthBuffer: true,
+      }),
+    [],
+  );
+
+  const [quadScene, quadCamera, material] = useMemo(() => {
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        tDiffuse: { value: null },
+        uGrid: { value: new THREE.Vector2(1, 1) },
+        uLevels: { value: LEVELS },
+      },
+      vertexShader: RETRO_VERT,
+      fragmentShader: RETRO_FRAG,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+    });
+    const quadScene = new THREE.Scene();
+    quadScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+    return [quadScene, new THREE.Camera(), material];
+  }, []);
+
+  useEffect(() => {
+    const dpr = gl.getPixelRatio();
+    target.setSize(
+      Math.max(1, Math.round(size.width * dpr)),
+      Math.max(1, Math.round(size.height * dpr)),
+    );
+    material.uniforms.uGrid.value.set(
+      Math.max(1, Math.round(size.width * PIXEL_SCALE)),
+      Math.max(1, Math.round(size.height * PIXEL_SCALE)),
+    );
+  }, [size.width, size.height, gl, target, material]);
+
+  useEffect(() => () => target.dispose(), [target]);
+
+  useFrame(() => {
+    gl.setRenderTarget(target);
+    gl.clear();
+    gl.render(scene, camera);
+    gl.setRenderTarget(null);
+    material.uniforms.tDiffuse.value = target.texture;
+    gl.render(quadScene, quadCamera);
+  }, 1);
+
+  return null;
+}
+
 /* The character ramp, sparse to dense.
  *
  * AsciiEffect indexes it by brightness, and a transparent pixel is forced to
@@ -332,31 +517,39 @@ export default function DeskScene({ onReady }) {
         });
       }}
     >
-      {/* Deliberately underlit. The ramp maps dark to dense, so the scene's
-          brightness *is* its ink coverage: lit the way it was for a colour
-          render, the desk came out as a scattering of full stops. */}
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[0, 10, 5]} intensity={1.1} />
+      {/* Lit for a colour render. The ASCII version was deliberately underlit
+          — the ramp maps dark to dense, so the scene's brightness *was* its
+          ink coverage, and properly lit it came out as a scattering of full
+          stops. The retro pass reads colour rather than coverage, and at those
+          levels the desk was a black silhouette with the banding all crowded
+          into the bottom step. */}
+      <ambientLight intensity={0.85} />
+      <directionalLight position={[0, 10, 5]} intensity={1.5} />
       <Suspense fallback={null}>
         <Desk />
         <Ready onReady={onReady} />
       </Suspense>
-      {/* 0.11 gives roughly a 75 × 20 grid in the panel the desk occupies —
-          about 1,500 characters a frame. AsciiEffect rebuilds the table's
-          innerHTML every frame, so the grid size is the cost, and at this
-          resolution it's a couple of kilobytes of string rather than the
-          40,000 characters the default 0.15 would ask for at this width.
+      <Retro />
 
-          `invert` off and `color` off: one colour, set from CSS, so the whole
-          thing can be multiplied into the block behind it. */}
-      <AsciiRenderer
-        characters={RAMP}
-        resolution={0.11}
-        invert={false}
-        color={false}
-        fgColor="currentColor"
-        bgColor="transparent"
-      />
+      {/* The ASCII renderer this replaced. Kept rather than deleted while the
+          two treatments are being compared — swapping them back is this block
+          for the line above, and the CSS in Desk.astro that styles the effect's
+          <table> is still in place.
+
+          `resolution` is cells per device pixel, so it sets both axes: 0.22
+          gives roughly a 150 x 40 grid in the panel the desk occupies, about
+          6,000 characters a frame. `invert` off and `color` off: one colour,
+          set from CSS, so the whole thing multiplies into the block behind it.
+
+          <AsciiRenderer
+            characters={RAMP}
+            resolution={0.22}
+            invert={false}
+            color={false}
+            fgColor="currentColor"
+            bgColor="transparent"
+          />
+      */}
     </Canvas>
   );
 }

@@ -6,6 +6,7 @@ import LogoStrip from "../components/LogoStrip.astro";
 import CopyEmail from "../components/CopyEmail.astro";
 import Desk from "../components/Desk.astro";
 import Sticker from "../components/Sticker.astro";
+import { paletteRun } from "../lib/palette";
 
 import effects from "../assets/home/effects.jpeg";
 import kitkat from "../assets/home/kitkat-heist.webp";
@@ -13,12 +14,18 @@ import magpie from "../assets/home/magpie_app.webp";
 import waiting from "../assets/home/waiting_to_live.webp";
 import vault from "../assets/home/hsbc_vault.webp";
 import creativeTechStack from "../content/blog/_media/creative-tech-stack/creative-tech-stack.png";
-import drumCutout from "../assets/generated/drum-cutout.png";
 
 import grandPrix from "../assets/logos/grand-prix.png";
-// The D&AD mark rather than the White Pencil artwork: the pencil is drawn
-// head-on, so its silhouette is a pentagon and reads as a house.
+// The White Pencil itself, and the D&AD hexagon badged onto it — the pair the
+// site has always shown. The earlier pass dropped the pencil because its
+// *silhouette* reads as a house, but the silhouette is no longer what gets
+// drawn: the sticker foils the artwork rather than replacing it, so the mark
+// is legible again and the substitution isn't needed.
+import pencil from "../assets/logos/newblood_white_pencil.svg";
 import dad from "../assets/logos/dad_logo.svg";
+// The Drum arrived as a flat JPEG with no alpha, so its silhouette is cut from
+// its own luminance at build time — see CUTOUTS in scripts/dither.mjs.
+import drum from "../assets/logos/the_drum_logo.jpeg";
 
 // TikTok view count, projected from a known sample so the number stays honest
 // as it ages. Computed at build time — no ticker, no client JS.
@@ -32,6 +39,13 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 
+// Both grids resolve their inks as a run rather than card by card, so no two
+// neighbours print on the same colour. The order here has to match the reading
+// order of the cards below it — that's the sequence the rule defends.
+const [workInk, kitkatInk, magpieInk, stackInk, waitingInk, vaultInk] =
+  await paletteRun([effects, kitkat, magpie, creativeTechStack, waiting, vault]);
+const writingInks = await paletteRun(posts.map((post) => post.data.image));
+
 // The hero is the one image on the site that isn't run through astro:assets.
 // It's baked to 1-bit by scripts/dither.mjs instead, at three widths, and the
 // widths have to be named here because a file in public/ has no metadata for
@@ -39,32 +53,34 @@ const posts = (await getCollection("blog", (p) => !p.data.draft))
 const HERO_WIDTHS = [640, 900, 1223];
 const heroSrcset = HERO_WIDTHS.map((w) => `/dither/hero-${w}.png ${w}w`).join(", ");
 
-// The awards. The Drum's mark arrived as a flat JPEG with no alpha, so its
-// silhouette is cut from its own luminance at build time — see CUTOUTS in
-// scripts/dither.mjs — and the foil is painted through that instead.
+// The awards: three marks in a row and nothing else, as the site has always
+// had them. The citation text and the hairline box around each one are gone —
+// an award mark is recognised, not read, and three boxed spec pairs turned the
+// most decorative thing in the hero into the most administrative. The name
+// survives as the link's accessible label, which is where a screen reader
+// wants it and where Google's snippet doesn't.
 const awards = [
   {
     href: "https://www.lovethework.com/directory/individuals/jono-hunt-750043",
     src: grandPrix,
     alt: "Cannes Lions Grand Prix",
-    label: "Cannes Lions",
-    value: "Grand Prix",
+    height: 46,
     tilt: -4,
   },
   {
     href: "https://www.dandad.org/profiles/person/202333/jonothan-hunt/",
-    src: dad,
+    src: pencil,
     alt: "D&AD New Blood White Pencil",
-    label: "D&AD New Blood",
-    value: "White Pencil",
+    // The hexagon, badged off the pencil's bottom-right corner.
+    badge: dad,
+    height: 40,
     tilt: 5,
   },
   {
     href: "https://www.thedrum.com/awards-case-study/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie",
-    src: drumCutout,
-    alt: "The Drum award",
-    label: "The Drum",
-    value: "Awards",
+    src: drum,
+    alt: "The Drum Awards",
+    height: 34,
     tilt: -2,
   },
 ];
@@ -72,7 +88,7 @@ const awards = [
 
 <Base
   title="Jonothan Hunt"
-  description="Creative technologist and developer. Lead Creative Innovation at VML UK. Part of WPP Innovation"
+  description="Creative technologist and developer. Senior Director of Product Innovation at WPP Innovation"
 >
   <!-- The photo is the top of the page itself, not a card: full width, 1-bit,
        dissolving down into the page through a dithered alpha ramp rather than
@@ -96,12 +112,6 @@ const awards = [
   <div class="shell stack">
     <section class="hero">
       <div class="hero__body">
-        <p class="spec hero__tag">
-          <span>Creative technologist</span>
-          <span class="spec__rule" aria-hidden="true"></span>
-          <span class="spec__val">London &#x00B7; {new Date().getFullYear()}</span>
-        </p>
-
         <!-- The space belongs inside the first span: the h1 is a flex column,
              and a flex container throws away whitespace-only text nodes
              between its items, so a space left between the spans would make
@@ -112,28 +122,35 @@ const awards = [
         <h1><span>Hey, I&rsquo;m{" "}</span><span>Jonothan.</span></h1>
 
         <p class="lede">
-          Creative technologist and developer. Lead Creative Innovation at <a
-            href="https://www.vml.com/united-kingdom">VML UK</a
-          >. Part of <a href="https://www.wpp.com">WPP</a> Innovation
+          Creative technologist and developer. Senior Director of Product
+          Innovation at <a href="https://www.wpp.com">WPP</a> Innovation
         </p>
 
-        <!-- The alt text on these is for anyone who can't see them, not for a
-             search result. Left snippetable, Google is liable to append
-             "Cannes Lions Grand Prix D&AD New Blood White Pencil The Drum
-             award" to the description as a run of loose phrases. data-nosnippet
-             is only honoured on div, span and section, hence the wrapper. -->
+        <!-- The names live on the links rather than in the page. Left as
+             snippetable text, Google is liable to append "Cannes Lions Grand
+             Prix D&AD New Blood White Pencil The Drum Awards" to the
+             description as a run of loose phrases; data-nosnippet is only
+             honoured on div, span and section, hence the wrapper. -->
         <div data-nosnippet class="hero__awards">
-          <p class="label label--soft">Awards</p>
           <ul>
             {
-              awards.map(({ href, src, alt, label, value, tilt }) => (
+              awards.map(({ href, src, alt, badge, height, tilt }) => (
                 <li>
-                  <a href={href} rel="noopener noreferrer" target="_blank">
-                    <Sticker src={src} alt={alt} height={44} tilt={tilt} />
-                    <span class="hero__award-text" aria-hidden="true">
-                      <span class="label">{label}</span>
-                      <span class="hero__award-val">{value}</span>
-                    </span>
+                  <a
+                    href={href}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    aria-label={alt}
+                  >
+                    <Sticker src={src} height={height} tilt={tilt} />
+                    {badge && (
+                      <Sticker
+                        class="hero__award-badge"
+                        src={badge}
+                        height={22}
+                        tilt={-6}
+                      />
+                    )}
                   </a>
                 </li>
               ))
@@ -158,6 +175,7 @@ const awards = [
           href="https://vm.tiktok.com/ZNdr68mku/"
           image={effects}
           alt="TikTok effects I've built"
+          colour={workInk}
           title={`Videos using my TikTok effects have reached ${billions} billion views`}
           eyebrow="Effects"
           meta="tiktok.com"
@@ -169,6 +187,7 @@ const awards = [
           href="https://www.vml.com/work/kitkat-heist"
           image={kitkat}
           alt="The KitKat Heist"
+          colour={kitkatInk}
           eyebrow="Campaign"
           title="The KitKat Heist wins a Grand Prix at Cannes"
         />
@@ -176,6 +195,7 @@ const awards = [
           href="https://www.thedrum.com/news/2022/12/05/inside-wunderman-thompsons-plan-spark-interest-workplace-mentoring-with-magpie"
           image={magpie}
           alt="The Magpie mentorship app"
+          colour={magpieInk}
           eyebrow="App"
           title="Magpie mentorship app wins at The Drum awards"
           meta="thedrum.com"
@@ -184,6 +204,7 @@ const awards = [
           href="/blog/creative-tech-stack"
           image={creativeTechStack}
           alt="The Creative Tech Stack site"
+          colour={stackInk}
           eyebrow="Site"
           title="Creative Tech Stack: a tools database & blog for creatives"
           meta="/blog"
@@ -192,6 +213,7 @@ const awards = [
           href="https://www.nhsbt.nhs.uk/news/more-than-half-the-children-transformed-into-dolls-as-part-of-an-award-winning-national-organ-donation-campaign-have-now-received-a-lifesaving-transplant-in-time-for-christmas/"
           image={waiting}
           alt="The doll of Ralph sitting on a bench"
+          colour={waitingInk}
           eyebrow="Campaign"
           title="Waiting to Live gains 5,000+ donor registrations in 3 months"
           meta="nhsbt.nhs.uk"
@@ -200,6 +222,7 @@ const awards = [
           href="https://creative.salon/articles/work/hsbc-vml-everything-s-premier"
           image={vault}
           alt="The HSBC Vault installation at Waterloo station"
+          colour={vaultInk}
           eyebrow="Installation"
           title="HSBC's vault installation tours the UK"
           meta="creative.salon"
@@ -210,7 +233,6 @@ const awards = [
     <!-- Contact + the ASCII desk -->
     <section class="contact block block--sea marks--all" aria-labelledby="contact-h">
       <div class="contact__body">
-        <p class="label label--soft">Contact</p>
         <h2 id="contact-h">Let&rsquo;s chat!</h2>
         <p class="lede">
           Book me for a talk, ask for creative tech career advice, or
@@ -224,17 +246,17 @@ const awards = [
     <!-- Recent writing -->
     <section class="writing" aria-labelledby="writing-h">
       <p class="spec writing__head">
-        <span id="writing-h">Recent writing</span>
+        <span id="writing-h">Recent blog posts</span>
         <span class="spec__rule" aria-hidden="true"></span>
-        <span class="spec__val">{posts.length} of many</span>
       </p>
       <div class="grid">
         {
-          posts.map((post) => (
+          posts.map((post, i) => (
             <Card
               href={`/blog/${post.id}`}
               image={post.data.image}
               alt=""
+              colour={writingInks[i]}
               eyebrow={post.data.type[0]}
               title={post.data.title}
               meta="/blog"
@@ -349,13 +371,6 @@ const awards = [
     }
   }
 
-  .hero__tag {
-    align-self: stretch;
-    max-width: 26rem;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--rule-mid);
-  }
-
   /* Two lines, stacked — "Jonothan." never wraps mid-word. */
   .hero__body h1 {
     display: flex;
@@ -376,52 +391,49 @@ const awards = [
     text-underline-offset: 4px;
   }
 
-  /* Awards: a sticker per award with its citation set as a spec pair beside
-     it, rather than three bare images in a row. */
+  /* Awards: three marks in a row, applied by hand. No box, no caption — the
+     row is a strip of stickers on the page, which is the one place the layout
+     is allowed to be loose. */
   .hero__awards {
-    margin-top: 6px;
+    margin-top: 2px;
   }
 
   .hero__awards ul {
     display: flex;
     flex-wrap: wrap;
-    align-items: stretch;
-    gap: 10px 8px;
+    align-items: flex-end;
+    gap: 22px;
     list-style: none;
     padding: 0;
-    margin-top: 10px;
   }
 
+  /* `relative` so the badge can hang off the corner, and bottom-aligned so
+     three marks of three different heights sit on one baseline. */
   .hero__awards a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px 8px 8px;
+    position: relative;
+    display: block;
+    line-height: 0;
     text-decoration: none;
-    box-shadow: inset 0 0 0 1px var(--rule);
-    transition:
-      box-shadow 0.15s linear,
-      background-color 0.15s linear;
   }
 
-  @media (hover: hover) {
-    .hero__awards a:hover {
-      box-shadow: inset 0 0 0 1px var(--rule-ink);
-      background: var(--panel);
-    }
+  /* Keyboard focus has to be visible without a box to draw on, so it draws
+     its own — offset far enough to clear the artwork. */
+  .hero__awards a:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 5px;
   }
 
-  .hero__award-text {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+  /* The hexagon, badged off the pencil's bottom-right corner — the same
+     relationship the mark has always had here. */
+  .hero__award-badge {
+    position: absolute;
+    right: -11px;
+    bottom: -7px;
   }
 
-  .hero__award-val {
-    font-size: 0.8125rem;
-    letter-spacing: -0.01em;
-    color: var(--ink-soft);
-  }
+  /* Nothing on hover but the foil, which turns over on its own. The marks
+     used to scale up a little as well; with the easing gone it was a jump
+     rather than a lift, and the sticker already answers the pointer. */
 
   /* Contact: the desk fills the panel edge to edge; the copy sits over it. */
   .contact {
@@ -467,12 +479,13 @@ const awards = [
     padding-top: 40px;
   }
 
+  /* The spec row already draws a rule between its label and the right edge.
+     A border underneath it as well made two parallel lines a few pixels
+     apart, which reads as a mistake rather than as a heading. */
   .writing__head {
     align-self: stretch;
     width: 100%;
     margin-bottom: 18px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--rule-mid);
   }
 
   .writing .grid {

@@ -37,3 +37,6 @@ pnpm-debug.log*
 
 # wrangler dev state
 .wrangler/
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo

@@ -98,20 +98,24 @@ const isHome = Astro.url.pathname === "/";
 </script>
 
 <style>
+  /* Flush to the top edge rather than floating a --gap below it. Inset, the
+     bar read as a third object on the page — a panel hovering over the hero
+     with a band of photograph above it; against the edge it reads as the
+     page's own chrome. Still centred, and still only as wide as it needs to
+     be. */
   .site-head {
     position: fixed;
     inset: 0 0 auto;
     z-index: 50;
-    padding: var(--gap);
     display: flex;
     justify-content: center;
     pointer-events: none;
   }
 
-  /* A hard-edged bar: square, panel fill, one ink hairline. No shadow and no
-     blur — the frame does the separating, and both of the alternatives cost
-     the compositor something on every scroll frame for a bar that never
-     changes. */
+  /* A hard-edged bar: square, panel fill, nothing round it. No frame, no
+     shadow and no blur — the fill alone is enough to lift it off the page,
+     and the hairline was a third edge in a row that already reads as a set of
+     boxes. */
   nav {
     pointer-events: auto;
     display: flex;
@@ -119,7 +123,6 @@ const isHome = Astro.url.pathname === "/";
     gap: 0;
     padding: var(--ui-pad);
     background: var(--panel);
-    box-shadow: inset 0 0 0 1px var(--rule-ink);
     user-select: none;
     -webkit-user-select: none;
   }
@@ -172,9 +175,6 @@ const isHome = Astro.url.pathname === "/";
     white-space: nowrap;
     cursor: pointer;
     list-style: none;
-    transition:
-      background-color 0.15s linear,
-      color 0.15s linear;
   }
 
   .nav-pill::-webkit-details-marker {
@@ -206,15 +206,25 @@ const isHome = Astro.url.pathname === "/";
     position: relative;
   }
 
+  /* Joined to the bar rather than floating under it: same fill, same padding,
+     no frame, and its top edge on the bar's bottom edge. The two read as one
+     shape that grew rather than as a bar and a box — which is what the
+     disclosure actually is.
+
+     The offset is measured from the summary, so the nav's own bottom padding
+     is added back to reach the bar's edge, and the panel is pulled out by the
+     same amount on the right so its side lines up with the bar's. */
   .contact__panel {
     position: absolute;
-    /* Offset is measured from the summary, so add back the nav's own padding
-       to leave a true --gap between the bar and the panel. */
-    top: calc(100% + var(--ui-pad) + var(--gap));
+    top: calc(100% + var(--ui-pad));
     right: calc(-1 * var(--ui-pad));
-    padding: var(--ui-pad);
+    /* No padding on top. The bar's own bottom padding is already there, above
+       this edge, so a second band of panel above the address put a stripe of
+       nothing between two things that are meant to read as one — and it showed
+       most on hover, where the address fills with ink and the gap above it
+       turns into a visible ledge. */
+    padding: 0 var(--ui-pad) var(--ui-pad);
     background: var(--panel);
-    box-shadow: inset 0 0 0 1px var(--rule-ink);
     animation: drop 0.2s linear;
   }
 
