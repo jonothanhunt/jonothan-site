@@ -1,0 +1,12 @@
+# Read by Cloudflare from the deployed asset root. `public/` is copied into
+# `dist/` verbatim, and wrangler.toml points [assets] at `dist`, so this file
+# ships as `/_redirects`.
+#
+# /things was the blog's URL before the migration. Those links are in the wild
+# and in Google's index, so they keep working.
+#
+# The old /things-content/* image URLs have no successor — post media is
+# fingerprinted into /_astro now — so they are left to 404 rather than
+# redirected somewhere that would also 404.
+/things       /blog          301
+/things/*     /blog/:splat   301

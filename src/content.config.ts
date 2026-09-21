@@ -11,7 +11,7 @@ const blog = defineCollection({
       title: z.string(),
       date: z.coerce.date(),
       excerpt: z.string().default(""),
-      type: z.array(z.string()).default(["Post"]),
+      type: z.array(z.string()).default([]),
       // An imported image, so Astro knows its dimensions at build time and can
       // reserve the right space — no layout shift.
       image: image().optional(),

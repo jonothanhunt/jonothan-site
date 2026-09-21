@@ -1,35 +1,10 @@
-# Cloudflare Pages deployment configuration
-
 name = "jonothan-site"
-type = "javascript"
-
-# Build configuration
-[build]
-command = "npm run build"
-cwd = "./"
-watch_paths = ["src/**/*.astro", "src/**/*.tsx", "src/**/*.ts", "src/content/**/*"]
-
-# Deployment output directory
-[env.production]
-vars = { ENVIRONMENT = "production" }
-
-# Local development
-[env.development]
-vars = { ENVIRONMENT = "development" }
-
-# Routes configuration
-[routes]
-pattern = "*"
-zone_name = "jonothan.dev"
-
-# Static assets
-[site]
-bucket = "./dist"
-
-# Compatibility mode
-compatibility_date = "2024-08-08"
-compatibility_flags = []
-
-# Triggers for automatic deployments
-[triggers.crons]
-crons = ["0 0 * * *"]  # Daily builds
+compatibility_date = "2026-01-01"
+[assets]
+directory = "dist"
+# Astro writes `blog/index.html`, and Cloudflare's default then serves that at
+# `/blog/` and 307s `/blog` to it. Every canonical tag, sitemap entry and feed
+# link on the site uses the slashless form, so the default sends a redirect for
+# the canonical URL of every page — and turns the /things 301s into chains.
+# This makes the slashless form the one that answers 200.
+html_handling = "drop-trailing-slash"

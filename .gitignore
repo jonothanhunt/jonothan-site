@@ -29,8 +29,8 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# deploy
-.vercel/
-
 # machine-local Claude Code settings (the shared config is in AGENTS.md)
 .claude/settings.local.json
+
+# wrangler dev state
+.wrangler/

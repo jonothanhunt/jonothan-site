@@ -1,6 +1,14 @@
 # jonothan.dev
 
-Personal site and blog. Astro, static output, deployed on Vercel.
+Personal site and blog. Astro, static output, deployed as a Cloudflare Worker
+serving static assets — Workers Builds runs the build on every push to `main`.
+There is no adapter: `wrangler.toml` just points `[assets]` at `dist`.
+
+Redirects, cache headers and trailing-slash behaviour are therefore Cloudflare's
+to enforce, and live in three places: `public/_redirects`, `public/_headers`
+(both copied into `dist` and read from the asset root) and `html_handling` in
+`wrangler.toml`. `wrangler dev --local` serves `dist` exactly as production
+does, which is the only way to check any of them.
 
 Rebuilt from the previous Next.js version with performance as the goal: the old
 site shipped ~129 kB gzip of JavaScript on every page before anything else, plus
