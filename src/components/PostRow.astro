@@ -29,9 +29,21 @@ const { Content } = await render(post);
 // photograph, but the choice has to see its neighbours to keep two of them off
 // the same colour. See `paletteRun`, and PostGrid, which calls it.
 const ink: Palette = colour;
+
+// Handed down to the article body so its links and pull quotes are underlined
+// in the same ink the card above them is printed on. A monochrome photograph
+// prints on paper, which is the page's own ground and so no use as an
+// underline — those fall back to the house yellow.
+const proseInk = ink === "paper" ? "sun" : ink;
 ---
 
-<details class="row" open={open} id={post.id} data-tags={tagTokens}>
+<details
+  class="row"
+  open={open}
+  id={post.id}
+  data-tags={tagTokens}
+  style={`--prose-underline: var(--${proseInk})`}
+>
   <summary
     class:list={[
       "card",

@@ -55,16 +55,21 @@
     scroll-margin-top: 90px;
   }
 
-  /* Links underlined in ink-yellow, as they were before the reskin — the one
-     place in an article where the palette gets to show up in the middle of
-     the type rather than behind it. Two pixels rather than one: at a hairline
-     a `sun` underline on paper is too pale to read as a colour at all, which
-     is how it got lost. It goes to ink on hover, so the target is unambiguous
-     without the underline changing weight and shifting the line. */
+  /* Underlined in the post's own ink — the colour its card is printed on,
+     handed down as --prose-underline by PostRow. It is the one place in an
+     article where the palette shows up in the middle of the type rather than
+     behind it, and tying it to the card means an open post keeps the colour
+     you opened it by rather than switching to a house yellow halfway down.
+
+     `sun` is the fallback for prose that isn't a blog post, and for a post
+     whose photograph is monochrome and so prints on paper.
+
+     Goes to ink on hover, so the target is unambiguous without the underline
+     changing weight and shifting the line. */
   .prose a {
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    text-decoration-color: var(--sun);
+    text-decoration-color: var(--prose-underline, var(--sun));
   }
 
   .prose a:hover {
@@ -111,11 +116,11 @@
   }
 
   /* The pull quote: one rule down the left, no fill, no italics, and the quote
-     set a size up from the copy around it. The rule is the same yellow the
-     links are underlined in, and heavier than a hairline for the same reason
-     — it is carrying a colour, not dividing anything. */
+     set a size up from the copy around it. Same colour as the links, and
+     heavier than a hairline for the same reason — it is carrying a colour, not
+     dividing anything, and a 1px rule down a paragraph would read as a border. */
   .prose blockquote {
-    border-left: 4px solid var(--sun);
+    border-left: 4px solid var(--prose-underline, var(--sun));
     padding: 0.1em 0 0.1em 1.2em;
     font-size: 1.15em;
     line-height: 1.5;
