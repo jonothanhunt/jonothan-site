@@ -604,10 +604,21 @@ export async function mount(el) {
      the cursor left it in, with no cursor anywhere near it. */
   let pointerLive = false;
 
+  /* The pointer is read against the window, not the canvas.
+     ---
+     It used to be measured from the canvas's own box, so the desk only
+     answered a cursor that was over it and sat still while you moved around
+     the rest of the page — which reads as a dead object in a live page. Taken
+     against the viewport instead, it turns towards the pointer wherever the
+     pointer is, and centre screen is the neutral pose.
+
+     R3F expressed this as <Canvas eventSource eventPrefix>; with no Canvas
+     left it is two lines, and cheaper than what it replaces — innerWidth and
+     innerHeight are free, where the old getBoundingClientRect forced a layout
+     read on every single pointer move. */
   const onPointerMove = (e) => {
-    const r = renderer.domElement.getBoundingClientRect();
-    pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-    pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
     pointerLive = true;
   };
 
@@ -744,7 +755,7 @@ export async function mount(el) {
   const ro = new ResizeObserver(resize);
   ro.observe(el);
 
-  renderer.domElement.addEventListener("pointermove", onPointerMove, { passive: true });
+  window.addEventListener("pointermove", onPointerMove, { passive: true });
   renderer.domElement.addEventListener("webglcontextlost", onContextLost);
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", measure, { passive: true });
@@ -753,7 +764,7 @@ export async function mount(el) {
     stop();
     io.disconnect();
     ro.disconnect();
-    renderer.domElement.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointermove", onPointerMove);
     renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", measure);
