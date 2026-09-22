@@ -73,7 +73,11 @@
   --panel: #f2f1ee;
   --ink: #0e0e0c;
   --ink-rgb: 14 14 12;
-  --ink-soft: #6c6a64;
+  /* 4.64:1 on --paper. It was #6c6a64, which is 4.37 — under the 4.5 AA needs
+     for the footer's copyright line, set at 11px bold. Four steps darker is
+     the smallest change that clears it with margin, and is not a visible
+     difference. The dark theme's own value is already 6.4:1. */
+  --ink-soft: #686660;
 
   /* The same two, pinned. `--paper` and `--ink` swap under a dark theme;
      these never do. They are for the handful of things whose ground is a

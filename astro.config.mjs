@@ -49,7 +49,7 @@ export default defineConfig({
 
   build: {
     // Inline small stylesheets to save a round trip.
-    inlineStylesheets: "auto",
+    inlineStylesheets: "always",
   },
 
   vite: {
