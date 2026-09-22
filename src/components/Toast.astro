@@ -58,13 +58,16 @@
 </script>
 
 <style>
-  /* Bottom left, clear of the nav at the top and of the copy in the middle.
+  /* Top left, a gutter's width below the bar — so it arrives where the eye
+     already is after a redirect rather than in the corner it is least likely
+     to be looking at. Offset by the bar's own height plus a --gap, which is
+     the same distance the bar keeps off the left and right edges of the page.
      Fixed, so it stays put while the reader gets their bearings. */
   .toast {
     position: fixed;
     z-index: 60;
     left: var(--gap);
-    bottom: var(--gap);
+    top: calc(var(--nav-pill) + var(--gap));
     max-width: min(24rem, calc(100vw - var(--gap) * 2));
     display: grid;
     grid-template-columns: 1fr auto;
