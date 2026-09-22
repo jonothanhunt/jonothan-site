@@ -489,10 +489,14 @@ const awards = [
      a blend would make the browser read the backdrop for a result that
      `normal` gets to anyway. Outside rather than inside deliberately — the
      picture is a bright stage under bright lights, and lifting the middle
-     blew the highlights before it read as a glow, while dropping the
-     surround leaves the pool looking lit without touching a pixel of it. */
+     blew the highlights before it read as a glow, while dropping the surround
+     leaves the pool looking lit without touching a pixel of it.
+
+     Kept low. The colour is doing the work here and this only has to agree
+     with it; at 0.3 the surround read as a deliberate vignette and started
+     competing with the desaturation for the eye. */
   .page-photo__shade {
-    background: rgb(0 0 0 / 0.3);
+    background: rgb(0 0 0 / 0.15);
   }
 
   .page-photo[data-halo-on] .page-photo__halo,
