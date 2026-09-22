@@ -32,6 +32,8 @@ interface Props {
   loading?: "lazy" | "eager";
   /** Printed hard right of the footer rule. The destination, usually. */
   meta?: string;
+  /** The image arrived dithered; don't dither it again. */
+  predithered?: boolean;
 }
 
 const {
@@ -45,6 +47,7 @@ const {
   sizes = "(max-width: 767px) calc(100vw - 32px), calc(33.3vw - 21px)",
   loading = "lazy",
   meta,
+  predithered = false,
 } = Astro.props;
 
 const external = href.startsWith("http");
@@ -86,7 +89,21 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
   }
   {
     image &&
-      (DITHERED ? (
+      (predithered ? (
+        /* Already dithered when it arrived, so it is emitted as it is:
+           no resize, no re-encode, no second grid over the first. It is
+           smaller than any width this would have asked for anyway, and
+           `is-dithered` has the browser scale it up without smoothing. */
+        <img
+          class="card__img duo is-dithered"
+          src={image.src}
+          width={image.width}
+          height={image.height}
+          alt={alt}
+          loading={loading}
+          decoding="async"
+        />
+      ) : DITHERED ? (
         <Image
           class="card__img duo is-dithered"
           src={image}

@@ -23,6 +23,8 @@ interface Props {
 }
 const { post, colour, open = false, loading = "lazy" } = Astro.props;
 const { title, date, excerpt, type, image, links } = post.data;
+// The cover arrived dithered — see content.config.ts.
+const predithered = post.data.dithered;
 
 // Slugged tags drive the CSS-only filter in PostGrid.
 const tagTokens = type.map(tagSlug).join(" ");
@@ -64,7 +66,21 @@ const proseInk = ink === "paper" ? "sun" : ink;
     {/* See Card.astro — a dithered image is a PNG and only a PNG. */}
     {
       image &&
-        (DITHERED ? (
+        (predithered ? (
+          /* Already dithered when it arrived, so it is emitted as it is:
+             no resize, no re-encode, no second grid over the first. It is
+             smaller than any width this would have asked for anyway, and
+             `is-dithered` has the browser scale it up without smoothing. */
+          <img
+            class="card__img duo is-dithered"
+            src={image.src}
+            width={image.width}
+            height={image.height}
+            alt=""
+            loading={loading}
+            decoding="async"
+          />
+        ) : DITHERED ? (
           <Image
             class="card__img duo is-dithered"
             src={image}

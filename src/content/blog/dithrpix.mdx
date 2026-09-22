@@ -5,6 +5,8 @@ excerpt: "A whimsical dithering camera built on a Pimoroni Badger 2350 — retro
 type:
   - "Project"
 image: "./_media/dithrpix/dith046.png"
+# Straight off the camera, dithered already. See content.config.ts.
+dithered: true
 links:
   - title: "GitHub"
     url: "https://github.com/jonothanhunt/dithrpix"
@@ -20,7 +22,7 @@ Do you have a [Pimoroni Badger 2350](https://shop.pimoroni.com/products/badger-2
 
 If you answered yes to any of the above, this project is for you!
 
-![DITHRPIX Hero](./_media/dithrpix/hero.jpeg)
+![A glass coffee jug on a windowsill beside the DITHRPIX camera, its e-ink screen showing the camera's own dithered photograph of that same jug](./_media/dithrpix/hero.jpeg)
 
 If you want to get straight to building or see the code, [here's the README guide](https://github.com/jonothanhunt/dithrpix#guide).
 
@@ -30,12 +32,12 @@ A sentiment I've been hearing recently is *"the best camera is the one you enjoy
 
 For a year or so, I've been collecting old film cameras at car boot sales, putting film in them, and testing them for the month. The limitations of the medium are what make it so fun; not seeing the captured photo immediately, dealing with dodgy controls, and wrestling with broken exposure meters all make for very exciting reveals at [Snappy Snaps](https://www.snappysnaps.co.uk/).
 
-![Film photo 1](./_media/dithrpix/film1.jpg)
-![Film photo 2](./_media/dithrpix/film2.jpg)
+![A film print in an album: the London skyline and a Thames bridge under heavy magenta and green light leaks](./_media/dithrpix/film1.jpg)
+![A film print in an album: weathered wooden groynes casting reflections across wet sand at low tide](./_media/dithrpix/film2.jpg)
 
 Old digital cameras are great fun to use too; the gimmicky features and effects, and huge stick-out lenses which wrap sensors we'd not even use as a webcam today, give them so much character.
 
-![A sample portrait](./_media/dithrpix/dith043.png)
+![A dithered photograph of a round glass bottle with a tall stopper, standing on a shelf](./_media/dithrpix/dith043.png)
 
 I like my Pixel and iPhone for taking photos and have tried both power-user apps for raw-level controls and oppositely-styled apps which apply significant post-processing to achieve simulated film grain or digital effects like dithering. They're great fun, but the phone form factor still feels too polished.
 
@@ -44,7 +46,7 @@ I like my Pixel and iPhone for taking photos and have tried both power-user apps
 This was my motivation. My first thought was my Badger 2350 from Pimoroni's Badgeware range, and I figured out it was possible to connect a specific type of camera module to it. Just think of all the fun limitations to build around! Bandwidth limitations, e-ink limitations, battery limitations, storage limitations!
 
 ![Soldering the camera module](./_media/dithrpix/soldering.jpeg)
-![DITHRPIX Assembly](./_media/dithrpix/assembly.jpeg)
+![A laptop running Blender with the camera's case modelled on screen, next to a Bambu Lab A1 mini printing its parts](./_media/dithrpix/assembly.jpeg)
 
 After the bits arrived, creating the app, soldering on the camera, and designing and 3D printing the case in [Blender](https://www.blender.org/) only took the weekend as I recovered from a cold. Most of the time is just the 3D printing and soldering, which is probably doable in a leisurely few hours. 
 
@@ -59,9 +61,9 @@ The Badgeware OS gives apps only 1MB to play with for permanent storage, so that
 
 I've been bumbling around taking photos of random stuff. The seconds of wait for the screen to refresh with the image, and needing to cycle the exposure window and dithering algorithm to get the best shot, make each one even more rewarding.
 
-![Dithered photo example 1](./_media/dithrpix/dith042.png)
-![Dithered photo example 2](./_media/dithrpix/dith041.png)
-![Dithered photo example 3](./_media/dithrpix/dith046.png)
+![A dithered photograph of treetops against a bank of cloud](./_media/dithrpix/dith042.png)
+![A dithered photograph of a bush in full flower](./_media/dithrpix/dith041.png)
+![A dithered photograph of the coffee jug and the camera on the windowsill](./_media/dithrpix/dith046.png)
 
 It's been so fun building this. I will make improvements to it as I use it. Given the camera is a fair bit higher res than the capture size, perhaps digital zoom will be a nice addition, but I'll need to figure out how to do this given the limited button selection—all of which are already in use!
 

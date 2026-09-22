@@ -45,12 +45,25 @@ export async function GET(context: APIContext) {
       // JPEG rather than the WebP used in the article body. This one is read
       // by the aggregator itself to build a card, and JPEG is the format every
       // reader can render without question.
+      /* Never wider than the picture itself, and PNG stays PNG.
+         ---
+         1200 flat upscaled a 234px dithered photograph to five times its size
+         and then put it through a lossy codec, which is the worst thing that
+         can happen to a field of hard two-tone pixels — the card a reader
+         built from it was a blurred mess of a picture that is nothing but
+         edges. Clamping to the source width leaves it alone, and keeping PNG
+         for a PNG source means no reader ever sees the dither smeared. */
+      const lossless = image?.format === "png";
       const card = image
-        ? await getImage({ src: image, width: 1200, format: "jpeg" })
+        ? await getImage({
+            src: image,
+            width: Math.min(1200, image.width),
+            format: lossless ? "png" : "jpeg",
+          })
         : null;
 
       const cardXml = card
-        ? `<media:content url="${esc(abs(card.src))}" medium="image" type="image/jpeg"${
+        ? `<media:content url="${esc(abs(card.src))}" medium="image" type="image/${lossless ? "png" : "jpeg"}"${
             card.attributes.width ? ` width="${card.attributes.width}"` : ""
           }${card.attributes.height ? ` height="${card.attributes.height}"` : ""} />` +
           `<media:thumbnail url="${esc(abs(card.src))}" />`

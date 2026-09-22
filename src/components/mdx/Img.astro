@@ -33,6 +33,20 @@ const WIDTHS = [328, 492, COLUMN, 784, 984, COLUMN * 2];
   typeof src === "string" ? (
     /* A remote or already-resolved URL: nothing to generate from. */
     <img src={src} alt={alt} loading="lazy" decoding="async" />
+  ) : src.width <= WIDTHS[0] ? (
+    /* Already smaller than the narrowest variant we would ask for, so there is
+       nothing to gain by re-encoding it and something to lose. The dithered
+       camera photographs in the DITHRPIX post are 234px of hard two-tone
+       pixels, and Astro's default WebP is lossy — it was spending bytes to
+       smear the one quality those pictures have. Emitted as it arrived. */
+    <img
+      src={src.src}
+      width={src.width}
+      height={src.height}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+    />
   ) : (
     <Image
       src={src}
