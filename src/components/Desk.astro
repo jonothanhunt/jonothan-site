@@ -12,12 +12,16 @@
 <script>
   const mount = document.querySelector<HTMLElement>("[data-desk]");
 
+  /* Width is the one condition that changes while the page is open, so it is
+     watched rather than read once — see the bottom of this script. Everything
+     else in `capable` is a property of the device, not of the window. */
+  const wide = window.matchMedia("(min-width: 900px)");
+
   const capable = () => {
     const nav = navigator as Navigator & {
       deviceMemory?: number;
       connection?: { saveData?: boolean };
     };
-    if (!window.matchMedia("(min-width: 900px)").matches) return false;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
       return false;
     if (nav.connection?.saveData) return false;
@@ -53,12 +57,13 @@
     (window as any).__vite_plugin_react_preamble_installed__ = true;
   }
 
-  if (mount && capable()) {
+  if (mount) {
     let started = false;
+    let io: IntersectionObserver | undefined;
     const start = () => {
       if (started) return;
       started = true;
-      io.disconnect();
+      io?.disconnect();
       reactRefreshPreamble()
         .then(() => import("../scenes/desk.jsx"))
         .then((m) => m.mount(mount))
@@ -75,19 +80,44 @@
     // when you got there, so the desk landed several seconds late. Nothing is
     // taken from the initial load — this begins after `load`, and the scene
     // keeps its render loop parked until it's actually on screen.
-    const idle =
-      window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 200));
-    const queue = () => idle(start, { timeout: 3000 });
-    if (document.readyState === "complete") queue();
-    else addEventListener("load", queue, { once: true });
+    const arm = () => {
+      const idle =
+        window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 200));
+      const queue = () => idle(start, { timeout: 3000 });
+      if (document.readyState === "complete") queue();
+      else addEventListener("load", queue, { once: true });
 
-    // And if you scroll straight there before the browser goes idle, don't
-    // wait for it.
-    const io = new IntersectionObserver(
-      (entries) => entries.some((e) => e.isIntersecting) && start(),
-      { rootMargin: "300px" },
-    );
-    io.observe(mount);
+      // And if you scroll straight there before the browser goes idle, don't
+      // wait for it.
+      io = new IntersectionObserver(
+        (entries) => entries.some((e) => e.isIntersecting) && start(),
+        { rootMargin: "300px" },
+      );
+      io.observe(mount);
+    };
+
+    /* Armed when the window is wide enough, which may not be at load.
+       ---
+       The gate used to run once, with the width test inside it, so a page
+       opened narrow and then widened never loaded the scene at all — the
+       desk's own CSS revealed an empty box. Listening for the query means the
+       decision is made whenever the answer changes, not only on the first
+       pass.
+       ---
+       `capable()` is called from here rather than at the top so a phone never
+       runs the WebGL probe: it creates a context and throws it away, which is
+       cheap but not free, and on a screen that will never show the desk it
+       buys nothing. */
+    let armed = false;
+    const consider = () => {
+      if (armed || !wide.matches || !capable()) return;
+      armed = true;
+      wide.removeEventListener("change", consider);
+      arm();
+    };
+
+    consider();
+    if (!armed) wide.addEventListener("change", consider);
   }
 </script>
 
