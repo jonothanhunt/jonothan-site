@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dither": "node scripts/dither.mjs",
-    "dev": "npm run dither && astro dev",
-    "build": "npm run dither && astro build",
+    "model": "node scripts/model.mjs",
+    "dev": "npm run dither && npm run model && astro dev",
+    "build": "npm run dither && npm run model && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

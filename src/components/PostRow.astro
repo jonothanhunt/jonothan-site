@@ -295,6 +295,16 @@ const proseInk = ink === "paper" ? "sun" : ink;
     }
   }
 
+  /* And the open row holds that state for as long as it is open. Only one row
+     is ever open, so its card being the one in colour says which one without
+     adding anything to the page — and unlike the hover it survives the pointer
+     moving away, and exists at all on a touch screen. */
+  .row[open] .card__img {
+    mix-blend-mode: normal;
+    filter: none;
+    opacity: 1;
+  }
+
   /* --- Body (revealed, sitting on the page background) --- */
   .body {
     padding-block: var(--post-pad);

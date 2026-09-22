@@ -5,6 +5,8 @@ dist/
 # baked from src/assets by scripts/dither.mjs on every build
 public/dither/
 src/assets/generated/
+# slimmed from src/models by scripts/model.mjs on every build
+public/models/
 
 # dependencies
 node_modules/
