@@ -6,7 +6,9 @@ import LogoStrip from "../components/LogoStrip.astro";
 import CopyEmail from "../components/CopyEmail.astro";
 import Desk from "../components/Desk.astro";
 import Sticker from "../components/Sticker.astro";
+import { Picture } from "astro:assets";
 import { paletteRun } from "../lib/palette";
+import heroSource from "../assets/site/header.jpg";
 
 import effects from "../assets/home/effects.jpeg";
 import kitkat from "../assets/home/kitkat-heist.webp";
@@ -65,6 +67,18 @@ const heroSrcset = HERO_WIDTHS.map(
   (w) => `/dither/hero-${HERO_VARIANT}${w}.png ${w}w`,
 ).join(", ");
 
+/* Treated or not — the whole switch for the hero photograph.
+   ---
+   `false` gives the photograph as shot, through astro:assets like every other
+   image on the site: it sizes and re-encodes it, picks avif or webp, and hands
+   back the dimensions. The baked path can't use that, because a file in
+   public/ has no metadata for Astro to read, which is why its widths are
+   written out by hand above.
+   ---
+   The fade and the crop are not effects and stay either way. They are how the
+   photograph joins the page rather than anything done to the picture. */
+const HERO_TREATED = false;
+
 // The awards: three marks in a row and nothing else, as the site has always
 // had them. The citation text and the hairline box around each one are gone —
 // an award mark is recognised, not read, and three boxed spec pairs turned the
@@ -115,18 +129,36 @@ const awards = [
        below it rather than over it. The dither ramp does the bottom edge in
        both cases — that is the one thing that doesn't change. -->
   <div class="page-photo" aria-hidden="true">
-    <img
-      class="page-photo__img dither"
-      src={`/dither/hero-${HERO_VARIANT}${HERO_WIDTHS.at(-1)}.png`}
-      srcset={heroSrcset}
-      sizes="100vw"
-      width="1632"
-      height="816"
-      alt=""
-      loading="eager"
-      fetchpriority="high"
-      decoding="async"
-    />
+    {
+      HERO_TREATED ? (
+        <img
+          class="page-photo__img dither"
+          src={`/dither/hero-${HERO_VARIANT}${HERO_WIDTHS.at(-1)}.png`}
+          srcset={heroSrcset}
+          sizes="100vw"
+          width="1632"
+          height="816"
+          alt=""
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      ) : (
+        <Picture
+          class="page-photo__img"
+          pictureAttributes={{ class: "page-photo__pic" }}
+          src={heroSource}
+          alt=""
+          formats={["avif", "webp"]}
+          fallbackFormat="webp"
+          widths={[860, 1200, 1632]}
+          sizes="100vw"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      )
+    }
   </div>
 
   <div class="shell stack">
@@ -382,6 +414,13 @@ const awards = [
   .shell.stack {
     position: relative;
     z-index: 1;
+  }
+
+  /* See Card.astro — <picture> is only a wrapper for the format sources and
+     must not become a box of its own, or the img inside it has nothing
+     full-height to fill. */
+  .page-photo__pic {
+    display: contents;
   }
 
   .page-photo__img {
