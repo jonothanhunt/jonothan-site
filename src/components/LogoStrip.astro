@@ -121,20 +121,38 @@ const track = [...half, ...half];
   .strip {
     overflow: hidden;
     padding: 26px 0;
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 8%,
-      #000 92%,
-      transparent
-    );
-    mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 8%,
-      #000 92%,
-      transparent
-    );
+    /* Pulled back out through the shell's gutter, so the run spans the whole
+       viewport and the marks leave by the edge of the screen. Below the shell's
+       cap there is no margin for a fade to happen in — only 16px of gutter — so
+       fading there dims the logos against the screen edge for no visible
+       reason. Letting them simply go is the honest version of the same idea. */
+    margin-inline: calc(var(--gap) * -1);
+  }
+
+  /* One pixel past --shell (1152px), which is where the strip stops touching
+     the screen. box-sizing is border-box, so .shell's gutter sits inside its
+     max-width rather than outside it — the shell's border box caps at --shell
+     exactly, and every pixel of viewport beyond that becomes margin. At --shell
+     itself the margin is still zero, hence the one past. Written out because a
+     media query can't read a custom property. */
+  @media (min-width: 1153px) {
+    .strip {
+      margin-inline: 0;
+      -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+      );
+      mask-image: linear-gradient(
+        90deg,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+      );
+    }
   }
 
   ul {
