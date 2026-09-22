@@ -76,15 +76,13 @@ export default defineConfig({
       include: [
         "react",
         "react-dom/client",
-        // The JSX runtimes for the same reason: unprebundled they resolve to
-        // raw CJS and the compiled scene throws "_jsxDEV is not a function".
+        // The JSX runtimes for the same reason — still needed by the Sandpack
+        // island, which is now the only React on the site.
         "react/jsx-runtime",
         "react/jsx-dev-runtime",
         // The 3D scene is only reachable through a dynamic import inside a
-        // script tag, so the scanner never sees these at all.
+        // script tag, so the scanner never sees this at all.
         "three",
-        "@react-three/fiber",
-        "@react-three/drei",
         // Sandpack is reached through an Astro island (`client:visible` in
         // CodeDemo.astro), so it isn't requested until a code demo scrolls
         // into view — which is the worst possible moment to re-optimise, and

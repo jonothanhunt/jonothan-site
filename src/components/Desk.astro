@@ -39,24 +39,6 @@
     return true;
   };
 
-  // Dev only. Vite's React plugin needs a Fast Refresh preamble on the page
-  // before any JSX module loads, and Astro only injects it for pages that
-  // render a React island. The desk isn't one — it's imported by hand from
-  // this script — so in dev the import throws "can't detect preamble" and the
-  // scene silently never appears. Installing the same hooks ourselves is
-  // enough. The production build has no Fast Refresh and skips all of this.
-  async function reactRefreshPreamble() {
-    if (!import.meta.env.DEV) return;
-    // Through a variable so TypeScript doesn't try to resolve it — this is a
-    // Vite virtual module that only exists while the dev server is running.
-    const virtual = "/@react-refresh";
-    const refresh = await import(/* @vite-ignore */ virtual);
-    refresh.injectIntoGlobalHook(window);
-    (window as any).$RefreshReg$ = () => {};
-    (window as any).$RefreshSig$ = () => (type: unknown) => type;
-    (window as any).__vite_plugin_react_preamble_installed__ = true;
-  }
-
   if (mount) {
     let started = false;
     let io: IntersectionObserver | undefined;
@@ -64,11 +46,13 @@
       if (started) return;
       started = true;
       io?.disconnect();
-      reactRefreshPreamble()
-        .then(() => import("../scenes/desk.jsx"))
+      /* Plain three, so there is no JSX here and no Fast Refresh preamble to
+         install before it loads — which used to live in this file, and was
+         the thing that broke whenever a build re-optimised the dev server's
+         dependencies underneath it. */
+      import("../scenes/desk.js")
         .then((m) => m.mount(mount))
-        // Surfaced rather than swallowed: a silent catch here is what hid
-        // the preamble failure in the first place.
+        // Surfaced rather than swallowed.
         .catch((err) => console.error("[desk] scene failed to load", err));
     };
 
