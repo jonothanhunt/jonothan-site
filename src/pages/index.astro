@@ -431,11 +431,15 @@ const awards = [
      for its bottom fade, and a mask makes a stacking context. The heading is
      a sibling of that, not a child, so it never enters the blend.
 
-     `max(100vw, 100vh)` is the *radius*, so the pool reaches right across the
-     window from wherever the pointer is: standing at one edge puts roughly the
-     near half of the picture in colour, which is the size this wants to be. It
-     is measured off the longer edge so it stays a round pool on any shape of
-     screen rather than an ellipse tracking the aspect ratio.
+     The radius is 70% of the window's longer edge — measured off the longer
+     edge so it stays a round pool on any shape of screen rather than an
+     ellipse tracking the aspect ratio.
+
+     That number is the whole effect. At 50% the pool is smaller than the part
+     of the picture worth looking at and reads as a vignette; at 100% it
+     reaches so far past the pointer that most of the hero is coloured at once
+     and there is nothing to notice. 70% keeps the far side of the picture
+     properly grey, which is what makes the near side look lit.
 
      The stops run the whole radius rather than crowding the middle. An earlier
      set was clear only to 14% and fully grey by 78%, which made even a wide
@@ -454,7 +458,7 @@ const awards = [
     transition: opacity 0.7s var(--ease-settle);
     background: #808080;
     mix-blend-mode: saturation;
-    --halo-r: max(100vw, 100vh);
+    --halo-r: max(70vw, 70vh);
     --hx: 50%;
     --hy: 38%;
     --halo: radial-gradient(
