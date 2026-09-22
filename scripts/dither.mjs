@@ -14,11 +14,12 @@
  *            the hero. Written as a 2-colour palette PNG, which is where the
  *            format is at its best: no smooth gradients left to encode.
  *
- *   ramps  — a 4px-wide strip whose alpha dithers from opaque to clear. Tiled
- *            with `mask-repeat: repeat-x` at its native size it reproduces the
- *            full ordered-dither ramp, because a Bayer tile repeated along x is
- *            exactly the pattern it would have had anyway. ~1kB, and crisp at
- *            any element width, which a stretched gradient never is.
+ *   cutouts — a silhouette cut from a logo's own luminance, for marks that
+ *            carry their shape as a hole in a filled field.
+ *
+ *   pixels — the client logos sampled onto a coarse grid with a hard alpha, so
+ *            they can be drawn back at twice the size and look drawn before
+ *            anyone had antialiasing.
  *
  * Idempotent: an output newer than both its source and this script is left
  * alone, so a rebuild costs nothing.
@@ -28,6 +29,7 @@ import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as hero from "../src/lib/hero.mjs";
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../..");
 const SELF = fileURLToPath(import.meta.url);
@@ -67,25 +69,22 @@ const threshold = (x, y) => ((BAYER[y % N][x % N] + 0.5) / (N * N)) * 255;
 
 /* ------------------------------------------------------------------ photos */
 
-/** Sources to dither, and the widths each is needed at. */
-const PHOTOS = [
-  // The source is 1223px wide, so there's no point asking for more than that —
-  // `withoutEnlargement` would only hand back a second copy of the same image.
-  // Deliberately smaller than the box they fill: the hero is drawn at half
-  // the layout's width and scaled back up through `image-rendering: pixelated`,
-  // so the dither pattern comes out as squares you can count rather than as a
-  // fine grain that disappears at a glance.
-  {
-    name: "hero",
-    from: "src/assets/site/header.jpg",
-    widths: [860, 1200, 1632],
-    // Grape, rose, sun — three of the seven inks the page already prints, dark
-    // to light. The darkest is grape taken well down: `--grape` at #a08cff is
-    // a mid tone and can't be the bottom of a ramp.
-    tones: ["#2a1b6b", "#ff8fb8", "#ffc400"],
-    period: 3,
-  },
-];
+/* The hero, and only when it is actually being used — see src/lib/hero.mjs.
+   Untreated, nothing here runs and nothing lands in public/dither, which is
+   the point: three treatments times three widths is most of half a megabyte
+   of PNG that ships on every deploy whether or not a page links to it. */
+const PHOTOS = hero.TREATED
+  ? [
+      {
+        name: "hero",
+        from: "src/assets/site/header.jpg",
+        widths: hero.WIDTHS,
+        variant: hero.VARIANT,
+        tones: hero.TONES,
+        period: hero.PERIOD,
+      },
+    ]
+  : [];
 
 /**
  * One channel of grey in, one bit out.
@@ -188,12 +187,13 @@ async function buildPhotoTone({
   widths,
   tones,
   period,
-  screen = true,
-  suffix = "tone",
+  variant = "tone",
 }) {
+  // "flat" is the same three tones with the screen switched off.
+  const screen = variant !== "flat";
   const src = path.join(ROOT, from);
   for (const width of widths) {
-    const dest = path.join(OUT, `${name}-${suffix}-${width}.png`);
+    const dest = path.join(OUT, `${name}-${variant}-${width}.png`);
     if (await isFresh(dest, src)) continue;
 
     // Enlargement allowed, unlike the 1-bit pass. The source is 1223px and the
@@ -224,10 +224,10 @@ async function buildPhotoTone({
   }
 }
 
-async function buildPhoto({ name, from, widths }) {
+async function buildPhoto({ name, from, widths, variant = "mono" }) {
   const src = path.join(ROOT, from);
   for (const width of widths) {
-    const dest = path.join(OUT, `${name}-${width}.png`);
+    const dest = path.join(OUT, `${name}-${variant}-${width}.png`);
     if (await isFresh(dest, src)) continue;
 
     // Greyscale and resize in one pass, then read the raw single channel.
@@ -275,10 +275,11 @@ async function buildPhoto({ name, from, widths }) {
  * but a sticker's outline is a `drop-shadow` ring off this alpha, and a
  * hard-edged mask makes that ring jagged.
  */
-const CUTOUTS = [
-  // White drum knocked out of a red square.
-  { name: "drum", from: "src/assets/logos/the_drum_logo.jpeg", pick: "dark", lo: 0.2, hi: 0.5 },
-];
+/* Nothing needs a cutout any more. The awards print their artwork rather than
+   a silhouette of it, and the client strip's three counter-change marks get
+   their silhouette from the pixel pass below instead. Kept because the next
+   logo that arrives as a flat JPEG will want it. */
+const CUTOUTS = [];
 
 async function buildCutout({ name, from, pick = "dark", lo = 0.4, hi = 0.6, size = 320 }) {
   const src = path.join(ROOT, from);
@@ -462,40 +463,6 @@ async function buildPixel({ name, cut = false, lo = 0.2, hi = 0.5 }) {
   report(dest);
 }
 
-/* ------------------------------------------------------------------- ramps */
-
-/**
- * A 4px × `steps` strip of black whose alpha dithers from opaque to clear.
- *
- * Only 4 columns wide: the Bayer pattern repeats every 8, but at 4 the tile
- * still carries a full set of thresholds per row pair and the seam is
- * invisible, and a narrower tile means the browser repeats a smaller image.
- */
-async function buildRamp(name, { steps = 192, reverse = false } = {}) {
-  const dest = path.join(OUT, `${name}.png`);
-  if (await isFresh(dest, SELF)) return;
-
-  const width = 4;
-  const rgba = Buffer.alloc(width * steps * 4);
-  for (let y = 0; y < steps; y++) {
-    // Coverage runs 1 → 0 down the strip (or the other way, reversed).
-    const p = y / (steps - 1);
-    const coverage = (reverse ? p : 1 - p) * 255;
-    for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4;
-      // RGB stays black; only alpha is dithered, so the strip works as a mask
-      // on any colour without tinting it.
-      rgba[i + 3] = coverage > threshold(x, y) ? 255 : 0;
-    }
-  }
-
-  await sharp(rgba, { raw: { width, height: steps, channels: 4 } })
-    .png({ compressionLevel: 9, effort: 10 })
-    .toFile(dest);
-
-  report(dest);
-}
-
 /* ------------------------------------------------------------------- plumbing */
 
 /** True when `dest` is newer than both `src` and this script. */
@@ -522,15 +489,10 @@ await Promise.all([
   fs.mkdir(OUT_ASSETS, { recursive: true }),
 ]);
 await Promise.all([
-  ...PHOTOS.map(buildPhoto),
-  ...PHOTOS.map(buildPhotoTone),
-  // The same three tones with the screen switched off, as a comparison.
+  // One treatment, the one the page asks for.
   ...PHOTOS.map((photo) =>
-    buildPhotoTone({ ...photo, screen: false, suffix: "flat" }),
+    photo.variant === "mono" ? buildPhoto(photo) : buildPhotoTone(photo),
   ),
   ...CUTOUTS.map(buildCutout),
   ...PIXELS.map(buildPixel),
-  // Fade down into the page, and back up out of it.
-  buildRamp("ramp-down"),
-  buildRamp("ramp-up", { reverse: true }),
 ]);

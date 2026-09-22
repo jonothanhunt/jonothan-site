@@ -375,9 +375,19 @@ const isHome = Astro.url.pathname === "/";
      visible ledge. */
   .contact__panel {
     position: absolute;
-    top: 100%;
+    /* One pixel clear of the bar, which is the gap the bar keeps between its
+       own items. The panel is what the bar drops, so it should be spaced from
+       it the way the pills are spaced from each other. */
+    top: calc(100% + 1px);
     right: 0;
-    background: var(--panel);
+    /* And no ground of its own.
+       ---
+       It was --panel, the same colour the two halves of the copy control paint
+       themselves — so the 1px gap between the address and the button was
+       there, correctly, and completely invisible: panel on panel. Dropping the
+       background lets the page show through both that seam and the one above,
+       which is exactly what happens between the items in the bar and between
+       the two halves on the teal block. One construction, three places. */
     /* No entrance. It faded up over four pixels, which is the sort of thing
        that reads as polish in isolation and as lag in use: the panel is the
        answer to a click, and two tenths of a second is long enough to see it

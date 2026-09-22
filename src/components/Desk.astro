@@ -164,22 +164,6 @@
       display: block;
     }
 
-    /* AsciiEffect writes the grid into a <table> and sets the font on it
-       inline — Courier at a size derived from the resolution. Overriding needs
-       !important because of that, and both values matter:
-
-       the family, so the desk is drawn in the same face as the rest of the
-       page rather than in the browser's Courier; and the tracking, because the
-       effect computes one cell as 1/resolution px wide but sizes the text at
-       2/resolution px, which lands correctly only for a face whose advance is
-       exactly half its em. JetBrains Mono's is 0.6em, so each cell runs 0.1em
-       wide and the grid overflows to the right by a tenth. Pulling the
-       tracking back by that 0.1em lands the grid on the element exactly. */
-    .desk :global(table) {
-      font-family: var(--mono) !important;
-      letter-spacing: -0.1em !important;
-      font-weight: 500;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {

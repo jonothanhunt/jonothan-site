@@ -12,10 +12,21 @@ const poster = Astro.props.poster ?? src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
 <figure>
   <!--
     These were animated GIFs (15MB and 3.7MB). As muted looping video they are
-    413KB and 220KB, decode on the GPU, and stay paused until scrolled to.
+    413KB and 220KB and decode on the GPU.
+
+    The source is held in `data-src` and promoted to `src` when the figure
+    comes near, which is the only way to stop it downloading. `preload="none"`
+    is already here and does nothing: `autoplay` overrides it, so both videos
+    were being fetched in full on /blog — a page where every post is closed and
+    neither of them can be seen. A megabyte for two things nobody had asked
+    for.
+
+    The poster stays a real attribute rather than going lazy with it, so
+    something is always drawn — including with no JS, where the figure stops
+    being a video and is simply a still.
   -->
   <video
-    src={src}
+    data-src={src}
     poster={poster}
     autoplay
     muted
@@ -26,11 +37,38 @@ const poster = Astro.props.poster ?? src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
   {caption && <figcaption>{caption}</figcaption>}
 </figure>
 
+<script>
+  /* One observer for every video on the page. `rootMargin` gives it a screen
+     of warning, so the first frame is usually decoded by the time the figure
+     arrives; `once` per element, because a src only needs setting once. */
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const video = entry.target as HTMLVideoElement;
+        io.unobserve(video);
+        const src = video.dataset.src;
+        if (!src) continue;
+        video.src = src;
+        // autoplay only acts on load, and the element loaded long ago.
+        video.play().catch(() => {
+          /* a browser that blocks autoplay leaves the poster up, which is the
+             same thing it would have done with a plain `autoplay` attribute */
+        });
+      }
+    },
+    { rootMargin: "600px" },
+  );
+
+  document
+    .querySelectorAll<HTMLVideoElement>("video[data-src]")
+    .forEach((v) => io.observe(v));
+</script>
+
 <style>
   video {
     width: 100%;
     height: auto;
-    border-radius: var(--r-md);
     background: #ddd;
   }
 </style>
