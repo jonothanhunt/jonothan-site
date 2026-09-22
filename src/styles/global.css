@@ -187,6 +187,10 @@
   /* The registration crosshair in each block's corners, and the dot-grid
      motif. Drawn rather than set, so they don't depend on a glyph existing. */
   --mark-reg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M4.5 0v9M0 4.5h9'/%3E%3Ccircle cx='4.5' cy='4.5' r='2.5'/%3E%3C/svg%3E");
+  /* The contact block's corners are envelopes instead — the same drawing as
+     the icon on the address inside it, at the same 1px weight, so the block is
+     marked with what it is for. Wider than tall, hence its own size. */
+  --mark-mail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8' fill='none' stroke='%23000' stroke-width='1'%3E%3Cpath d='M0.5 0.5h10v7h-10zM0.5 1 5.5 4.4 10.5 1'/%3E%3C/svg%3E");
 }
 
 /* ============================================================
@@ -523,7 +527,8 @@ p {
    the contact block and the 404 without any crosshairs at all.
    ============================================================ */
 .marks::before,
-.marks--all::before {
+.marks--all::before,
+.marks--mail::before {
   content: "";
   position: absolute;
   inset: 8px;
@@ -536,10 +541,17 @@ p {
   z-index: 2;
 }
 
-.marks--all::before {
+.marks--all::before,
+.marks--mail::before {
   background-image: var(--mark-reg), var(--mark-reg), var(--mark-reg),
     var(--mark-reg);
   background-position: left top, right top, left bottom, right bottom;
+}
+
+.marks--mail::before {
+  background-image: var(--mark-mail), var(--mark-mail), var(--mark-mail),
+    var(--mark-mail);
+  background-size: 11px 8px;
 }
 
 /* ============================================================

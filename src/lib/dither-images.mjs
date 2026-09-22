@@ -33,9 +33,30 @@ export const LEVELS = 2;
  */
 export const SCALE = 0.4;
 
+/**
+ * The hero's own scale, because it is the one image whose slot is the whole
+ * viewport.
+ *
+ * Dot size is display width over file width, so a shared scale only gives a
+ * shared dot size where the slots are the same — and the hero's isn't. At a
+ * 1440px viewport the feature card is shown 741px wide from a 640px file: a
+ * dot of 1.16css. The hero is shown at the full 1440 and at 0.4 came from a
+ * 653px file — a dot of 2.20css, twice as coarse as everything beside it,
+ * which is exactly what it looked like.
+ *
+ * Matching 1.16css across a 1440px slot wants a 1241px bake and the source
+ * photograph is 1223px, so the hero gets very nearly all of it: 0.74 of the
+ * widest requested width, landing at 1208px and a dot of 1.19css — within
+ * three percent of the cards. Not 0.75, which asks for 1224px: a width above
+ * the source clamps back down to it, and a clamped width collides with the
+ * plain full-size file Astro emits for the `src` attribute, which never went
+ * through the dither. The hero silently came back a smooth photograph.
+ */
+export const HERO_SCALE = 0.74;
+
 /** Applied to a component's width list when the experiment is on. */
-export const widths = (list) =>
-  ENABLED ? list.map((w) => Math.round(w * SCALE)) : list;
+export const widths = (list, scale = SCALE) =>
+  ENABLED ? list.map((w) => Math.round(w * scale)) : list;
 
 /**
  * Lossless WebP, not the palette PNG this started with.
