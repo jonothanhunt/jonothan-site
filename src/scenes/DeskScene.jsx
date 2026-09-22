@@ -78,6 +78,19 @@ function Desk({ atRest }) {
   const pointer = useRef({ x: 0, y: 0 });
   const scroll = useRef({ current: 0, target: 0 });
 
+  /* Whether state.pointer still describes where the cursor is.
+
+     Going to rest zeroes `pointer` — the smoothed value — but it cannot zero
+     R3F's state.pointer, which is the target it eases towards and is only
+     ever written by a pointer event over the canvas. So a desk that had been
+     hovered, scrolled away from and scrolled back to reset to centre on the
+     way out and then eased straight back into the pose the cursor left it in,
+     with no cursor anywhere near it. This is cleared on the way out and set
+     again by a real move over the canvas, so a stale reading is never
+     restored. Hovering is unaffected: while the cursor is on the canvas the
+     reading is live, and the desk still holds wherever it is put. */
+  const pointerLive = useRef(false);
+
   // Orthographic zoom tracks element width. 0.22 is the original site's factor.
   useEffect(() => {
     camera.zoom = size.width * 0.22;
@@ -130,6 +143,13 @@ function Desk({ atRest }) {
     // itself changes shape, which is the other way the desk can move.
   }, [gl, size.width, size.height]);
 
+  useEffect(() => {
+    const el = gl.domElement;
+    const live = () => (pointerLive.current = true);
+    el.addEventListener("pointermove", live, { passive: true });
+    return () => el.removeEventListener("pointermove", live);
+  }, [gl]);
+
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
     const k = 1 - Math.pow(0.001, delta); // frame-rate independent damping
@@ -147,17 +167,19 @@ function Desk({ atRest }) {
       if (atRest.current) {
         pointer.current.x = 0;
         pointer.current.y = 0;
+        pointerLive.current = false;
         scroll.current.current = 0;
         root.current.rotation.set(0, 0, 0);
       } else {
+        const live = pointerLive.current;
         pointer.current.x = THREE.MathUtils.lerp(
           pointer.current.x,
-          state.pointer.x * 0.1,
+          live ? state.pointer.x * 0.1 : 0,
           k,
         );
         pointer.current.y = THREE.MathUtils.lerp(
           pointer.current.y,
-          -state.pointer.y * 0.05,
+          live ? -state.pointer.y * 0.05 : 0,
           k,
         );
         scroll.current.current = THREE.MathUtils.lerp(
