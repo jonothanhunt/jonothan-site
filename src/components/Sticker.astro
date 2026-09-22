@@ -339,5 +339,29 @@ function ring(radius: number, steps = 12) {
     .sticker:hover .sticker__bleed::before {
       rotate: 60deg;
     }
+
+    /* And the sticker tips, so the sweep moving has a cause: a piece of foil
+       catching the light as it turns, rather than a gradient sliding about
+       underneath a mark that is standing still. Same duration and easing as
+       the sweep, so the two are one gesture.
+       ---
+       The perspective is derived from the sticker's own width rather than set
+       in fixed pixels. These range from a 19px badge to a 46px mark, and one
+       pixel value would foreshorten the small one several times harder than
+       the large ones — the badge would swing while the awards leaned. Four
+       widths is shallow enough to read as a tip rather than a swivel.
+       ---
+       `transform` composes after the `rotate` that gives each sticker its
+       resting tilt, so this turns the mark in its own plane and the tilt is
+       left alone. */
+    .sticker {
+      transform: perspective(calc(var(--sticker-w) * 4));
+      transition: transform 0.5s var(--ease-settle);
+    }
+
+    .sticker:hover {
+      transform: perspective(calc(var(--sticker-w) * 4)) rotateX(15deg)
+        rotateY(-15deg);
+    }
   }
 </style>
