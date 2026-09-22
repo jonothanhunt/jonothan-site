@@ -14,6 +14,12 @@
 /images/*
   Cache-Control: public, max-age=2592000
 
+# The desk. Note that Cloudflare serves this one uncompressed: model/gltf-binary
+# is not in its default compressible list, so the .glb goes over the wire raw
+# while the CSS and JS beside it arrive brotli'd. It compresses about 4.5:1, so
+# that is the single largest saving left on the home page — and it can't be
+# fixed from here, because Content-Encoding has to describe bytes we don't get
+# to re-encode. It needs a Compression Rule in the Cloudflare dashboard.
 /models/*
   Cache-Control: public, max-age=2592000
 
