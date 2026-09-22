@@ -127,7 +127,18 @@ function ring(radius: number, steps = 12) {
   ></span>
 
   <span class="sticker__body">
-    <img class="sticker__art" src={url} {alt} loading="eager" decoding="async" />
+    {/* A background rather than an <img>, so the artwork is fetched once.
+        The foil rings mask themselves with this same file through
+        --sticker-src, and an <img src> and a CSS mask of the same URL are
+        separate fetch paths that the browser does not coalesce — every
+        sticker was downloading its art twice on a cold, cache-enabled visit.
+        As CSS both references resolve to one resource. `background-size:
+        contain` is what `object-fit: contain` was doing. */}
+    <span
+      class="sticker__art"
+      role={alt ? "img" : undefined}
+      aria-label={alt || undefined}
+      aria-hidden={alt ? undefined : "true"}></span>
     <span class="sticker__foil" aria-hidden="true"></span>
     <span class="sticker__sheen" aria-hidden="true"></span>
   </span>
@@ -215,7 +226,10 @@ function ring(radius: number, steps = 12) {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    background-image: var(--sticker-src);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     filter: contrast(0.68) brightness(1.24) saturate(0.78);
   }
 
