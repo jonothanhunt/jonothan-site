@@ -731,6 +731,15 @@ p {
   image-rendering: pixelated;
 }
 
+/* A dithered photograph is baked at a fraction of the space it fills — see
+   SCALE in src/lib/dither-images.mjs — so it is always being scaled up, and
+   the browser must not smooth it on the way. Smoothing a dither is the one
+   thing that undoes it: the dots average back into the greys they were drawn
+   to avoid. */
+.is-dithered {
+  image-rendering: pixelated;
+}
+
 /* Switching between posts closes one row and opens another, and the close has
    to land in a single step so the scroll can be corrected against it exactly —
    see `openRow` in PostGrid.astro. This is the escape hatch it uses. It has to

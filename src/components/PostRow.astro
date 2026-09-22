@@ -1,6 +1,10 @@
 ---
 import { Image, Picture } from "astro:assets";
-import { ENABLED as DITHERED } from "../lib/dither-images.mjs";
+import {
+  ENABLED as DITHERED,
+  FORMAT as DITHER_FORMAT,
+  widths as ditherWidths,
+} from "../lib/dither-images.mjs";
 import { render } from "astro:content";
 import Prose from "./Prose.astro";
 import YouTube from "./mdx/YouTube.astro";
@@ -61,12 +65,12 @@ const proseInk = ink === "paper" ? "sun" : ink;
       image &&
         (DITHERED ? (
           <Image
-            class="card__img duo"
+            class="card__img duo is-dithered"
             src={image}
             alt=""
-            format="png"
+            format={DITHER_FORMAT}
             dither
-            widths={[560, 900, 1200, 1800]}
+            widths={ditherWidths([560, 900, 1200, 1800])}
             sizes="(max-width: 940px) calc(100vw - 32px), 888px"
             loading={loading}
             decoding="async"
