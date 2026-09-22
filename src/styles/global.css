@@ -731,6 +731,16 @@ p {
   image-rendering: pixelated;
 }
 
+/* Switching between posts closes one row and opens another, and the close has
+   to land in a single step so the scroll can be corrected against it exactly —
+   see `openRow` in PostGrid.astro. This is the escape hatch it uses. It has to
+   out-specify a scoped rule in PostRow.astro, hence the `!important`, which is
+   the one place on the site that earns one.
+   ============================================================ */
+:root[data-details-motion="off"] details.row::details-content {
+  transition: none !important;
+}
+
 /* ============================================================
    Footer / skip
    ============================================================ */

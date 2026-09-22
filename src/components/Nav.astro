@@ -5,7 +5,7 @@ const isBlog = Astro.url.pathname.startsWith("/blog");
 const isHome = Astro.url.pathname === "/";
 ---
 
-<header class="site-head">
+<header class="site-head" data-head data-slide={isBlog ? "" : undefined}>
   <nav
     class:list={{ "at-top": isHome }}
     aria-label="Main"
@@ -78,6 +78,49 @@ const isHome = Astro.url.pathname === "/";
 
 <script>
   const nav = document.querySelector<HTMLElement>("[data-nav]");
+
+  /* --- The bar scrolls with the page, on the blog ------------------------
+     Not a reveal animation. The offset is driven straight off the scroll
+     delta and clamped to the bar's own height, so going down the page pushes
+     the bar out at exactly the rate the page moves and coming back up pulls it
+     in at the same rate — it reads as a thing attached to the document rather
+     than a thing that hides and shows itself. There is no transition on
+     purpose: a transition would put the bar on its own clock and it would
+     arrive after your finger had stopped.
+
+     Blog only. The home page's bar floats over a hero it is meant to sit on,
+     and there is nothing above the fold for it to get out of the way of.
+
+     `transform` and nothing else, on an element that is already its own layer,
+     so a scroll frame costs a composite and never a layout. */
+  const head = document.querySelector<HTMLElement>("[data-head][data-slide]");
+
+  if (head) {
+    let last = Math.max(0, window.scrollY);
+    let offset = 0;
+    let queued = false;
+
+    const apply = () => {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      const delta = y - last;
+      last = y;
+      // Clamped between fully out and fully in. At the very top it is always
+      // in, so overscroll can't leave it parked half way.
+      offset = y <= 0 ? 0 : Math.min(0, Math.max(-head.offsetHeight, offset - delta));
+      head.style.transform = `translate3d(0, ${offset}px, 0)`;
+    };
+
+    addEventListener(
+      "scroll",
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(apply);
+      },
+      { passive: true },
+    );
+  }
 
   /* --- Theme -------------------------------------------------------------
      The blog can be read dark. The choice is the reader's and it is
@@ -278,17 +321,20 @@ const isHome = Astro.url.pathname === "/";
      Taking it back off the right padding evens the two up. */
   .site-head {
     --nav-pad-x: 17px;
+    /* Named, because the right-hand padding has to subtract exactly this much
+       — see the note above — and the narrow layout changes it. */
+    --nav-track: 0.1em;
   }
 
   .nav-pill {
     display: flex;
     align-items: center;
     height: var(--ui-h);
-    padding-inline: var(--nav-pad-x) calc(var(--nav-pad-x) - 0.1em);
+    padding-inline: var(--nav-pad-x) calc(var(--nav-pad-x) - var(--nav-track));
     font-family: var(--mono);
     font-weight: 700;
     font-size: var(--t-nav);
-    letter-spacing: 0.1em;
+    letter-spacing: var(--nav-track);
     text-transform: uppercase;
     text-decoration: none;
     white-space: nowrap;
@@ -406,10 +452,16 @@ const isHome = Astro.url.pathname === "/";
     .brand {
       display: none;
     }
-    .nav-pill {
-      padding-inline: 9px;
-      letter-spacing: 0.06em;
+
+    /* Only the tracking closes up here. The padding used to drop to 9px as
+       well, which was an override from before the padding was measured off the
+       ink — it survived the change and quietly undid it on every phone, so the
+       bar looked squeezed where the desktop one looks even. Three items and an
+       icon still fit at 17px with the brand hidden. */
+    .site-head {
+      --nav-track: 0.06em;
     }
+
     .contact__panel {
       right: -8px;
     }

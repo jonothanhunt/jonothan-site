@@ -8,3 +8,7 @@ directory = "dist"
 # the canonical URL of every page — and turns the /things 301s into chains.
 # This makes the slashless form the one that answers 200.
 html_handling = "drop-trailing-slash"
+# And serve dist/404.html when nothing matches. Without this the default is
+# `none`: Cloudflare answers an unknown path with a bare 404 and no body at
+# all, so the 404 page was built on every deploy and never once shown.
+not_found_handling = "404-page"

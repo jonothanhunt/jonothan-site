@@ -1,0 +1,133 @@
+---
+/**
+ * A notice, raised on arrival.
+ *
+ * The one thing that raises it today is a 404: that page redirects here rather
+ * than sitting there being a dead end, and this is how the reader finds out
+ * why they are somewhere they didn't ask for. The reason travels in the query
+ * string, because the page it lands on is a static file and the server can't
+ * tell one visitor from another.
+ *
+ * Built like everything else on the page — a block of ink-bearing colour,
+ * square, mono — and it appears rather than animates in, which is the same
+ * choice every other state on the site makes.
+ */
+---
+
+<!-- `hidden` until there is something to say, so nothing renders in the common
+     case. `role="status"` rather than `alert`: it is worth saying, not worth
+     interrupting for. -->
+<div class="toast block block--flame" data-toast hidden role="status">
+  <p class="toast__label">Redirected</p>
+  <p class="toast__msg">That&rsquo;s a 404, so I&rsquo;ve sent you home.</p>
+  <button class="toast__close" type="button" data-toast-close aria-label="Dismiss">
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  const toast = document.querySelector<HTMLElement>("[data-toast]");
+
+  if (toast) {
+    const params = new URLSearchParams(location.search);
+
+    if (params.get("from") === "404") {
+      toast.hidden = false;
+
+      /* Take the reason back out of the URL. Left in, a refresh raises the
+         notice again for someone who is no longer lost, and the address is
+         wrong to copy or share. `replaceState` rather than a navigation, so
+         the history stack is untouched. */
+      params.delete("from");
+      const query = params.toString();
+      history.replaceState(null, "", location.pathname + (query ? `?${query}` : ""));
+
+      const dismiss = () => {
+        toast.hidden = true;
+        clearTimeout(timer);
+      };
+      // Long enough to read twice; a notice you have to dismiss is a dialog.
+      const timer = setTimeout(dismiss, 9000);
+      toast
+        .querySelector<HTMLButtonElement>("[data-toast-close]")
+        ?.addEventListener("click", dismiss);
+    }
+  }
+</script>
+
+<style>
+  /* Bottom left, clear of the nav at the top and of the copy in the middle.
+     Fixed, so it stays put while the reader gets their bearings. */
+  .toast {
+    position: fixed;
+    z-index: 60;
+    left: var(--gap);
+    bottom: var(--gap);
+    max-width: min(24rem, calc(100vw - var(--gap) * 2));
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 2px 14px;
+    padding: 12px 12px 13px 14px;
+  }
+
+  .toast[hidden] {
+    display: none;
+  }
+
+  .toast__label {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: var(--t-label);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .toast__msg {
+    grid-column: 1;
+    margin: 0;
+    font-family: var(--body);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  /* The site's one control, at notice size: a hairline box of ink that fills
+     on hover and knocks the type out. */
+  .toast__close {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--ink);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .toast__close svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    /* Mitred, like every other icon here. */
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+
+  @media (hover: hover) {
+    .toast__close:hover {
+      background: var(--ink);
+      color: var(--flame);
+    }
+  }
+</style>
