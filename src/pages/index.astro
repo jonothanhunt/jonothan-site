@@ -120,7 +120,8 @@ const awards = [
     {/* The saturation halo. Empty, and it never loads anything: it is a flat
         grey rectangle that steals the colour out of whatever is behind it,
         with a hole cut in the middle. See the note by .page-photo__halo. */}
-    <div class="page-photo__halo" data-halo></div>
+    <div class="page-photo__halo"></div>
+    <div class="page-photo__shade"></div>
     {
       hero.TREATED ? (
         <img
@@ -445,19 +446,9 @@ const awards = [
      set was clear only to 14% and fully grey by 78%, which made even a wide
      circle read as a small patch inside a dead margin. Clear to 30%, gone by
      the rim. */
-  .page-photo__halo {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    /* Off until a hovering pointer has actually been seen. The photograph is
-       in full colour until then, which is what a phone or a tablet being held
-       gets — and an iPad that later meets a Pencil fades into the effect
-       rather than snapping into it. */
-    opacity: 0;
-    transition: opacity 0.7s var(--ease-settle);
-    background: #808080;
-    mix-blend-mode: saturation;
+  /* The shape lives on the photograph, and both layers read it, so the two
+     can never drift apart and the pointer only has to be written once. */
+  .page-photo {
     --halo-r: max(70vw, 70vh);
     --hx: 50%;
     --hy: 38%;
@@ -469,16 +460,49 @@ const awards = [
       rgb(0 0 0 / 0.8) 80%,
       #000 100%
     );
+  }
+
+  .page-photo__halo,
+  .page-photo__shade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    /* Off until a hovering pointer has actually been seen. The photograph is
+       in full colour until then, which is what a phone or a tablet being held
+       gets — and an iPad that later meets a Pencil fades into the effect
+       rather than snapping into it. */
+    opacity: 0;
+    transition: opacity 0.7s var(--ease-settle);
     -webkit-mask-image: var(--halo);
     mask-image: var(--halo);
   }
 
-  .page-photo__halo[data-on] {
+  .page-photo__halo {
+    background: #808080;
+    mix-blend-mode: saturation;
+  }
+
+  /* And the light falls off with the colour.
+     ---
+     Plain black at low alpha, no blend mode: the mask already says where, and
+     a blend would make the browser read the backdrop for a result that
+     `normal` gets to anyway. Outside rather than inside deliberately — the
+     picture is a bright stage under bright lights, and lifting the middle
+     blew the highlights before it read as a glow, while dropping the
+     surround leaves the pool looking lit without touching a pixel of it. */
+  .page-photo__shade {
+    background: rgb(0 0 0 / 0.3);
+  }
+
+  .page-photo[data-halo-on] .page-photo__halo,
+  .page-photo[data-halo-on] .page-photo__shade {
     opacity: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .page-photo__halo {
+    .page-photo__halo,
+    .page-photo__shade {
       transition: none;
     }
   }
@@ -806,10 +830,9 @@ const awards = [
    * have moved it, and `scrollY` is a cheap read that forces nothing — so a
    * pointermove costs two property writes and some arithmetic.
    */
-  const halo = document.querySelector<HTMLElement>("[data-halo]");
-  const photo = halo?.parentElement;
+  const photo = document.querySelector<HTMLElement>(".page-photo");
 
-  if (halo && photo) {
+  if (photo) {
     const still = matchMedia("(prefers-reduced-motion: reduce)");
     /* Whether a hovering pointer has been seen. Not a media query and not a
        breakpoint: `hover: hover` describes the *primary* input, which on an
@@ -840,8 +863,8 @@ const awards = [
     let onScreen = true;
 
     const place = (x: number, y: number) => {
-      halo.style.setProperty("--hx", `${Math.round(x)}px`);
-      halo.style.setProperty("--hy", `${Math.round(y)}px`);
+      photo.style.setProperty("--hx", `${Math.round(x)}px`);
+      photo.style.setProperty("--hy", `${Math.round(y)}px`);
     };
 
     const frame = () => {
@@ -882,7 +905,7 @@ const awards = [
       if (!on) {
         on = true;
         // Placed before it is shown, so it fades up already under the pointer.
-        halo.dataset.on = "";
+        photo.dataset.haloOn = "";
       }
     };
 
