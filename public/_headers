@@ -32,7 +32,25 @@
 # No Cache-Control here: a rule that matched everything would also apply to
 # the fingerprinted assets above, and Cloudflare combines matching rules
 # rather than letting the most specific one win.
+# A deliberately partial CSP: everything that hardens the page without touching
+# script-src or style-src.
+#
+# Astro can generate the full thing (security.csp), hashing its own inline
+# scripts, and it was tried. Two things make it unusable here. Sandpack builds
+# its styles at runtime and injects <style> elements that cannot be hashed at
+# build time — and because the spec has a browser ignore 'unsafe-inline' the
+# moment any hash is present, there is no way to allow them alongside Astro's
+# hashes. Code demos half-mount and throw. The 404 page's inline redirect is
+# refused as well. Measured: zero console errors without the policy, a Sandpack
+# hydration failure with it.
+#
+# What is left still earns its place. frame-ancestors stops the site being
+# framed, base-uri stops an injected <base> redirecting every relative URL,
+# form-action stops a posted form being redirected off-site, and object-src
+# retires plugins. None of them can break a script or a style, so none of them
+# can break the page.
 /*
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

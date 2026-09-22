@@ -1,0 +1,46 @@
+---
+import { Image } from "astro:assets";
+
+/**
+ * Images in post bodies.
+ *
+ * Astro derives a constrained image's `sizes` from the file's own intrinsic
+ * width — `(min-width: 1200px) 1200px, 100vw` for a 1200px photo — and neither
+ * half of that is true here. The prose column is `--measure`, 41rem, and never
+ * grows: on a 1440px screen at 1x the browser read `100vw`, asked for 1440px
+ * and took the 1200px file to draw 656 of it. Half a megabyte for a quarter of
+ * the pixels.
+ *
+ * So the column's real width is stated instead, and the widths are the ones it
+ * can actually use: the column at 1x and 2x, and two steps below for narrow
+ * screens. Anything wider than the source is clamped by the image service.
+ */
+interface Props {
+  src: ImageMetadata | string;
+  alt?: string;
+}
+const { src, alt = "" } = Astro.props;
+
+const COLUMN = 656; // --measure, 41rem
+const SIZES = `(min-width: ${COLUMN + 32}px) ${COLUMN}px, calc(100vw - 32px)`;
+/* The column at 1x and 2x, plus the steps real phones land on: a 390px
+   viewport wants 716 and a 414px one 764, and without something near them both
+   jump to 984. */
+const WIDTHS = [328, 492, COLUMN, 784, 984, COLUMN * 2];
+---
+
+{
+  typeof src === "string" ? (
+    /* A remote or already-resolved URL: nothing to generate from. */
+    <img src={src} alt={alt} loading="lazy" decoding="async" />
+  ) : (
+    <Image
+      src={src}
+      alt={alt}
+      widths={WIDTHS}
+      sizes={SIZES}
+      loading="lazy"
+      decoding="async"
+    />
+  )
+}
