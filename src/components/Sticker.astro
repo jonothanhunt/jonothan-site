@@ -336,7 +336,10 @@ function ring(radius: number, steps = 12) {
 
     .sticker:hover .sticker__foil::before,
     .sticker:hover .sticker__sheen::before,
-    .sticker:hover .sticker__bleed::before {
+    .sticker:hover .sticker__bleed::before,
+    :global([data-sticker-group]:hover) .sticker .sticker__foil::before,
+    :global([data-sticker-group]:hover) .sticker .sticker__sheen::before,
+    :global([data-sticker-group]:hover) .sticker .sticker__bleed::before {
       rotate: 60deg;
     }
 
@@ -361,7 +364,16 @@ function ring(radius: number, steps = 12) {
 
     .sticker:hover {
       transform: perspective(calc(var(--sticker-w) * 4)) rotateX(15deg)
-        rotateY(-15deg);
+        rotateY(15deg);
+    }
+
+    /* Unless something has claimed the stickers inside it as one object, in
+       which case that thing does the tipping and each mark holds still in the
+       plane it turns — two marks pivoting about their own centres inside one
+       turning group is a hinge, not a sticker. The sweep above still runs per
+       sticker; only the geometry is handed up. */
+    :global([data-sticker-group]) .sticker:hover {
+      transform: perspective(calc(var(--sticker-w) * 4));
     }
   }
 </style>
