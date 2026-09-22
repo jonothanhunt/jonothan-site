@@ -61,14 +61,6 @@
   descent-override: 22%;
 }
 
-/* Still here, and still the fallback for anything Geist Pixel can't set. */
-@font-face {
-  font-family: "Hyperlegible";
-  src: url("/fonts/hyperlegible.woff2") format("woff2-variations");
-  font-weight: 100 1000;
-  font-display: swap;
-}
-
 /* ============================================================
    Tokens
    ============================================================ */
@@ -109,13 +101,6 @@
   --rose: #ff8fb8;
   --leaf: #8ad45c;
 
-  /* Square. The tokens stay so nothing has to be hunted down, but there is one
-     radius on the site and it is zero. */
-  --r-lg: 0px;
-  --r-md: 0px;
-  --r-sm: 0px;
-  --pill: 0px;
-
   --gap: 16px;
   --pad: 16px;
   --shell: 1152px;
@@ -151,9 +136,12 @@
      monospaced face gives up the varying letter widths that make a line of
      prose scannable — so this is the other face, and it is now a pixel one.
      Hyperlegible is kept behind it as the fallback. */
-  --body:
-    "Geist Pixel", "Hyperlegible", system-ui, -apple-system, "Segoe UI",
-    sans-serif;
+  /* Hyperlegible used to sit behind Geist Pixel here and was dropped: the two
+     cover the same range, so the browser never reached for it, and a 32kB
+     woff2 in public/ ships on every deploy whether or not anything fetches it.
+     A glyph outside Geist Pixel's latin subset now falls to the system face,
+     which is what the rest of the stack was always for. */
+  --body: "Geist Pixel", system-ui, -apple-system, "Segoe UI", sans-serif;
   --display: var(--mono);
 
   /* ---- Type ------------------------------------------------------------
@@ -741,47 +729,6 @@ p {
 
 .dither {
   image-rendering: pixelated;
-}
-
-/* Dither-ramp fade. Two mask layers: the 4px ramp tiled along the bottom at
-   its native height, and a flat fill covering everything above it. Mask layers
-   composite with `add` by default, so the two make one mask — opaque, then
-   dissolving into the page over the last 192px.
-
-   A linear-gradient mask would fade smoothly and look like a fade; this
-   dissolves, which is the same move the images make. */
-.fade-down {
-  -webkit-mask-image: url("/dither/ramp-down.png"), linear-gradient(#000, #000);
-  mask-image: url("/dither/ramp-down.png"), linear-gradient(#000, #000);
-  -webkit-mask-size: 4px 192px, 100% calc(100% - 192px);
-  mask-size: 4px 192px, 100% calc(100% - 192px);
-  -webkit-mask-position: bottom left, top left;
-  mask-position: bottom left, top left;
-  -webkit-mask-repeat: repeat-x, no-repeat;
-  mask-repeat: repeat-x, no-repeat;
-}
-
-.fade-up {
-  -webkit-mask-image: url("/dither/ramp-up.png"), linear-gradient(#000, #000);
-  mask-image: url("/dither/ramp-up.png"), linear-gradient(#000, #000);
-  -webkit-mask-size: 4px 192px, 100% calc(100% - 192px);
-  mask-size: 4px 192px, 100% calc(100% - 192px);
-  -webkit-mask-position: top left, bottom left;
-  mask-position: top left, bottom left;
-  -webkit-mask-repeat: repeat-x, no-repeat;
-  mask-repeat: repeat-x, no-repeat;
-}
-
-/* Flat dither texture, for a field of colour that needs a surface. */
-.tex {
-  background-image: var(--dot-2);
-  background-size: 4px 4px;
-}
-.tex--light {
-  background-image: var(--dot-1);
-}
-.tex--heavy {
-  background-image: var(--dot-4);
 }
 
 /* ============================================================

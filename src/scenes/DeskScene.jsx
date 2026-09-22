@@ -5,7 +5,6 @@ import {
   useTexture,
   MeshPortalMaterial,
   Float,
-  AsciiRenderer,
 } from "@react-three/drei";
 import * as THREE from "three";
 import "./materials.js";
@@ -533,15 +532,6 @@ function Retro() {
   return null;
 }
 
-/* The character ramp, sparse to dense.
- *
- * AsciiEffect indexes it by brightness, and a transparent pixel is forced to
- * full brightness — so with `invert` off, the empty background lands on the
- * first character and the scene's darks land on the last. That's why the first
- * entry has to be a space: it's what makes the canvas read as ink on paper
- * rather than as a solid rectangle of type. */
-const RAMP = " .:-=+*#%@";
-
 export default function DeskScene({ onReady }) {
   const [visible, setVisible] = useState(false);
   /* Read by Desk's render loop. A ref rather than state because it has to be
@@ -610,25 +600,6 @@ export default function DeskScene({ onReady }) {
       </Suspense>
       <Retro />
 
-      {/* The ASCII renderer this replaced. Kept rather than deleted while the
-          two treatments are being compared — swapping them back is this block
-          for the line above, and the CSS in Desk.astro that styles the effect's
-          <table> is still in place.
-
-          `resolution` is cells per device pixel, so it sets both axes: 0.22
-          gives roughly a 150 x 40 grid in the panel the desk occupies, about
-          6,000 characters a frame. `invert` off and `color` off: one colour,
-          set from CSS, so the whole thing multiplies into the block behind it.
-
-          <AsciiRenderer
-            characters={RAMP}
-            resolution={0.22}
-            invert={false}
-            color={false}
-            fgColor="currentColor"
-            bgColor="transparent"
-          />
-      */}
     </Canvas>
   );
 }

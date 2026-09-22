@@ -8,6 +8,7 @@ import Desk from "../components/Desk.astro";
 import Sticker from "../components/Sticker.astro";
 import { Picture } from "astro:assets";
 import { paletteRun } from "../lib/palette";
+import * as hero from "../lib/hero.mjs";
 import heroSource from "../assets/site/header.jpg";
 
 import effects from "../assets/home/effects.jpeg";
@@ -48,36 +49,16 @@ const [workInk, kitkatInk, magpieInk, stackInk, waitingInk, vaultInk] =
   await paletteRun([effects, kitkat, magpie, creativeTechStack, waiting, vault]);
 const writingInks = await paletteRun(posts.map((post) => post.data.image));
 
-// The hero is the one image on the site that isn't run through astro:assets.
-// It's baked to 1-bit by scripts/dither.mjs instead, at three widths, and the
-// widths have to be named here because a file in public/ has no metadata for
-// Astro to read. 40kB at full size, which is less than the source JPEG.
-// Half what the layout asks for, so the browser scales every one of them up
-// and `image-rendering: pixelated` (see `.dither`) turns that into visible
-// square pixels rather than a soft enlargement. The `w` descriptors stay
-// honest — they describe the file, not the box — so the picking still works;
-// it just picks a small file for a big slot on purpose.
-const HERO_WIDTHS = [860, 1200, 1632];
-// Which bake the hero uses. `tone-` is the three-tone line screen, `flat-` is
-// the same three tones with the screen switched off (hard bands, no dither),
-// and dropping it entirely gives the 1-bit version. All three are built, so
-// this is the whole switch between them.
-const HERO_VARIANT = "flat-";
-const heroSrcset = HERO_WIDTHS.map(
-  (w) => `/dither/hero-${HERO_VARIANT}${w}.png ${w}w`,
-).join(", ");
-
-/* Treated or not — the whole switch for the hero photograph.
-   ---
-   `false` gives the photograph as shot, through astro:assets like every other
-   image on the site: it sizes and re-encodes it, picks avif or webp, and hands
-   back the dimensions. The baked path can't use that, because a file in
-   public/ has no metadata for Astro to read, which is why its widths are
-   written out by hand above.
-   ---
-   The fade and the crop are not effects and stay either way. They are how the
-   photograph joins the page rather than anything done to the picture. */
-const HERO_TREATED = false;
+// The hero's treatment lives in src/lib/hero.mjs, because scripts/dither.mjs
+// has to agree with this page about it — see the note there. Untreated, the
+// photograph goes through astro:assets like every other image on the site;
+// treated, it comes from a bake in public/, which is why those widths have to
+// be written out by hand (a file in public/ has no metadata for Astro to read).
+//
+// The fade and the crop are not part of the treatment and apply either way.
+// They are how the photograph joins the page rather than anything done to the
+// picture — without them it ends in a hard line across the top of the copy.
+const heroSrcset = hero.WIDTHS.map((w) => `${hero.file(w)} ${w}w`).join(", ")
 
 // The awards: three marks in a row and nothing else, as the site has always
 // had them. The citation text and the hairline box around each one are gone —
@@ -130,14 +111,14 @@ const awards = [
        both cases — that is the one thing that doesn't change. -->
   <div class="page-photo" aria-hidden="true">
     {
-      HERO_TREATED ? (
+      hero.TREATED ? (
         <img
           class="page-photo__img dither"
-          src={`/dither/hero-${HERO_VARIANT}${HERO_WIDTHS.at(-1)}.png`}
+          src={hero.file(hero.WIDEST)}
           srcset={heroSrcset}
           sizes="100vw"
-          width="1632"
-          height="816"
+          width={hero.WIDEST}
+          height={hero.height(hero.WIDEST)}
           alt=""
           loading="eager"
           fetchpriority="high"
@@ -151,7 +132,7 @@ const awards = [
           alt=""
           formats={["avif", "webp"]}
           fallbackFormat="webp"
-          widths={[860, 1200, 1632]}
+          widths={hero.WIDTHS}
           sizes="100vw"
           loading="eager"
           fetchpriority="high"
