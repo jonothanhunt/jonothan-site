@@ -150,7 +150,7 @@ function ditherTone(
   grey,
   width,
   height,
-  { tones, period = 5, gamma = 0.85, contrast = 1.12 } = {},
+  { tones, period = 5, gamma = 0.85, contrast = 1.12, screen = true } = {},
 ) {
   const steps = tones.length - 1;
   const ramp = tones.map((c) =>
@@ -159,8 +159,11 @@ function ditherTone(
   const out = Buffer.alloc(width * height * 3);
 
   for (let y = 0; y < height; y++) {
-    // The screen: one threshold per row, repeating every `period` rows.
-    const t = ((y % period) + 0.5) / period;
+    // The screen: one threshold per row, repeating every `period` rows. With
+    // `screen: false` the threshold is a flat half instead, which is a plain
+    // round-to-nearest — three hard bands, no dither. Kept because it is worth
+    // being able to see what the screen is actually doing for you.
+    const t = screen ? ((y % period) + 0.5) / period : 0.5;
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       let v = Math.pow(grey[i] / 255, gamma);
@@ -179,10 +182,18 @@ function ditherTone(
   return out;
 }
 
-async function buildPhotoTone({ name, from, widths, tones, period }) {
+async function buildPhotoTone({
+  name,
+  from,
+  widths,
+  tones,
+  period,
+  screen = true,
+  suffix = "tone",
+}) {
   const src = path.join(ROOT, from);
   for (const width of widths) {
-    const dest = path.join(OUT, `${name}-tone-${width}.png`);
+    const dest = path.join(OUT, `${name}-${suffix}-${width}.png`);
     if (await isFresh(dest, src)) continue;
 
     // Enlargement allowed, unlike the 1-bit pass. The source is 1223px and the
@@ -196,7 +207,11 @@ async function buildPhotoTone({ name, from, widths, tones, period }) {
       .raw()
       .toBuffer({ resolveWithObject: true });
 
-    const dithered = ditherTone(data, info.width, info.height, { tones, period });
+    const dithered = ditherTone(data, info.width, info.height, {
+      tones,
+      period,
+      screen,
+    });
 
     await sharp(dithered, {
       raw: { width: info.width, height: info.height, channels: 3 },
@@ -509,6 +524,10 @@ await Promise.all([
 await Promise.all([
   ...PHOTOS.map(buildPhoto),
   ...PHOTOS.map(buildPhotoTone),
+  // The same three tones with the screen switched off, as a comparison.
+  ...PHOTOS.map((photo) =>
+    buildPhotoTone({ ...photo, screen: false, suffix: "flat" }),
+  ),
   ...CUTOUTS.map(buildCutout),
   ...PIXELS.map(buildPixel),
   // Fade down into the page, and back up out of it.
