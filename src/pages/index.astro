@@ -8,7 +8,11 @@ import Desk from "../components/Desk.astro";
 import Sticker from "../components/Sticker.astro";
 import Toast from "../components/Toast.astro";
 import { Image, Picture } from "astro:assets";
-import { ENABLED as DITHERED } from "../lib/dither-images.mjs";
+import {
+  ENABLED as DITHERED,
+  FORMAT as DITHER_FORMAT,
+  widths as ditherWidths,
+} from "../lib/dither-images.mjs";
 import { paletteRun } from "../lib/palette";
 import * as hero from "../lib/hero.mjs";
 import heroSource from "../assets/site/header.jpg";
@@ -128,12 +132,12 @@ const awards = [
         />
       ) : DITHERED ? (
         <Image
-          class="page-photo__img"
+          class="page-photo__img is-dithered"
           src={heroSource}
           alt=""
-          format="png"
+          format={DITHER_FORMAT}
           dither
-          widths={hero.WIDTHS}
+          widths={ditherWidths(hero.WIDTHS)}
           sizes="100vw"
           loading="eager"
           fetchpriority="high"

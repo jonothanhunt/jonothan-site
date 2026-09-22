@@ -1,6 +1,6 @@
 import sharpService from "astro/assets/services/sharp";
 import sharp from "sharp";
-import { LEVELS } from "./dither-images.mjs";
+import { FORMAT, LEVELS } from "./dither-images.mjs";
 
 /**
  * Astro's sharp service, with an ordered dither on the way out.
@@ -102,11 +102,9 @@ export default {
       return sharpService.transform(inputBuffer, transform, config);
     }
 
-    /* Resize through the normal service, but ask for PNG. Letting it encode to
-       webp or avif first would put a lossy codec between the resize and the
-       dither, and there is nothing a lossy codec handles worse than a field of
-       hard single-pixel dots — it smears them, which is the one thing that
-       must not happen to the pattern. */
+    /* Resize through the normal service, but ask for PNG — a lossless
+       intermediate, so nothing is smeared between the resize and the dither.
+       What comes out the other end is WebP; see FORMAT. */
     const resized = await sharpService.transform(
       inputBuffer,
       { ...transform, format: "png" },
@@ -121,14 +119,15 @@ export default {
 
     const dithered = ditherRGB(data, info.width, info.height, { levels: LEVELS });
 
+    /* Lossless, and WebP rather than an indexed PNG: measured across four
+       sizes and three depths, lossless WebP came out smaller every time, by
+       between 1% and 10%. */
     const out = await sharp(dithered, {
       raw: { width: info.width, height: info.height, channels: 3 },
     })
-      // Indexed: the output only ever holds `levels ** 3` colours, and a
-      // palette PNG stores that in a fraction of what truecolour would.
-      .png({ palette: true, colours: LEVELS ** 3, compressionLevel: 9, effort: 10 })
+      .webp({ lossless: true, effort: 6 })
       .toBuffer();
 
-    return { data: out, format: "png" };
+    return { data: out, format: FORMAT };
   },
 };
