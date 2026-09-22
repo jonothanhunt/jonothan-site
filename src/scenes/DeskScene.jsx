@@ -63,7 +63,7 @@ function Sticker({ texture, position, rotation, size = [0.3, 0.3] }) {
   );
 }
 
-function Desk({ atRest }) {
+function Desk({ atRest, hovering }) {
   const { nodes, materials } = useGLTF(MODEL);
   const [effectHouse, reactLogo, nextLogo, blenderBadge] = useTexture(TEXTURES);
   const { camera, size } = useThree();
@@ -116,16 +116,18 @@ function Desk({ atRest }) {
         scroll.current.current = 0;
         root.current.rotation.set(0, 0, 0);
       } else {
-        pointer.current.x = THREE.MathUtils.lerp(
-          pointer.current.x,
-          state.pointer.x * 0.1,
-          k,
-        );
-        pointer.current.y = THREE.MathUtils.lerp(
-          pointer.current.y,
-          -state.pointer.y * 0.05,
-          k,
-        );
+        /* Only follow the pointer while it is actually over the canvas.
+           R3F's state.pointer is only written by pointer events on the
+           element, so once the cursor is elsewhere it holds whatever it last
+           read — and the desk sits pinned at a pose that no longer
+           corresponds to anything, with the scroll tilt swinging on top of
+           it. Off the canvas the target is centre, and the same lerp eases it
+           back; the scroll tilt below is left alone, because that one is
+           still telling the truth. */
+        const aimX = hovering.current ? state.pointer.x * 0.1 : 0;
+        const aimY = hovering.current ? -state.pointer.y * 0.05 : 0;
+        pointer.current.x = THREE.MathUtils.lerp(pointer.current.x, aimX, k);
+        pointer.current.y = THREE.MathUtils.lerp(pointer.current.y, aimY, k);
         scroll.current.current = THREE.MathUtils.lerp(
           scroll.current.current,
           scroll.current.target,
@@ -147,7 +149,7 @@ function Desk({ atRest }) {
   );
 
   return (
-    <group ref={root} position={[0, 0.17, 0]} scale={2} dispose={null}>
+    <group ref={root} position={[0, 0.12, 0]} scale={2} dispose={null}>
       <group position={[0, -0.2, 0]}>
         <Sticker
           texture={blenderBadge}
@@ -538,6 +540,11 @@ export default function DeskScene({ onReady }) {
      true *before* the frame that acts on it is drawn, and a state update
      wouldn't land until the render after. */
   const atRest = useRef(false);
+  /* Whether the cursor is over the canvas. Tracked here rather than read from
+     R3F, which has no idea the pointer has gone. Boundary events fire when the
+     element scrolls out from under a still cursor too, which is the case that
+     started this. */
+  const hovering = useRef(false);
 
   return (
     <Canvas
@@ -580,6 +587,14 @@ export default function DeskScene({ onReady }) {
           { threshold: 0 },
         );
         io.observe(gl.domElement);
+        gl.domElement.addEventListener(
+          "pointerenter",
+          () => (hovering.current = true),
+        );
+        gl.domElement.addEventListener(
+          "pointerleave",
+          () => (hovering.current = false),
+        );
         gl.domElement.addEventListener("webglcontextlost", (e) => {
           e.preventDefault();
           setVisible(false);
@@ -595,7 +610,7 @@ export default function DeskScene({ onReady }) {
       <ambientLight intensity={0.85} />
       <directionalLight position={[0, 10, 5]} intensity={1.5} />
       <Suspense fallback={null}>
-        <Desk atRest={atRest} />
+        <Desk atRest={atRest} hovering={hovering} />
         <Ready onReady={onReady} />
       </Suspense>
       <Retro />
