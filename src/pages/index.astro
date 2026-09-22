@@ -12,6 +12,7 @@ import {
   ENABLED as DITHERED,
   FORMAT as DITHER_FORMAT,
   widths as ditherWidths,
+  HERO_SCALE,
 } from "../lib/dither-images.mjs";
 import { paletteRun } from "../lib/palette";
 import * as hero from "../lib/hero.mjs";
@@ -137,7 +138,7 @@ const awards = [
           alt=""
           format={DITHER_FORMAT}
           dither
-          widths={ditherWidths(hero.WIDTHS)}
+          widths={ditherWidths(hero.WIDTHS, HERO_SCALE)}
           sizes="100vw"
           loading="eager"
           fetchpriority="high"
@@ -295,7 +296,7 @@ const awards = [
     </section>
 
     <!-- Contact + the ASCII desk -->
-    <section class="contact block block--sea marks--all" aria-labelledby="contact-h">
+    <section class="contact block block--sea marks--mail" aria-labelledby="contact-h">
       <div class="contact__body">
         <h2 id="contact-h">Let&rsquo;s chat!</h2>
         <p class="lede">
