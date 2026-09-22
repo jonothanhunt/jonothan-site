@@ -36,15 +36,15 @@ const isHome = Astro.url.pathname === "/";
     </details>
 
     {
-      /* Blog only. The home page is built on a paper ground — the dithered
-         hero, the ink client strip, the desk — and none of it has a dark
-         counterpart, so offering the switch there would be offering something
-         that doesn't exist. Rendered only where it works rather than hidden
-         with CSS, so there is no dead control in the accessibility tree.
+      /* Everywhere, now. This was blog-only, on the grounds that the home
+         page is built on a paper ground — the dithered hero, the ink client
+         strip, the desk — with no dark counterpart. Enough of those surfaces
+         now read their ground from a variable that the switch is worth
+         offering on both.
 
          No JS, no theme: the button does nothing without script, so it is
          hidden until the script that makes it work has run. */
-      isBlog && (
+      true && (
         <button
           class="nav-pill nav-theme"
           type="button"
