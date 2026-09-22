@@ -206,6 +206,7 @@ const awards = [
                     rel="noopener noreferrer"
                     target="_blank"
                     aria-label={alt}
+                    data-sticker-group
                   >
                     <Sticker src={src} height={height} tilt={tilt} />
                     {badge && (
@@ -627,9 +628,31 @@ const awards = [
     bottom: -7px;
   }
 
-  /* Nothing on hover but the foil, which turns over on its own. The marks
-     used to scale up a little as well; with the easing gone it was a jump
-     rather than a lift, and the sticker already answers the pointer. */
+  /* The tip belongs to the award, not to the sticker.
+     ---
+     D&AD is two marks — the pencil and the hexagon badged off its corner —
+     and they are one award. Tipping each sticker about its own centre had
+     them turning independently, like two things that happen to overlap.
+     Turning the anchor instead puts both on one plane, so the badge stays
+     pinned to the corner it is badged to the whole way through. Awards with a
+     single mark get the same treatment and look no different for it.
+
+     The foil sweep inside each sticker still fires per sticker — see
+     Sticker.astro, which also listens for this group — because the two marks
+     are separate pieces of foil and would catch the light separately.
+
+     180px is the perspective a 46px mark was getting from its own width in
+     the component. These are all about that size, so one value serves. */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .hero__awards a {
+      transform: perspective(180px);
+      transition: transform 0.5s var(--ease-settle);
+    }
+
+    .hero__awards a:hover {
+      transform: perspective(180px) rotateX(15deg) rotateY(15deg);
+    }
+  }
 
   /* Contact: the desk fills the panel edge to edge; the copy sits over it. */
   .contact {
