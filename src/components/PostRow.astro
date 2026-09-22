@@ -1,5 +1,6 @@
 ---
-import { Picture } from "astro:assets";
+import { Image, Picture } from "astro:assets";
+import { ENABLED as DITHERED } from "../lib/dither-images.mjs";
 import { render } from "astro:content";
 import Prose from "./Prose.astro";
 import YouTube from "./mdx/YouTube.astro";
@@ -55,21 +56,35 @@ const proseInk = ink === "paper" ? "sun" : ink;
       !image && "card--bare",
     ]}
   >
+    {/* See Card.astro — a dithered image is a PNG and only a PNG. */}
     {
-      image && (
-        <Picture
-          class="card__img duo"
-          pictureAttributes={{ class: "card__pic" }}
-          src={image}
-          alt=""
-          formats={["avif", "webp"]}
-          fallbackFormat="webp"
-          widths={[560, 900, 1200, 1800]}
-          sizes="(max-width: 940px) calc(100vw - 32px), 888px"
-          loading={loading}
-          decoding="async"
-        />
-      )
+      image &&
+        (DITHERED ? (
+          <Image
+            class="card__img duo"
+            src={image}
+            alt=""
+            format="png"
+            dither
+            widths={[560, 900, 1200, 1800]}
+            sizes="(max-width: 940px) calc(100vw - 32px), 888px"
+            loading={loading}
+            decoding="async"
+          />
+        ) : (
+          <Picture
+            class="card__img duo"
+            pictureAttributes={{ class: "card__pic" }}
+            src={image}
+            alt=""
+            formats={["avif", "webp"]}
+            fallbackFormat="webp"
+            widths={[560, 900, 1200, 1800]}
+            sizes="(max-width: 940px) calc(100vw - 32px), 888px"
+            loading={loading}
+            decoding="async"
+          />
+        ))
     }
 
     <div class="card__top">

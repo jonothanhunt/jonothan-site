@@ -42,6 +42,9 @@ export default defineConfig({
   image: {
     responsiveStyles: true,
     layout: "constrained",
+    // Astro's own sharp service with an ordered dither bolted on the end, for
+    // the images that ask for one. See src/lib/image-service.mjs.
+    service: { entrypoint: "./src/lib/image-service.mjs" },
   },
 
   build: {
