@@ -117,6 +117,10 @@ const awards = [
        below it rather than over it. The dither ramp does the bottom edge in
        both cases — that is the one thing that doesn't change. -->
   <div class="page-photo" aria-hidden="true">
+    {/* The saturation halo. Empty, and it never loads anything: it is a flat
+        grey rectangle that steals the colour out of whatever is behind it,
+        with a hole cut in the middle. See the note by .page-photo__halo. */}
+    <div class="page-photo__halo" data-halo></div>
     {
       hero.TREATED ? (
         <img
@@ -411,6 +415,61 @@ const awards = [
     );
     -webkit-mask-image: var(--fade);
     mask-image: var(--fade);
+  }
+
+  /* The colour follows the pointer.
+     ---
+     One element, no second copy of the photograph. `saturation` takes the
+     saturation of the source and the hue and luminosity of what is behind it,
+     so a flat mid-grey over the picture — saturation zero — leaves it
+     greyscale with everything else intact. Masking that layer with a radial
+     gradient that is *transparent in the middle* punches a hole in the
+     desaturation rather than painting colour into it, which is why there is
+     nothing to load and nothing to keep in step.
+
+     It stays inside the photograph because .page-photo already carries a mask
+     for its bottom fade, and a mask makes a stacking context. The heading is
+     a sibling of that, not a child, so it never enters the blend.
+
+     The circle is `max(100vw, 100vh)` across: sized to the longer edge of the
+     window so it stays a generous round pool on any shape of screen rather
+     than an ellipse that tracks the aspect ratio.
+
+     The stops run the whole radius rather than crowding the middle. An
+     earlier set was clear only to 14% and fully grey by 78%, which made a
+     circle the width of the window read as a small patch with a wide dead
+     margin — the size was right and the picture inside it was wrong. Clear to
+     30%, gone by the rim. */
+  .page-photo__halo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: none;
+    pointer-events: none;
+    background: #808080;
+    mix-blend-mode: saturation;
+    --halo-d: max(100vw, 100vh);
+    --hx: 50%;
+    --hy: 38%;
+    --halo: radial-gradient(
+      circle calc(var(--halo-d) / 2) at var(--hx) var(--hy),
+      transparent 0%,
+      transparent 30%,
+      rgb(0 0 0 / 0.4) 56%,
+      rgb(0 0 0 / 0.8) 80%,
+      #000 100%
+    );
+    -webkit-mask-image: var(--halo);
+    mask-image: var(--halo);
+  }
+
+  /* Pointer devices only, and only once there is room for it to read as a
+     pool rather than as a vignette. A touch screen has no pointer to follow,
+     so it gets the photograph in full colour and pays nothing at all. */
+  @media (hover: hover) and (min-width: 768px) {
+    .page-photo__halo {
+      display: block;
+    }
   }
 
   /* The photo is positioned, so without this the copy that overlaps it would
@@ -722,3 +781,106 @@ const awards = [
     margin-top: 32px;
   }
 </style>
+
+<script>
+  /**
+   * The saturation halo follows the pointer.
+   *
+   * All this does is write two custom properties; the mask in the stylesheet
+   * does the rest. Kept off entirely on anything without a pointer, and off
+   * again whenever the photograph is not on screen.
+   *
+   * No layout is read while the pointer moves. The photograph's position in
+   * the document is measured once and re-measured only when something could
+   * have moved it, and `scrollY` is a cheap read that forces nothing — so a
+   * pointermove costs two property writes and some arithmetic.
+   */
+  const halo = document.querySelector<HTMLElement>("[data-halo]");
+  const photo = halo?.parentElement;
+
+  if (halo && photo) {
+    const able = matchMedia("(hover: hover) and (min-width: 768px)");
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+
+    let left = 0;
+    let top = 0;
+    const measure = () => {
+      const r = photo.getBoundingClientRect();
+      left = r.left + scrollX;
+      top = r.top + scrollY;
+    };
+
+    /* Where the pointer last was, in the viewport. Kept so that scrolling can
+       move the halo without the pointer having moved: the cursor stays put on
+       screen while the photograph slides under it. */
+    let clientX = 0;
+    let clientY = 0;
+    let seen = false;
+
+    let target = { x: 0, y: 0 };
+    let current = { x: 0, y: 0 };
+    let raf = 0;
+    let onScreen = true;
+
+    const place = (x: number, y: number) => {
+      halo.style.setProperty("--hx", `${Math.round(x)}px`);
+      halo.style.setProperty("--hy", `${Math.round(y)}px`);
+    };
+
+    const frame = () => {
+      raf = 0;
+      /* A fixed fraction of the remaining distance each frame. That is what
+         makes a re-entry on the far side of the window glide rather than
+         jump, and it eases out on its own without a duration to tune. */
+      current.x += (target.x - current.x) * 0.12;
+      current.y += (target.y - current.y) * 0.12;
+      place(current.x, current.y);
+      if (Math.hypot(target.x - current.x, target.y - current.y) > 0.5) {
+        raf = requestAnimationFrame(frame);
+      }
+    };
+
+    const aim = () => {
+      target = { x: clientX + scrollX - left, y: clientY + scrollY - top };
+      if (!seen || still.matches) {
+        // First sighting has nowhere to travel from, and a reader who has
+        // asked for less movement gets none of the travel at all.
+        seen = true;
+        current = { ...target };
+        place(current.x, current.y);
+        return;
+      }
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      if (!able.matches || !onScreen) return;
+      clientX = e.clientX;
+      clientY = e.clientY;
+      aim();
+    };
+
+    const onScroll = () => {
+      if (!able.matches || !onScreen || !seen) return;
+      aim();
+    };
+
+    addEventListener("pointermove", onMove, { passive: true });
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", () => { measure(); }, { passive: true });
+
+    // Nothing to compute while the photograph is off screen.
+    new IntersectionObserver(
+      ([e]) => {
+        onScreen = e.isIntersecting;
+        if (!onScreen && raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      },
+      { threshold: 0 },
+    ).observe(photo);
+
+    measure();
+  }
+</script>
