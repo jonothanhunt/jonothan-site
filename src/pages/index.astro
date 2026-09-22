@@ -431,28 +431,34 @@ const awards = [
      for its bottom fade, and a mask makes a stacking context. The heading is
      a sibling of that, not a child, so it never enters the blend.
 
-     The circle is `max(100vw, 100vh)` across: sized to the longer edge of the
-     window so it stays a generous round pool on any shape of screen rather
-     than an ellipse that tracks the aspect ratio.
+     `max(100vw, 100vh)` is the *radius*, so the pool reaches right across the
+     window from wherever the pointer is: standing at one edge puts roughly the
+     near half of the picture in colour, which is the size this wants to be. It
+     is measured off the longer edge so it stays a round pool on any shape of
+     screen rather than an ellipse tracking the aspect ratio.
 
-     The stops run the whole radius rather than crowding the middle. An
-     earlier set was clear only to 14% and fully grey by 78%, which made a
-     circle the width of the window read as a small patch with a wide dead
-     margin — the size was right and the picture inside it was wrong. Clear to
-     30%, gone by the rim. */
+     The stops run the whole radius rather than crowding the middle. An earlier
+     set was clear only to 14% and fully grey by 78%, which made even a wide
+     circle read as a small patch inside a dead margin. Clear to 30%, gone by
+     the rim. */
   .page-photo__halo {
     position: absolute;
     inset: 0;
     z-index: 1;
-    display: none;
     pointer-events: none;
+    /* Off until a hovering pointer has actually been seen. The photograph is
+       in full colour until then, which is what a phone or a tablet being held
+       gets — and an iPad that later meets a Pencil fades into the effect
+       rather than snapping into it. */
+    opacity: 0;
+    transition: opacity 0.7s var(--ease-settle);
     background: #808080;
     mix-blend-mode: saturation;
-    --halo-d: max(100vw, 100vh);
+    --halo-r: max(100vw, 100vh);
     --hx: 50%;
     --hy: 38%;
     --halo: radial-gradient(
-      circle calc(var(--halo-d) / 2) at var(--hx) var(--hy),
+      circle var(--halo-r) at var(--hx) var(--hy),
       transparent 0%,
       transparent 30%,
       rgb(0 0 0 / 0.4) 56%,
@@ -463,12 +469,13 @@ const awards = [
     mask-image: var(--halo);
   }
 
-  /* Pointer devices only, and only once there is room for it to read as a
-     pool rather than as a vignette. A touch screen has no pointer to follow,
-     so it gets the photograph in full colour and pays nothing at all. */
-  @media (hover: hover) and (min-width: 768px) {
+  .page-photo__halo[data-on] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
     .page-photo__halo {
-      display: block;
+      transition: none;
     }
   }
 
@@ -799,8 +806,14 @@ const awards = [
   const photo = halo?.parentElement;
 
   if (halo && photo) {
-    const able = matchMedia("(hover: hover) and (min-width: 768px)");
     const still = matchMedia("(prefers-reduced-motion: reduce)");
+    /* Whether a hovering pointer has been seen. Not a media query and not a
+       breakpoint: `hover: hover` describes the *primary* input, which on an
+       iPad is a finger even when a Pencil is in the other hand, and a width
+       tells you nothing about what is pointing at the screen. The only
+       reliable evidence that something can hover is that it has hovered, so
+       the effect waits for a pointermove that did not come from a finger. */
+    let on = false;
 
     let left = 0;
     let top = 0;
@@ -854,20 +867,41 @@ const awards = [
     };
 
     const onMove = (e: PointerEvent) => {
-      if (!able.matches || !onScreen) return;
+      /* A touch is a contact, not a hover: it has no position until it lands
+         and none after it lifts, so following it would drag the pool around
+         under the reader's own finger. */
+      if (e.pointerType === "touch") return;
+      if (!onScreen) return;
       clientX = e.clientX;
       clientY = e.clientY;
       aim();
+      if (!on) {
+        on = true;
+        // Placed before it is shown, so it fades up already under the pointer.
+        halo.dataset.on = "";
+      }
     };
 
     const onScroll = () => {
-      if (!able.matches || !onScreen || !seen) return;
+      if (!on || !onScreen || !seen) return;
       aim();
     };
 
     addEventListener("pointermove", onMove, { passive: true });
     addEventListener("scroll", onScroll, { passive: true });
     addEventListener("resize", () => { measure(); }, { passive: true });
+
+    /* Re-measure whenever the photograph actually moves or changes shape.
+       ---
+       The offset used to be taken once, at parse time, and anything that
+       settled afterwards left it stale — a late web font reflowing the hero,
+       the photograph itself arriving, the address bar collapsing. The halo
+       then sat a fixed distance from the pointer instead of under it, which
+       reads as the effect not working at all in whichever part of the picture
+       the offset had pushed it out of. */
+    new ResizeObserver(measure).observe(photo);
+    addEventListener("load", measure, { once: true });
+    if (document.fonts?.ready) document.fonts.ready.then(measure);
 
     // Nothing to compute while the photograph is off screen.
     new IntersectionObserver(
