@@ -9,20 +9,28 @@
  * GPU on every first visit to the home page. Blender writes them because the
  * meshes were unwrapped at some point; nothing since has needed them.
  *
- * So this drops them, and then garbage-collects whatever that orphans. That is
- * the entire transform. It is deliberately the *only* one:
+ * So this drops them, garbage-collects whatever that orphans, and then stores
+ * the normals as bytes instead of floats. Together: 599kB to 334kB, with every
+ * position, index and node matrix bit-identical to the source and the worst
+ * normal on the desk turned by a third of a degree.
  *
- *   Quantisation (KHR_mesh_quantization) and meshopt both roughly halve what
- *   is left again, and three.js reads both without a decoder — meshopt's is
- *   already in the bundle, because drei's useGLTF wires it up whether or not
- *   anything uses it. They are still not safe here. Both work by shrinking
- *   geometry into a normalised local space and pushing the inverse into each
- *   node's matrix, and DeskScene.jsx doesn't read the node matrices: it is
- *   gltfjsx output, so every transform in the file has been copied out as a
- *   literal in the JSX and the geometry is lifted out from under its node.
- *   Measured, the two put the parts of the desk up to 1.12 world units away
- *   from where the scene expects them. Taking either means rebuilding the
- *   scene graph to honour the file's transforms again.
+ * What it deliberately does *not* do:
+ *
+ *   Quantising positions (KHR_mesh_quantization) and meshopt both roughly
+ *   halve what is left again, and three.js reads both without a decoder —
+ *   meshopt's is already in the bundle, because drei's useGLTF wires it up
+ *   whether or not anything uses it. They are still not safe here. Both work
+ *   by shrinking geometry into a normalised local space and pushing the
+ *   inverse into each node's matrix, and DeskScene.jsx doesn't read the node
+ *   matrices: it is gltfjsx output, so every transform in the file has been
+ *   copied out as a literal in the JSX and the geometry is lifted out from
+ *   under its node. Measured, the two put the parts of the desk up to 1.12
+ *   world units from where the scene expects them. Taking either means
+ *   rebuilding the scene graph to honour the file's transforms again.
+ *
+ *   This is exactly why the normals *can* be shrunk and the positions can't: a
+ *   normal is a unit vector, so it survives the trip with no scale and no
+ *   offset, and no node has to be told anything.
  *
  *   Draco compresses harder still — 64kB — and costs a 280kB wasm decoder
  *   fetched from gstatic at runtime, which is both a bad trade at this size
@@ -135,9 +143,65 @@ function usedTexcoords(g) {
   return used;
 }
 
+/**
+ * Normals as signed bytes.
+ *
+ * A normal is a unit vector, so it needs no scale and no offset to survive
+ * being stored small — which is exactly what positions can't do, and the whole
+ * reason quantising those is off the table here. Normalised BYTE is plain
+ * glTF 2.0, one of the component types the spec already lists for NORMAL: no
+ * extension, no decoder, nothing to feature-detect. Measured against the
+ * float original, the worst normal on the desk turns by 0.347 degrees.
+ *
+ * Three bytes per normal would not be aligned, and the spec requires every
+ * vertex element to sit on a 4-byte boundary, so each one is padded to four
+ * and the view carries `byteStride: 4`.
+ */
+function quantizeNormals(g, bin, replaced) {
+  const isNormal = new Set();
+  for (const mesh of g.meshes ?? [])
+    for (const prim of mesh.primitives)
+      if (prim.attributes.NORMAL != null) isNormal.add(prim.attributes.NORMAL);
+
+  let done = 0;
+  for (const i of isNormal) {
+    const a = g.accessors[i];
+    if (a.type !== "VEC3" || a.componentType !== 5126 || a.bufferView == null) continue;
+    const v = g.bufferViews[a.bufferView];
+    const src = new Float32Array(
+      bin.buffer,
+      bin.byteOffset + (v.byteOffset ?? 0) + (a.byteOffset ?? 0),
+      a.count * 3,
+    );
+    const out = Buffer.alloc(a.count * 4); // xyz + one byte of padding
+    for (let n = 0; n < a.count; n++) {
+      for (let c = 0; c < 3; c++) {
+        // glTF decodes a normalised byte as max(c / 127, -1), so encode the
+        // inverse and clamp: -128 would decode to slightly past -1.
+        const q = Math.round(src[n * 3 + c] * 127);
+        out.writeInt8(Math.min(127, Math.max(-127, q)), n * 4 + c);
+      }
+    }
+    replaced.set(a.bufferView, { bytes: out, byteStride: 4 });
+    a.componentType = 5120;
+    a.normalized = true;
+    a.byteOffset = 0;
+    // min/max are in the accessor's own units, and these are now bytes.
+    delete a.min;
+    delete a.max;
+    done++;
+  }
+  return done;
+}
+
 function slim(buf) {
   const { json: g, bin } = readGLB(buf);
   assertSimple(g);
+
+  /* Bytes that replace a bufferView's original contents, keyed by its index.
+     Filled by quantizeNormals and read by the repack below, so the two passes
+     don't each walk the binary. */
+  const replaced = new Map();
 
   const keep = usedTexcoords(g);
   let dropped = 0;
@@ -151,6 +215,8 @@ function slim(buf) {
       }
     }
   }
+
+  const normals = quantizeNormals(g, bin, replaced);
 
   /* Garbage-collect. An accessor nothing points at goes, then a bufferView no
      surviving accessor or image points at goes, then the binary chunk is
@@ -180,10 +246,14 @@ function slim(buf) {
   let cursor = 0;
   (g.bufferViews ?? []).forEach((v, i) => {
     if (!liveView.has(i)) return;
-    const start = v.byteOffset ?? 0;
-    chunks.push(bin.subarray(start, start + v.byteLength));
-    const copy = { ...v, byteOffset: cursor, buffer: 0 };
-    cursor = pad4(cursor + v.byteLength);
+    const sub = replaced.get(i);
+    const bytes = sub
+      ? sub.bytes
+      : bin.subarray(v.byteOffset ?? 0, (v.byteOffset ?? 0) + v.byteLength);
+    chunks.push(bytes);
+    const copy = { ...v, byteOffset: cursor, byteLength: bytes.length, buffer: 0 };
+    if (sub) copy.byteStride = sub.byteStride;
+    cursor = pad4(cursor + bytes.length);
     viewMap.set(i, bufferViews.length);
     bufferViews.push(copy);
   });
@@ -204,7 +274,7 @@ function slim(buf) {
   g.bufferViews = bufferViews;
   g.buffers = [{ byteLength: out.length }];
 
-  return { buf: writeGLB(g, out), dropped };
+  return { buf: writeGLB(g, out), dropped, normals };
 }
 
 const K = (n) => `${Math.round(n / 1024)}kB`;
@@ -218,11 +288,13 @@ async function build({ from, to }) {
   if (destStat && destStat.mtimeMs > Math.max(srcStat.mtimeMs, selfStat.mtimeMs)) return;
 
   const input = await fs.readFile(src);
-  const { buf, dropped } = slim(input);
+  const { buf, dropped, normals } = slim(input);
   await fs.mkdir(path.dirname(dest), { recursive: true });
   await fs.writeFile(dest, buf);
   console.log(
-    `  model  ${to}  ${K(input.length)} -> ${K(buf.length)}  (${dropped} unused UV set${dropped === 1 ? "" : "s"} dropped)`,
+    `  model  ${to}  ${K(input.length)} -> ${K(buf.length)}` +
+      `  (${dropped} unused UV set${dropped === 1 ? "" : "s"} dropped,` +
+      ` ${normals} normal set${normals === 1 ? "" : "s"} to bytes)`,
   );
 }
 
