@@ -196,6 +196,14 @@ const track = [...half, ...half];
     opacity: 0.8;
   }
 
+  /* The marks are already flattened to black silhouettes above, so on a dark
+     ground they need the other ink and nothing else — there is no brand hue
+     left to preserve, which is what makes this a one-line change rather than
+     the usual invert-and-rotate-the-hue bargain. */
+  :root[data-theme="dark"] img {
+    filter: brightness(0) invert(1);
+  }
+
   /* Smaller on a phone, and slower with it. The marquee crosses a narrower
      screen, so at the desktop duration the same run of marks arrives and
      leaves in a fraction of the time, and the row reads as busy rather than as

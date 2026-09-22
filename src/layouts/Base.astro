@@ -120,15 +120,12 @@ const person = {
       page before it turns dark. There is no way around that ordering, which is
       why this one script is allowed to be what it is.
 
-      Only the blog is themeable; everywhere else is explicitly light, so a
-      remembered choice doesn't follow the reader onto a page built for paper.
+      The choice is remembered across the whole site, and it is a choice
+      rather than a system preference: defaulting to dark off prefers-color-
+      scheme would hand someone a dark home page they never asked for.
     -->
     <script is:inline>
       (() => {
-        if (!location.pathname.startsWith("/blog")) {
-          document.documentElement.dataset.theme = "light";
-          return;
-        }
         let stored = null;
         try {
           stored = localStorage.getItem("theme");
