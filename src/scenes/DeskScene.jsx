@@ -63,10 +63,10 @@ function Sticker({ texture, position, rotation, size = [0.3, 0.3] }) {
   );
 }
 
-function Desk({ atRest, hovering }) {
+function Desk({ atRest }) {
   const { nodes, materials } = useGLTF(MODEL);
   const [effectHouse, reactLogo, nextLogo, blenderBadge] = useTexture(TEXTURES);
-  const { camera, size } = useThree();
+  const { camera, size, gl } = useThree();
 
   const root = useRef();
   const gravity = useRef();
@@ -84,17 +84,51 @@ function Desk({ atRest, hovering }) {
     camera.updateProjectionMatrix();
   }, [size.width, camera]);
 
-  // Scroll tilt, read passively and only stored — the value is applied in the
-  // render loop, so scrolling never triggers layout work.
+  /* Scroll tilt, from the desk's own travel through the viewport.
+     
+     This used to be progress through the whole document — scrollY over the
+     body's scrollable height — which meant the tilt was set by where the page
+     was rather than by where the desk was. Scrolling anywhere at all, long
+     after the desk had gone by, kept driving it, and whatever angle the
+     document happened to be at when the desk came into view was the angle it
+     held. Scrolling up and down a couple of times could leave it near the end
+     of its range and keep it there.
+
+     Now zero is the desk centred in the viewport and the ±0.15 ends are it
+     entering and leaving, so the tilt is bounded by the desk's own passage,
+     always returns through centre, and agrees with the neutral pose the rest
+     snap uses.
+
+     Still no layout work on scroll: the element's page position is measured
+     once and re-measured only when something could actually have moved it. */
   useEffect(() => {
-    const onScroll = () => {
-      const p = window.scrollY / (document.body.scrollHeight - innerHeight || 1);
-      scroll.current.target = (p - 0.5) * 0.3;
+    const el = gl.domElement;
+    let top = 0;
+    let height = 0;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      top = r.top + window.scrollY;
+      height = r.height;
     };
-    onScroll();
+    const onScroll = () => {
+      const centre = top + height / 2 - window.scrollY;
+      const p = THREE.MathUtils.clamp(centre / (window.innerHeight || 1), 0, 1);
+      scroll.current.target = (0.5 - p) * 0.3;
+    };
+    const onResize = () => {
+      measure();
+      onScroll();
+    };
+    onResize();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+    // size is in here so the measurement is retaken whenever the canvas
+    // itself changes shape, which is the other way the desk can move.
+  }, [gl, size.width, size.height]);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -116,18 +150,16 @@ function Desk({ atRest, hovering }) {
         scroll.current.current = 0;
         root.current.rotation.set(0, 0, 0);
       } else {
-        /* Only follow the pointer while it is actually over the canvas.
-           R3F's state.pointer is only written by pointer events on the
-           element, so once the cursor is elsewhere it holds whatever it last
-           read — and the desk sits pinned at a pose that no longer
-           corresponds to anything, with the scroll tilt swinging on top of
-           it. Off the canvas the target is centre, and the same lerp eases it
-           back; the scroll tilt below is left alone, because that one is
-           still telling the truth. */
-        const aimX = hovering.current ? state.pointer.x * 0.1 : 0;
-        const aimY = hovering.current ? -state.pointer.y * 0.05 : 0;
-        pointer.current.x = THREE.MathUtils.lerp(pointer.current.x, aimX, k);
-        pointer.current.y = THREE.MathUtils.lerp(pointer.current.y, aimY, k);
+        pointer.current.x = THREE.MathUtils.lerp(
+          pointer.current.x,
+          state.pointer.x * 0.1,
+          k,
+        );
+        pointer.current.y = THREE.MathUtils.lerp(
+          pointer.current.y,
+          -state.pointer.y * 0.05,
+          k,
+        );
         scroll.current.current = THREE.MathUtils.lerp(
           scroll.current.current,
           scroll.current.target,
@@ -540,11 +572,6 @@ export default function DeskScene({ onReady }) {
      true *before* the frame that acts on it is drawn, and a state update
      wouldn't land until the render after. */
   const atRest = useRef(false);
-  /* Whether the cursor is over the canvas. Tracked here rather than read from
-     R3F, which has no idea the pointer has gone. Boundary events fire when the
-     element scrolls out from under a still cursor too, which is the case that
-     started this. */
-  const hovering = useRef(false);
 
   return (
     <Canvas
@@ -587,14 +614,6 @@ export default function DeskScene({ onReady }) {
           { threshold: 0 },
         );
         io.observe(gl.domElement);
-        gl.domElement.addEventListener(
-          "pointerenter",
-          () => (hovering.current = true),
-        );
-        gl.domElement.addEventListener(
-          "pointerleave",
-          () => (hovering.current = false),
-        );
         gl.domElement.addEventListener("webglcontextlost", (e) => {
           e.preventDefault();
           setVisible(false);
@@ -610,7 +629,7 @@ export default function DeskScene({ onReady }) {
       <ambientLight intensity={0.85} />
       <directionalLight position={[0, 10, 5]} intensity={1.5} />
       <Suspense fallback={null}>
-        <Desk atRest={atRest} hovering={hovering} />
+        <Desk atRest={atRest} />
         <Ready onReady={onReady} />
       </Suspense>
       <Retro />
