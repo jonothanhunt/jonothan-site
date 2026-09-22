@@ -56,9 +56,11 @@ const writingInks = await paletteRun(posts.map((post) => post.data.image));
 // honest — they describe the file, not the box — so the picking still works;
 // it just picks a small file for a big slot on purpose.
 const HERO_WIDTHS = [860, 1200, 1632];
-// `-tone-` for the three-tone line-screen version, or drop it for the 1-bit
-// one — both are built, so this is the whole switch between them.
-const HERO_VARIANT = "tone-";
+// Which bake the hero uses. `tone-` is the three-tone line screen, `flat-` is
+// the same three tones with the screen switched off (hard bands, no dither),
+// and dropping it entirely gives the 1-bit version. All three are built, so
+// this is the whole switch between them.
+const HERO_VARIANT = "flat-";
 const heroSrcset = HERO_WIDTHS.map(
   (w) => `/dither/hero-${HERO_VARIANT}${w}.png ${w}w`,
 ).join(", ");

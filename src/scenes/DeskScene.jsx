@@ -64,7 +64,7 @@ function Sticker({ texture, position, rotation, size = [0.3, 0.3] }) {
   );
 }
 
-function Desk() {
+function Desk({ atRest }) {
   const { nodes, materials } = useGLTF(MODEL);
   const [effectHouse, reactLogo, nextLogo, blenderBadge] = useTexture(TEXTURES);
   const { camera, size } = useThree();
@@ -105,23 +105,36 @@ function Desk() {
     if (screen.current) screen.current.uTime = t;
 
     if (root.current) {
-      pointer.current.x = THREE.MathUtils.lerp(
-        pointer.current.x,
-        state.pointer.x * 0.1,
-        k,
-      );
-      pointer.current.y = THREE.MathUtils.lerp(
-        pointer.current.y,
-        -state.pointer.y * 0.05,
-        k,
-      );
-      scroll.current.current = THREE.MathUtils.lerp(
-        scroll.current.current,
-        scroll.current.target,
-        k * 0.6,
-      );
-      root.current.rotation.y = pointer.current.x;
-      root.current.rotation.x = pointer.current.y + scroll.current.current;
+      /* Going to rest, rather than tracking. This runs on the one frame drawn
+         as the desk leaves the viewport — see the observer in DeskScene — so
+         it snaps rather than eases: there is no second frame to ease on. What
+         it snaps to is the pose the desk would hold with the pointer in the
+         middle of it and the page at half scroll, which is the one neutral
+         position it has. */
+      if (atRest.current) {
+        pointer.current.x = 0;
+        pointer.current.y = 0;
+        scroll.current.current = 0;
+        root.current.rotation.set(0, 0, 0);
+      } else {
+        pointer.current.x = THREE.MathUtils.lerp(
+          pointer.current.x,
+          state.pointer.x * 0.1,
+          k,
+        );
+        pointer.current.y = THREE.MathUtils.lerp(
+          pointer.current.y,
+          -state.pointer.y * 0.05,
+          k,
+        );
+        scroll.current.current = THREE.MathUtils.lerp(
+          scroll.current.current,
+          scroll.current.target,
+          k * 0.6,
+        );
+        root.current.rotation.y = pointer.current.x;
+        root.current.rotation.x = pointer.current.y + scroll.current.current;
+      }
     }
 
     if (bed.current) bed.current.position.z = Math.sin(t) * 0.1;
@@ -531,6 +544,10 @@ const RAMP = " .:-=+*#%@";
 
 export default function DeskScene({ onReady }) {
   const [visible, setVisible] = useState(false);
+  /* Read by Desk's render loop. A ref rather than state because it has to be
+     true *before* the frame that acts on it is drawn, and a state update
+     wouldn't land until the render after. */
+  const atRest = useRef(false);
 
   return (
     <Canvas
@@ -544,9 +561,32 @@ export default function DeskScene({ onReady }) {
       camera={{ near: 0.1, far: 1000, position: [-1.8, 1.6, 3.5], rotation: [-0.42, -0.4, -0.1] }}
       gl={{ alpha: true, antialias: false, powerPreference: "default" }}
       style={{ background: "transparent" }}
-      onCreated={({ gl }) => {
+      onCreated={({ gl, advance }) => {
+        /* Leaving the viewport stops the loop, and stopping the loop leaves
+           whatever frame happened to be on screen on screen — which is a
+           half-finished lerp somewhere between where the pointer was and where
+           the scroll had got to, and a desk left at an angle it was only ever
+           passing through. Scrolling back to it then showed that, until the
+           loop restarted and swung it somewhere else.
+
+           So the desk is put back to its rest pose and one more frame is drawn
+           *before* the loop is allowed to stop. `advance` is R3F's manual
+           step; calling it while the loop is still running is harmless, and
+           calling it here rather than waiting for the loop removes the race
+           between the next animation frame and React applying the state change
+           below. Coming back, the lerp starts from that neutral pose, so the
+           desk eases out of centre rather than arriving mid-swing. */
         const io = new IntersectionObserver(
-          ([e]) => setVisible(e.isIntersecting),
+          ([e]) => {
+            if (e.isIntersecting) {
+              atRest.current = false;
+              setVisible(true);
+              return;
+            }
+            atRest.current = true;
+            advance(performance.now());
+            setVisible(false);
+          },
           { threshold: 0 },
         );
         io.observe(gl.domElement);
@@ -565,7 +605,7 @@ export default function DeskScene({ onReady }) {
       <ambientLight intensity={0.85} />
       <directionalLight position={[0, 10, 5]} intensity={1.5} />
       <Suspense fallback={null}>
-        <Desk />
+        <Desk atRest={atRest} />
         <Ready onReady={onReady} />
       </Suspense>
       <Retro />
