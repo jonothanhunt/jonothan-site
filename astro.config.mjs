@@ -53,6 +53,20 @@ export default defineConfig({
   },
 
   vite: {
+    /* Dev and build get separate dependency caches.
+    
+       They shared node_modules/.vite, and `astro build` re-optimises the same
+       deps in production mode — so a build run while the dev server was up
+       overwrote its prebundles. The one that matters is react/jsx-dev-runtime:
+       React's production copy of it is a real file that exports
+       `jsxDEV = undefined`, so the dev server went on serving it and every
+       .jsx module compiled against it died with "_jsxDEV is not a function".
+       It looked random because it only happened after a build, and clearing
+       the cache always "fixed" it. Two directories, and a build can't reach
+       the dev server's deps at all. */
+    cacheDir: process.argv.includes("build")
+      ? "node_modules/.vite-build"
+      : "node_modules/.vite",
     build: { assetsInlineLimit: 2048 },
     // Anything Vite's scanner can't see from a plain import has to be named
     // here, or it gets discovered the first time something asks for it, the
