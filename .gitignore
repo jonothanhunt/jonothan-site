@@ -42,3 +42,6 @@ pnpm-debug.log*
 
 # TypeScript incremental build cache
 tsconfig.tsbuildinfo
+
+# vite dep cache for `astro build`, kept apart from the dev server's
+node_modules/.vite-build/
