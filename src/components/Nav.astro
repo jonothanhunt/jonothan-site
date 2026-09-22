@@ -378,20 +378,15 @@ const isHome = Astro.url.pathname === "/";
     top: 100%;
     right: 0;
     background: var(--panel);
-    animation: drop 0.2s linear;
-  }
-
-  @keyframes drop {
-    from {
-      opacity: 0;
-      transform: translateY(-4px);
-    }
+    /* No entrance. It faded up over four pixels, which is the sort of thing
+       that reads as polish in isolation and as lag in use: the panel is the
+       answer to a click, and two tenths of a second is long enough to see it
+       arriving rather than see it there. It is also the last easing left on
+       anything that opens or closes here — the pills, the filters and the
+       cards all switch — so it had stopped matching the rest of the site. */
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .contact__panel {
-      animation: none;
-    }
     .brand {
       transition: none;
     }
