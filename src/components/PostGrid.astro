@@ -185,23 +185,41 @@ const options = [
     padding-block: var(--nav-space) 64px;
   }
 
-  /* Inline-block chips in a block container, so `text-wrap: balance` can even
-     out the rows instead of leaving one or two orphans on the last line. */
-  /* Room on both sides so the row reads as its own band between the nav and
-     the list, rather than crowding either. */
-  /* Left, not centred. Centring suited pills of varying widths; a row of
+  /* A block of inline-block chips, not a flex row — which is what lets
+     `text-wrap: balance` even the lines out.
+     ---
+     Flex wrap fills each line to the brim and drops whatever is left onto the
+     next one, so seven chips came out six-and-one and the odd one sat under
+     the row looking forgotten. Balancing is a line-breaking behaviour and
+     line-breaking only happens in an inline formatting context, so the chips
+     have to be inline for it to reach them. They already are — `.pill` is an
+     inline-flex — so this is only a matter of the container letting them lay
+     out as text.
+     ---
+     `font-size: 0` on the container and the real size back on each chip: the
+     whitespace between the labels in the markup would otherwise set a word
+     space of the container's own font size between every pair, which is not
+     4px and not adjustable. Zeroing it leaves the break opportunity (that is
+     what balance needs) while taking the width away, so the gaps are the
+     margins below and nothing else.
+     ---
+     Left, not centred. Centring suited pills of varying widths; a row of
      square boxes wants a common left edge to line up with the column of cards
-     below it, and the label above it. */
-  /* One band under it, the same one the nav leaves above — see --band. */
+     below it. And one band under the whole thing, the same one the nav leaves
+     above — see --band. */
   .filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-block: 0 var(--band);
+    display: block;
+    font-size: 0;
+    text-wrap: balance;
+    /* The chips carry the gap as margin, so the last row's 4px comes off. */
+    margin-block: 0 calc(var(--band) - 4px);
   }
 
   .filter label {
     cursor: pointer;
+    font-size: var(--t-nav);
+    margin: 0 4px 4px 0;
+    vertical-align: top;
     /* No transition on selection. Switching a filter re-lays out the list
        underneath, so easing the chip's colour just delays the feedback for
        something that has already happened. Hover still eases — see .pill. */
