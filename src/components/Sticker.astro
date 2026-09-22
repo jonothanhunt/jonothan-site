@@ -195,13 +195,13 @@ function ring(radius: number, steps = 12) {
     translate: -50% -50%;
     background-image: conic-gradient(
       from 200deg at 40% 20%,
-      #a9f0e0,
-      #ffc4ec,
-      #c9bcff,
-      #fff0b0,
-      #b6e4ff,
-      #ffc4ec,
-      #a9f0e0
+      #7dffe8,
+      #ffb3ec,
+      #c6a8ff,
+      #fff59e,
+      #9ee0ff,
+      #ffb3ec,
+      #7dffe8
     );
   }
 
@@ -230,7 +230,7 @@ function ring(radius: number, steps = 12) {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    filter: contrast(0.68) brightness(1.24) saturate(0.78);
+    filter: contrast(0.6) brightness(1.45) saturate(0.78);
   }
 
   /* Both finish layers share the artwork's silhouette, undilated. */
@@ -271,20 +271,27 @@ function ring(radius: number, steps = 12) {
     translate: -50% -50%;
   }
 
+  /* `color` takes hue and saturation from this layer and lightness from the
+     artwork below, so the foil's own brightness is thrown away — turning the
+     stops up towards white would make it paler, not brighter. Chroma is the
+     only thing this layer contributes, so it is pushed past what the gradient
+     alone can express: the stops are already at full saturation, and
+     `saturate` takes them further than a hex value can go. */
   .sticker__foil {
     mix-blend-mode: color;
+    filter: saturate(1.7);
   }
 
   .sticker__foil::before {
     background-image: conic-gradient(
       from 200deg at 40% 20%,
-      #35d6b0,
-      #ff6fd0,
-      #7a5cff,
-      #ffd83a,
-      #37b6ff,
-      #ff6fd0,
-      #35d6b0
+      #00ffd5,
+      #ff4ddb,
+      #7c3cff,
+      #ffe81f,
+      #00c6ff,
+      #ff4ddb,
+      #00ffd5
     );
   }
 
@@ -292,7 +299,7 @@ function ring(radius: number, steps = 12) {
      reading as flat, not to light the whole mark. */
   .sticker__sheen {
     mix-blend-mode: overlay;
-    opacity: 0.55;
+    opacity: 0.7;
   }
 
   /* The dark end of the sweep is much lighter than it was. In `overlay` a
