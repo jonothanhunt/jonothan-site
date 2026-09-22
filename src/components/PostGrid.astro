@@ -133,16 +133,76 @@ const options = [
   // Keep whichever filter is active when the path changes.
   const withFilter = (path: string) => path + location.search;
 
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* True while we are opening and closing rows ourselves, so the `toggle`
+     handler below knows not to treat it as the reader's doing. */
+  let switching = false;
+
+  /* Opening a row is handled on the summary's click rather than on `toggle`,
+     because by the time `toggle` fires the browser has already opened the row
+     and the order of what happens next is no longer ours to choose.
+     ---
+     The problem it fixes: open a post near the bottom of the list while
+     another is open above it, and the page jumped enormously. Three things
+     were happening at once — the new row opening, the old one collapsing by
+     however many thousand pixels an article runs to, and a smooth scroll
+     trying to land on a target whose position was changing underneath it. The
+     scroll won the race and overshot by roughly the height of the article that
+     had just disappeared.
+     ---
+     So it is done in a fixed order instead. Close the others *instantly*, with
+     the disclosure transition suppressed, so the whole shift lands in one step
+     rather than over the next 450ms. Measure how far the clicked row moved and
+     put it back with an immediate scroll, so from the reader's point of view
+     it has not moved at all. Only then open it and scroll — and by now that
+     scroll is the short, honest distance from where the row is to the top of
+     the window. */
+  const openRow = (row: HTMLDetailsElement) => {
+    const before = row.getBoundingClientRect().top;
+
+    switching = true;
+    // Suppress the disclosure transition for the collapse, so the layout is
+    // settled — and measurable — on the very next line.
+    document.documentElement.dataset.detailsMotion = "off";
+    rows.forEach((other) => {
+      if (other !== row) other.open = false;
+    });
+    // Reading a layout property forces the collapse to be applied now rather
+    // than at the end of the task, which is the whole point of the suppression.
+    const after = row.getBoundingClientRect().top;
+    delete document.documentElement.dataset.detailsMotion;
+    switching = false;
+
+    if (after !== before) {
+      window.scrollBy({ top: after - before, behavior: "instant" });
+    }
+
+    row.open = true;
+    history.pushState(null, "", withFilter(`/blog/${row.id}`));
+    row.scrollIntoView({
+      block: "start",
+      behavior: reduceMotion.matches ? "instant" : "smooth",
+    });
+  };
+
   rows.forEach((row) => {
+    const summary = row.querySelector("summary");
+
+    summary?.addEventListener("click", (event) => {
+      // Closing is the browser's job and shifts nothing above the row, so it
+      // needs none of this.
+      if (row.open) return;
+      event.preventDefault();
+      openRow(row);
+    });
+
     row.addEventListener("toggle", () => {
-      if (!row.open) {
-        if (location.pathname === `/blog/${row.id}`)
-          history.pushState(null, "", withFilter("/blog"));
-        return;
+      // Our own opening and closing, mid-switch. Already accounted for.
+      if (switching) return;
+      if (!row.open && location.pathname === `/blog/${row.id}`) {
+        history.pushState(null, "", withFilter("/blog"));
       }
-      rows.forEach((other) => other !== row && (other.open = false));
-      history.pushState(null, "", withFilter(`/blog/${row.id}`));
-      row.scrollIntoView({ block: "start", behavior: "smooth" });
     });
   });
 

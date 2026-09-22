@@ -3,6 +3,16 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base title="Page not found" description="That page doesn't exist.">
+  <!--
+    This page is the 404 *status*, and for anything that reads rather than
+    browses — a crawler, a link checker, a reader with JS off — it is also the
+    answer. Everyone else is sent home by the script below and told why when
+    they get there.
+
+    Redirecting rather than rendering is the deliberate part: a dead end that
+    explains itself is still a dead end, and the useful thing to do with
+    someone who mistyped a URL is put them somewhere real.
+  -->
   <div class="shell">
     <section class="block block--flame marks--all nf">
       <p class="spec nf__row">
@@ -11,7 +21,7 @@ import Base from "../layouts/Base.astro";
         <span class="spec__val">404 &#x00B7; not found</span>
       </p>
       <h1>That page has wandered off.</h1>
-      <p class="lede">Try the work, or have a read of the blog.</p>
+      <p class="lede">Taking you home.</p>
       <p class="nf__links">
         <a class="pill pill--blog" href="/">Home</a>
         <a class="pill pill--blog" href="/blog">Blog</a>
@@ -19,6 +29,15 @@ import Base from "../layouts/Base.astro";
     </section>
   </div>
 </Base>
+
+<script is:inline>
+  /* Inline and in the body, so it runs before the page has finished painting
+     and the flash of a dead end is as short as it can be.
+
+     `replace`, not `assign`: the 404 must not go into the history stack, or
+     Back from the home page lands on it again and bounces straight forward. */
+  location.replace("/?from=404");
+</script>
 
 <style>
   .nf {

@@ -6,6 +6,7 @@ import LogoStrip from "../components/LogoStrip.astro";
 import CopyEmail from "../components/CopyEmail.astro";
 import Desk from "../components/Desk.astro";
 import Sticker from "../components/Sticker.astro";
+import Toast from "../components/Toast.astro";
 import { Picture } from "astro:assets";
 import { paletteRun } from "../lib/palette";
 import * as hero from "../lib/hero.mjs";
@@ -312,6 +313,8 @@ const awards = [
       <a class="pill pill--blog" href="/blog">All posts</a>
     </section>
   </div>
+
+  <Toast />
 </Base>
 
 <style>
