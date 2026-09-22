@@ -11,6 +11,7 @@ import YouTube from "./mdx/YouTube.astro";
 import TikTok from "./mdx/TikTok.astro";
 import Video from "./mdx/Video.astro";
 import CodeDemo from "./mdx/CodeDemo.astro";
+import Img from "./mdx/Img.astro";
 import { formatDate, tagSlug, tagLabel, type Post } from "../lib/posts";
 import type { Palette } from "../lib/palette";
 
@@ -116,7 +117,7 @@ const proseInk = ink === "paper" ? "sun" : ink;
   <!-- Sits below the card, directly on the page background — no panel. -->
   <article class="body">
     <Prose>
-      <Content components={{ YouTube, TikTok, Video, CodeDemo }} />
+      <Content components={{ YouTube, TikTok, Video, CodeDemo, img: Img }} />
     </Prose>
 
     <footer class="body__foot">
