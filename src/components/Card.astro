@@ -310,7 +310,7 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
      Pointer devices only. On a touch screen a `:hover` state lasts exactly as
      long as the tap that is already navigating away, so it would read as a
      flicker on the way out of the page rather than as a reveal. */
-  @media (hover: hover) {
+  @media (any-hover: hover) {
     .card:hover .card__img {
       mix-blend-mode: normal;
       filter: none;

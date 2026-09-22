@@ -392,7 +392,7 @@ const isHome = Astro.url.pathname === "/";
     color: var(--paper);
   }
 
-  @media (hover: hover) {
+  @media (any-hover: hover) {
     .nav-pill:hover {
       background: var(--ink);
       color: var(--paper);
@@ -426,6 +426,16 @@ const isHome = Astro.url.pathname === "/";
        it the way the pills are spaced from each other. */
     top: calc(100% + 1px);
     right: 0;
+    /* Sized to its contents, said out loud.
+       ---
+       An absolutely positioned block with no width is shrink-to-fit, which
+       ought to come to the same thing — and in Safari it doesn't. It measured
+       the inline-flex bar inside 28px narrower than Chrome did, so the two
+       halves shrank to fit a panel that was too small and their text ran out
+       through its own padding: the address and the COPY label ended up flush
+       against the right edge of their own ground. `max-content` takes the
+       guess out of it and both engines agree. */
+    width: max-content;
     /* And no ground of its own.
        ---
        It was --panel, the same colour the two halves of the copy control paint

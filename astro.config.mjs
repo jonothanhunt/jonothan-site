@@ -67,7 +67,22 @@ export default defineConfig({
     cacheDir: process.argv.includes("build")
       ? "node_modules/.vite-build"
       : "node_modules/.vite",
-    build: { assetsInlineLimit: 2048 },
+    /* esbuild for the CSS, not Vite 8's default of lightningcss.
+    
+       lightningcss strips vendor prefixes it decides are redundant, and it
+       decides that from Vite's `build.target` rather than from anything this
+       project says — a browserslist in package.json doesn't reach it, and nor
+       does css.lightningcss.targets, both of which were tried. It dropped
+       `-webkit-box-decoration-break`, which Safari has never shipped
+       unprefixed: WebKit 26 still reports the plain property as undefined. The
+       result was every multi-line caption plate losing the padding between its
+       line boxes, in Safari only, while the first line kept its left padding
+       and the last kept its right — the exact signature of the fallback
+       `slice` behaviour.
+
+       esbuild keeps prefixes it is given. It costs 68 bytes brotli on the home
+       page, which is 0.5%. */
+    build: { assetsInlineLimit: 2048, cssMinify: "esbuild" },
     // Anything Vite's scanner can't see from a plain import has to be named
     // here, or it gets discovered the first time something asks for it, the
     // optimiser re-runs mid-session, and every module already in flight comes

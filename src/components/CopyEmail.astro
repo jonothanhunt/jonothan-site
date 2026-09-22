@@ -88,6 +88,11 @@ const { variant = "bar" } = Astro.props;
     gap: 0.55em;
     /* The full bar height, so hovering either half fills it top to bottom. */
     height: var(--ui-h-solo);
+    /* Neither half ever shrinks. Both are `nowrap`, so shrinking them cannot
+       reflow anything — it can only push the text out through the padding,
+       which is what Safari did whenever it measured the bar's container a
+       little narrow. */
+    flex: none;
     padding-inline: 13px;
     background: var(--panel);
     letter-spacing: 0.02em;
@@ -132,7 +137,7 @@ const { variant = "bar" } = Astro.props;
     display: block;
   }
 
-  @media (hover: hover) {
+  @media (any-hover: hover) {
     .copy__link:hover,
     .copy__btn:hover {
       background: var(--ink);

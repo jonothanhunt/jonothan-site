@@ -288,7 +288,7 @@ const proseInk = ink === "paper" ? "sun" : ink;
      and lets it print in its own colours. No easing — two states, not two ends
      of a range — and pointer devices only, because on a touch screen the
      hover lasts exactly as long as the tap that is already opening the row. */
-  @media (hover: hover) {
+  @media (any-hover: hover) {
     .card:hover .card__img {
       mix-blend-mode: normal;
       filter: none;

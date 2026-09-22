@@ -334,7 +334,7 @@ function ring(radius: number, steps = 12) {
      This is the one eased hover left on the site. Everything else switches,
      because everything else has two states; this has a range, and the whole
      point of it is the travel between the ends. */
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  @media (any-hover: hover) and (prefers-reduced-motion: no-preference) {
     .sticker__foil::before,
     .sticker__sheen::before,
     .sticker__bleed::before {

@@ -694,7 +694,21 @@ p {
   box-shadow: inset 0 0 0 1px var(--ink);
 }
 
-@media (hover: hover) {
+/* `any-hover`, not `hover`, everywhere on the site.
+   ---
+   `hover: hover` asks whether the *primary* input can hover, and on an iPad
+   the primary input is a finger — so a Pencil or a trackpad, both of which
+   hover perfectly well, got none of these states. The desk was the exception
+   and the giveaway: it listens for pointer events in JavaScript rather than
+   asking CSS, and it has always worked with a Pencil.
+   `any-hover: hover` asks whether *any* attached input can hover, which is
+   the actual condition under which a hover state is worth having.
+
+   The cost is that on such a device a finger tap can leave an element in its
+   hover state until something else is touched. Every one of these is either a
+   link that navigates away or a disclosure that opens, so the stuck state
+   lasts exactly as long as the thing the tap already started. */
+@media (any-hover: hover) {
   a.pill:hover,
   button.pill:hover,
   label.pill:hover {
