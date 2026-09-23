@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: write
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -22,3 +24,25 @@ jobs:
           ATPROTO_HANDLE: ${{ secrets.ATPROTO_HANDLE }}
           ATPROTO_PASSWORD: ${{ secrets.ATPROTO_PASSWORD }}
         run: node scripts/publish-atproto.mjs
+      # publish-atproto.mjs mints a fresh TID for any slug missing from
+      # src/data/atproto-tids.json and writes it locally, but never used to
+      # persist that back — so every run generated a NEW record key for any
+      # post the repo hadn't already committed one for, republished the
+      # document under it, and deleted the previous run's as "orphaned".
+      # The live page's <link rel="site.standard.document"> (Base.astro)
+      # only ever knows the TID that's actually committed, so it never
+      # matched what was live on the PDS — which is why Bluesky's card
+      # generator had nothing valid to resolve and fell back to a plain
+      # OpenGraph card. Committing the file here, using the default
+      # GITHUB_TOKEN, closes the loop without re-triggering this workflow:
+      # GitHub doesn't fire `push` events for commits made with that token.
+      - name: Commit new AT Protocol record keys
+        run: |
+          if ! git diff --quiet -- src/data/atproto-tids.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add src/data/atproto-tids.json
+            git commit -m "Record new AT Protocol TIDs"
+            git pull --rebase origin main
+            git push
+          fi
