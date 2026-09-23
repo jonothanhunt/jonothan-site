@@ -120,7 +120,12 @@ async function processMdxFile(filePath) {
     textContent: plainTextFull,
     description: desc || plainTextDesc,
     site: `at://${ATPROTO_DID}/site.standard.publication/${getTid(PUBLICATION_KEY)}`,
-    path: `/blog/${slug}`
+    // Relative to the publication's own `url` (main(): SITE_URL + '/blog'), not SITE_URL —
+    // cardyb reconstructs each document's page URL as `publication.url + path` to confirm
+    // the record actually belongs to the page being carded, and silently drops the
+    // correlation if it doesn't match. `/blog/${slug}` here used to double up with the
+    // publication's own `/blog` into `.../blog/blog/${slug}`, so no document ever validated.
+    path: `/${slug}`
   };
 
   return { payload: standardSitePayload, coverImagePath };
