@@ -53,74 +53,59 @@ async function processMdxFile(filePath) {
   const slug = path.basename(filePath, '.mdx');
   
   const titleMatch = content.match(/title:\s*"([^"]+)"/);
-  const dateMatch = content.match(/date:\s*"([^"]+)"/);
-  const descMatch = content.match(/description:\s*"([^"]+)"/);
-  
+  // Frontmatter's `date:` is unquoted (content.config.ts: `z.coerce.date()`) and the
+  // excerpt field is actually named `excerpt`, not `description` — matching the wrong
+  // shape here meant both silently fell through to their fallback on every post: every
+  // publishedAt was "now" (script run time) instead of the real date, and every
+  // description was the auto-truncated plaintext extract below instead of the curated
+  // excerpt the site itself uses for og:description.
+  const dateMatch = content.match(/^date:\s*"?([^"\n]+?)"?\s*$/m);
+  const descMatch = content.match(/excerpt:\s*"([^"]+)"/);
+  const imageMatch = content.match(/^image:\s*"([^"]+)"/m);
+
   const title = titleMatch ? titleMatch[1] : slug;
   const date = dateMatch ? dateMatch[1] : new Date().toISOString();
   const desc = descMatch ? descMatch[1] : '';
 
-  const fileUrl = `${SITE_URL}/blog/${slug}`;
-
-  let plainTextDesc = '';
   let bodyContent = content.replace(/^---[\s\S]+?---\n*/, '');
 
-  // Process the Markdown AST
+  // Process the Markdown AST into plain text. The lexicon defines `textContent` as
+  // "plaintext without markup" (not Markdown), so images/JSX/HTML and the MDX export
+  // block are all stripped before flattening to text.
+  let plainTextFull = '';
   const processor = remark().use(remarkMdx).use(() => (tree) => {
-    // Remove the export metadata block from the output text
     visit(tree, 'mdxjsEsm', (node, index, parent) => {
       parent.children.splice(index, 1);
       return [visit.SKIP, index];
     });
-
-    // Create a plain text description from the tree by ignoring images and jsx
-    const descTree = JSON.parse(JSON.stringify(tree));
-    visit(descTree, ['image', 'mdxJsxFlowElement', 'mdxJsxTextElement', 'html'], (node, index, parent) => {
+    visit(tree, ['image', 'mdxJsxFlowElement', 'mdxJsxTextElement', 'html'], (node, index, parent) => {
       if (parent) {
         parent.children.splice(index, 1);
         return [visit.SKIP, index];
       }
     });
-    plainTextDesc = toString(descTree).trim().replace(/\s+/g, ' ');
-    if (plainTextDesc.length > 200) {
-      plainTextDesc = plainTextDesc.slice(0, 200) + '...';
-    }
-
-    // Handle SandpackEmbed fallbacks
-    visit(tree, 'mdxJsxFlowElement', (node, index, parent) => {
-      if (node.name === 'SandpackEmbed') {
-        const fallbackNode = {
-          type: 'paragraph',
-          children: [
-            {
-              type: 'emphasis',
-              children: [
-                {
-                  type: 'link',
-                  url: fileUrl,
-                  children: [{ type: 'text', value: 'View interactive code demo on jonothan.dev' }],
-                },
-              ],
-            },
-          ],
-        };
-        parent.children.splice(index, 1, fallbackNode);
-        return [visit.SKIP, index];
-      }
-    });
-
-    visit(tree, 'image', (node) => {
-      let url = node.url;
-      // Convert relative to absolute for external reading
-      if (url.startsWith('/')) {
-        url = `${SITE_URL}${url}`;
-        node.url = url; 
-      }
-    });
+    // toString() concatenates text nodes with no separator, so without this, adjacent
+    // blocks run together ("usage.What it is") and understate the word count the
+    // reading-time estimate is built from. Flattening block-by-block keeps a space
+    // between them.
+    plainTextFull = tree.children
+      .map((node) => toString(node))
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   });
 
-  const result = await processor.process(bodyContent);
-  const markdownBody = String(result).trim();
+  await processor.process(bodyContent);
+  const plainTextDesc = plainTextFull.length > 200
+    ? plainTextFull.slice(0, 200) + '...'
+    : plainTextFull;
+
+  // Resolve the frontmatter cover image to an absolute path, for main() to upload as
+  // the document's `coverImage` blob (drives the link-card thumbnail).
+  const coverImagePath = imageMatch
+    ? path.resolve(path.dirname(filePath), imageMatch[1])
+    : null;
 
   // Construct the Standard.site Document payload
   // NOTE: Do NOT add a `content` field. The standard.site `content` union has no
@@ -132,13 +117,13 @@ async function processMdxFile(filePath) {
     $type: 'site.standard.document',
     title,
     publishedAt: new Date(date).toISOString(),
-    textContent: markdownBody,
+    textContent: plainTextFull,
     description: desc || plainTextDesc,
     site: `at://${ATPROTO_DID}/site.standard.publication/${getTid(PUBLICATION_KEY)}`,
     path: `/blog/${slug}`
   };
 
-  return standardSitePayload;
+  return { payload: standardSitePayload, coverImagePath };
 }
 
 async function main() {
@@ -311,7 +296,20 @@ async function main() {
     const rkey = getTid(slug);
     publishedTids.add(rkey);
     try {
-      const payload = await processMdxFile(file);
+      const { payload, coverImagePath } = await processMdxFile(file);
+
+      if (coverImagePath && fs.existsSync(coverImagePath)) {
+        const mimeType = coverImagePath.endsWith('.png') ? 'image/png' : 'image/jpeg';
+        try {
+          const uploadRes = await agent.com.atproto.repo.uploadBlob(
+            fs.readFileSync(coverImagePath),
+            { encoding: mimeType }
+          );
+          payload.coverImage = uploadRes.data.blob;
+        } catch (e) {
+          console.error(`⚠️  Failed to upload cover image for ${slug}:`, e.message || e);
+        }
+      }
 
       console.log(`Publishing standard.site document for: ${slug} (${rkey})...`);
       await agent.com.atproto.repo.putRecord({
