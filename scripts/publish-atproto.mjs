@@ -50,7 +50,12 @@ function getTid(key) {
 
 async function processMdxFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const slug = path.basename(filePath, '.mdx');
+  // Astro's glob content loader lowercases the filename to build each entry's `id`
+  // (used as `post.id`/the route slug), but every other slug here already happened
+  // to be all-lowercase — so thinking-frameworks-and-AI.mdx was the one file where
+  // this diverged: rkey, path, and Base.astro's `tids[post.id]` lookup never lined
+  // up, and the page silently fell back to the publication-only <meta at:canonical>.
+  const slug = path.basename(filePath, '.mdx').toLowerCase();
   
   const titleMatch = content.match(/title:\s*"([^"]+)"/);
   // Frontmatter's `date:` is unquoted (content.config.ts: `z.coerce.date()`) and the
@@ -297,7 +302,9 @@ async function main() {
   const publishedTids = new Set();
 
   for (const file of files) {
-    const slug = path.basename(file, '.mdx');
+    // Must match processMdxFile's slug exactly — this is the rkey Base.astro looks
+    // up via `tids[post.id]`, and post.id is Astro's lowercased glob-loader id.
+    const slug = path.basename(file, '.mdx').toLowerCase();
     const rkey = getTid(slug);
     publishedTids.add(rkey);
     try {
