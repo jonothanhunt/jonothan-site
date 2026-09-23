@@ -9,12 +9,6 @@ import remarkMediaEmbeds from "./src/lib/remark-media-embeds.mjs";
 export default defineConfig({
   site: "https://jonothan.dev",
 
-  // Posts renamed since publishing — keep the old URL alive for anyone who
-  // already has it linked or shared, rather than letting it 404.
-  redirects: {
-    "/blog/index-ring-review": "/blog/pebble-index-01-review",
-  },
-
   // React is pulled in only by the one 3D island; every other page ships zero JS.
   integrations: [
     mdx(),
