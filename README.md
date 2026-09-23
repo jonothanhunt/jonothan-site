@@ -99,13 +99,22 @@ title: "Title"
 date: 2026-08-06
 excerpt: "One line for the card and the meta description."
 type: ["Post"]
-image: "./_media/<slug>/cover.webp"
+image: "./_media/<slug>/cover.jpg"
 ---
 ```
 
 Put images in `src/content/blog/_media/<slug>/` and reference them relatively
 (`./_media/<slug>/thing.webp`). A YouTube or TikTok URL on its own line becomes
 an embed automatically.
+
+The frontmatter `image` is the one exception to WebP: it must be a plain,
+undithered JPEG or PNG. It becomes `og:image` untouched (see
+`content.config.ts`), and social scrapers — Bluesky's included — have always
+been unreliable at decoding WebP; the site dithers a copy of this same source
+for its own cards, but social never sees that dithered version. `dithered:
+true` in frontmatter is for the rare post whose source photo already arrived
+dithered (DITHRPIX is the only one) — don't set it just because the source is
+a JPEG.
 
 ## Gotchas
 
