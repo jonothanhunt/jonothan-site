@@ -107,6 +107,33 @@ const person = {
       )
     }
 
+    <!--
+      The `site.standard.*` link rels above are what the standard.site docs
+      document, but Bluesky's card resolver (cardyb) doesn't appear to act on
+      them in practice — verified by comparing against two independent live
+      standard.site publishers (leaflet.pub, pckt.blog): both also carry these
+      `at:canonical`/`at:alternate` meta tags, and cardyb only returns
+      associated_refs for pages that have them. `at:canonical` names this
+      page's own record (the document if there is one, else the publication);
+      `at:alternate` cross-references the other on document pages.
+    -->
+    <meta
+      name="at:canonical"
+      content={
+        atprotoTid
+          ? `at://${ATPROTO_DID}/site.standard.document/${atprotoTid}`
+          : `at://${ATPROTO_DID}/site.standard.publication/${publicationTid}`
+      }
+    />
+    {
+      atprotoTid && (
+        <meta
+          name="at:alternate"
+          content={`at://${ATPROTO_DID}/site.standard.publication/${publicationTid}`}
+        />
+      )
+    }
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="Jonothan Hunt" href="/rss.xml" />
     <meta name="theme-color" content="#16161a" />
