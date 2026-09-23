@@ -17,12 +17,14 @@ const blog = defineCollection({
       image: image().optional(),
       /* The cover is already dithered, so the site must not dither it again.
          ---
-         Everywhere else the frontmatter image is a plain photograph: social
-         cards link straight to it untouched, and the build makes the dithered
-         copy this site shows. One source, two outputs. A picture that arrived
-         dithered breaks that, because the second pass quantises an already
-         quantised image and the two grids beat against each other. This says
-         the source is the finished article and to leave it alone. */
+         Everywhere else the frontmatter image is a plain photograph: the
+         build makes both the dithered copy this site shows and a JPEG (or,
+         for an already-dithered source, a PNG) for the og:image social
+         scrapers read. One source, two-or-three outputs. A picture that
+         arrived dithered breaks the first of those, because the second pass
+         quantises an already quantised image and the two grids beat against
+         each other. This says the source is the finished article and to
+         leave it alone. */
       dithered: z.boolean().default(false),
       links: z
         .array(z.object({ title: z.string(), url: z.string().url() }))

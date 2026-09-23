@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { getImage } from "astro:assets";
 import Base from "../../layouts/Base.astro";
 import PostGrid from "../../components/PostGrid.astro";
 import { allPosts, allTags } from "../../lib/posts";
@@ -25,6 +26,20 @@ type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 const { post, posts, tags } = Astro.props as Props;
 const { title, date, excerpt, image } = post.data;
 
+// og:image, same as the RSS card: WebP is what the article body uses, but
+// social scrapers (Bluesky's included) are the ones this has to render
+// without question, and that's the format every one of them can decode.
+// PNG stays PNG for a source that arrived dithered, so it isn't pushed
+// through a second lossy pass.
+const lossless = image?.format === "png";
+const socialCard = image
+  ? await getImage({
+      src: image,
+      width: Math.min(1200, image.width),
+      format: lossless ? "png" : "jpeg",
+    })
+  : undefined;
+
 const schema = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -43,7 +58,7 @@ const schema = {
 <Base
   title={title}
   {...excerpt ? { description: excerpt } : {}}
-  image={image?.src}
+  image={socialCard?.src}
   type="article"
   publishedTime={date}
   schema={schema}
