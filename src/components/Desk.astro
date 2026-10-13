@@ -107,12 +107,32 @@
       mount.classList.add("is-armed");
       arm();
     };
-    /* A phone runs the WebGL probe once it is idle rather than as the module
-       runs: creating and discarding a context is a few milliseconds on a slow
-       core, and the first render has better uses for them. Still seconds
-       ahead of anyone scrolling down to the contact block. */
+
     if (wide.matches) consider();
-    else (window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 200)))(consider);
+    else {
+      /* A phone doesn't even run the gate until the reader is heading for the
+         desk. The WebGL probe creates and discards a context, which on a slow
+         core is real main-thread time, and it used to run on every visit
+         shortly after load — exactly when the reader is starting to scroll —
+         whether or not they ever got near the contact block. A screen and a
+         half out — the same distance `arm` loads from, so the probe, the space
+         and the download all happen together — is still far enough below the
+         viewport that the space `is-armed` opens up is never seen arriving.
+         Not further: on a phone the contact block starts under three and a
+         half screens down, so anything much wider fires on load and buys
+         nothing. Watched on the contact block,
+         not the mount: the mount is display:none until armed, and an element
+         with no box never intersects anything. */
+      const near = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          near.disconnect();
+          consider();
+        },
+        { rootMargin: "150% 0px" },
+      );
+      near.observe(mount.parentElement ?? mount);
+    }
   }
 </script>
 

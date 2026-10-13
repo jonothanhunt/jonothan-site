@@ -139,17 +139,30 @@ const awards = [
   title="Jonothan Hunt"
   description="Creative technologist and developer. Part of WPP Innovation"
 >
-  <!-- The heading's face. Only this page sets anything in it, so only this
-       page fetches it early — at 10kB it costs less than the swap it saves on
-       the biggest type on the site. -->
-  <link
-    slot="head"
-    rel="preload"
-    href="/fonts/lastik-70-latin.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin
-  />
+  {/* No preload for Lastik, deliberately. It was tried: Chrome holds the
+       first paint for a preloaded font that is used above the fold, and on a
+       throttled phone that put ~130ms of blank screen in front of every visit
+       to this page. Found late, the heading draws in the fallback for a beat
+       and swaps — the metric overrides on the @font-face keep that from
+       moving anything — which is the better trade.
+
+       Arriving at /#work (the nav's Work link, from any other page).
+       ---
+       The browser can only scroll to #work once it has parsed that far, but
+       it paints as soon as it has parsed anything — so it painted the hero,
+       sat there for most of a second, and then jumped. This hides the page
+       for that one kind of arrival, and the script after the work grid below
+       scrolls to it and shows it again, so the first frame is already the
+       work. A fresh navigation only: on a reload or back/forward the browser
+       restores the reader's own scroll position, and pulling them back to
+       #work would undo it. */}
+  <script is:inline slot="head">
+    if (
+      location.hash === "#work" &&
+      performance.getEntriesByType("navigation")[0]?.type === "navigate"
+    )
+      document.documentElement.dataset.toWork = "";
+  </script>
   <!-- The photo is the top of the page itself, not a card: full width,
        ordered-dithered, dissolving into the page through a dithered alpha ramp
        rather than fading through a gradient.
@@ -358,6 +371,18 @@ const awards = [
         />
       </div>
     </section>
+    {/* The other half of the #work arrival above. By here the whole work grid
+        is parsed, so the page is tall enough to scroll to it — any earlier and
+        the scroll would be clamped short by a document that ends at the
+        section's first card. `scrollIntoView` honours the root's
+        scroll-padding, so it lands clear of the nav exactly where the
+        browser's own fragment scroll would. */}
+    <script is:inline>
+      if (document.documentElement.dataset.toWork !== undefined) {
+        document.getElementById("work").scrollIntoView();
+        delete document.documentElement.dataset.toWork;
+      }
+    </script>
 
     <!-- Contact + the ASCII desk -->
     <section class="contact block block--sea marks--mail" aria-labelledby="contact-h">
@@ -869,6 +894,11 @@ const awards = [
 
   .contact__body .lede {
     text-wrap: pretty;
+  }
+
+  /* See the #work arrival note at the top of the page. */
+  :global(html[data-to-work] body) {
+    visibility: hidden;
   }
 
   .writing {
