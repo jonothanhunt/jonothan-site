@@ -77,6 +77,8 @@ const isHome = Astro.url.pathname === "/";
 </header>
 
 <script>
+  import { prefetch } from "astro:prefetch";
+
   const nav = document.querySelector<HTMLElement>("[data-nav]");
 
   /* --- The bar scrolls with the page, on the blog ------------------------
@@ -223,45 +225,33 @@ const isHome = Astro.url.pathname === "/";
   /* --- The other page, ready before it is asked for ----------------------
      The site is two pages a reader moves between — home and the blog — and
      both are light, so once this one has finished loading and the browser
-     has gone idle, the other is fetched ahead of the tap. Astro's own
-     prefetch is left on hover for everything else: its "load" strategy fires
-     as the script runs, which is during this page's own load, competing with
-     the hero for the connection.
+     has gone idle, the other is fetched ahead of the tap.
 
-     Fetched, not prerendered. Prerendering would build the whole page in the
-     background and make the tap instant in Chromium, but it also runs that
-     page's scripts — and the Cloudflare analytics beacon is injected at the
-     edge, where it can't be told to wait for the page to actually be shown.
-     Every visit to one page would have counted a view of the other.
+     Through Astro's own `prefetch()`, as its prefetch guide recommends for
+     navigation it should warm on its own schedule: it carries the guide's
+     Save-Data and slow-connection checks, skips the page you're already on,
+     and picks the mechanism per browser — <link rel="prefetch"> where there
+     is one, and a fetch() on Safari, which has none. Both land in the HTTP
+     cache, and the guide is explicit that Safari's only works with cache
+     headers on the page — hence the two-minute Cache-Control on the HTML in
+     public/_headers, which is what lets the tap use that copy without asking
+     the server again.
 
-     So Chromium gets a speculation-rules prefetch (the HTML held in memory
-     for the navigation), and everything else — Safari doesn't run
-     speculation rules yet — a low-priority fetch into the HTTP cache. The
-     HTML is cacheable for two minutes (see public/_headers), which is what
-     lets Safari use that copy without asking the server again.
+     Not Astro's "load" strategy, which would do this from markup: it fires as
+     the prefetch script runs, which is during this page's own load, competing
+     with the hero for the connection. Waiting for `load` and then idle is the
+     point.
 
-     Skipped on Save-Data and 2G, where a page nobody asked for is a cost. */
-  const others = ["/", "/blog"].filter((u) => u !== location.pathname);
-
+     And prefetch, not prerender (`experimental.clientPrerender`). A
+     prerender would make the tap instant in Chromium, but it runs the page's
+     scripts in the background — and the Cloudflare analytics beacon is
+     injected at the edge, where it can't be told to wait for the page to
+     actually be shown. Every visit would have counted a view of the other
+     page as well. */
   const warm = () => {
-    const conn = (navigator as Navigator & {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }).connection;
-    if (conn?.saveData || /2g/.test(conn?.effectiveType ?? "")) return;
-
-    if (HTMLScriptElement.supports?.("speculationrules")) {
-      const rules = document.createElement("script");
-      rules.type = "speculationrules";
-      rules.textContent = JSON.stringify({
-        prefetch: [{ source: "list", urls: others, eagerness: "immediate" }],
-      });
-      document.head.append(rules);
-    } else {
-      for (const url of others)
-        fetch(url, { priority: "low" } as RequestInit).catch(() => {});
-    }
+    prefetch("/");
+    prefetch("/blog");
   };
-
   const idle =
     window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 300));
   const afterLoad = () => idle(warm, { timeout: 4000 });

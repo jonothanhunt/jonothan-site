@@ -72,7 +72,15 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
     !image && "card--bare",
   ]}
   href={href}
-  {...external ? { target: "_blank", rel: "noopener noreferrer" } : {}}
+  {...external
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : /* Internal cards are the home page's links into the blog. The site
+         default is hover, which a phone never does before the tap — iOS
+         only fires its emulated mouse events after the touch ends — so on
+         a phone these were never fetched ahead at all. As they scroll into
+         view instead: there are four, and Astro falls back to `tap` on
+         Save-Data and slow connections. */
+      { "data-astro-prefetch": "viewport" }}
 >
   {
     /* The card's ink again, as a layer of its own under the photograph.

@@ -27,11 +27,12 @@
 /video/*
   Cache-Control: public, max-age=2592000
 
-# The pages themselves: two minutes. Each page fetches the other once it has
-# finished loading (see the end of src/components/Nav.astro), and Cloudflare's
-# default for HTML is max-age=0 + must-revalidate — so in Safari, which has no
-# speculation rules, that copy still cost a round trip to the server on the
-# tap. Two minutes covers reading a page and moving on, and is short enough
+# The pages themselves: two minutes. Pages are prefetched ahead of the tap
+# (the end of src/components/Nav.astro, and the cards' viewport strategy), and
+# Astro's prefetch guide is explicit that Safari, which has no
+# <link rel=prefetch>, falls back to fetch() and needs cache headers for that
+# copy to be used. Cloudflare's default for HTML is max-age=0 +
+# must-revalidate, which left the tap a round trip to the server anyway. Two minutes covers reading a page and moving on, and is short enough
 # that a deploy reaches everyone almost at once (a reload revalidates anyway).
 /
   Cache-Control: public, max-age=120
