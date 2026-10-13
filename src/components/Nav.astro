@@ -219,6 +219,54 @@ const isHome = Astro.url.pathname === "/";
       addEventListener("scrollend", setHash, { once: true });
     else setTimeout(setHash, 700);
   });
+
+  /* --- The other page, ready before it is asked for ----------------------
+     The site is two pages a reader moves between — home and the blog — and
+     both are light, so once this one has finished loading and the browser
+     has gone idle, the other is fetched ahead of the tap. Astro's own
+     prefetch is left on hover for everything else: its "load" strategy fires
+     as the script runs, which is during this page's own load, competing with
+     the hero for the connection.
+
+     Fetched, not prerendered. Prerendering would build the whole page in the
+     background and make the tap instant in Chromium, but it also runs that
+     page's scripts — and the Cloudflare analytics beacon is injected at the
+     edge, where it can't be told to wait for the page to actually be shown.
+     Every visit to one page would have counted a view of the other.
+
+     So Chromium gets a speculation-rules prefetch (the HTML held in memory
+     for the navigation), and everything else — Safari doesn't run
+     speculation rules yet — a low-priority fetch into the HTTP cache. The
+     HTML is cacheable for two minutes (see public/_headers), which is what
+     lets Safari use that copy without asking the server again.
+
+     Skipped on Save-Data and 2G, where a page nobody asked for is a cost. */
+  const others = ["/", "/blog"].filter((u) => u !== location.pathname);
+
+  const warm = () => {
+    const conn = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }).connection;
+    if (conn?.saveData || /2g/.test(conn?.effectiveType ?? "")) return;
+
+    if (HTMLScriptElement.supports?.("speculationrules")) {
+      const rules = document.createElement("script");
+      rules.type = "speculationrules";
+      rules.textContent = JSON.stringify({
+        prefetch: [{ source: "list", urls: others, eagerness: "immediate" }],
+      });
+      document.head.append(rules);
+    } else {
+      for (const url of others)
+        fetch(url, { priority: "low" } as RequestInit).catch(() => {});
+    }
+  };
+
+  const idle =
+    window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 300));
+  const afterLoad = () => idle(warm, { timeout: 4000 });
+  if (document.readyState === "complete") afterLoad();
+  else addEventListener("load", afterLoad, { once: true });
 </script>
 
 <style>
