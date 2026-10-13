@@ -7,7 +7,7 @@ import CopyEmail from "../components/CopyEmail.astro";
 import Desk from "../components/Desk.astro";
 import Sticker from "../components/Sticker.astro";
 import Toast from "../components/Toast.astro";
-import { Image, Picture } from "astro:assets";
+import { Image, Picture, getImage } from "astro:assets";
 import {
   ENABLED as DITHERED,
   FORMAT as DITHER_FORMAT,
@@ -67,6 +67,41 @@ const writingInks = await paletteRun(posts.map((post) => post.data.image));
 // picture — without them it ends in a hard line across the top of the copy.
 const heroSrcset = hero.WIDTHS.map((w) => `${hero.file(w)} ${w}w`).join(", ")
 
+/* The hero on a portrait phone: the same photograph, already cut down to the
+   part a phone shows.
+   ---
+   Narrow, the photo is a band 100vw by 88vh with `object-fit: cover` and
+   `object-position: 88%`, so a 2:1 picture on a tall screen shows a slice
+   barely a quarter of its width — and the phone was downloading all of it,
+   as the LCP image. This is a square cut of it, the slice every screen
+   squarer than 1:1 can be showing, sized and dithered at exactly the scale of
+   the full-width files, so it is the same pixels.
+
+   Where the square sits is not a guess. The visible window starts at
+   88% × (full width − window), and inside a crop starting at c0 it starts at
+   c0 + 88% × (crop width − window). Those agree for *every* window only when
+   c0 = 0.88 × (1 − crop fraction), so with the crop there the same 88% in
+   the stylesheet frames the same view, on any phone, with no new CSS.
+
+   Every width and the sizes are halved together, so the browser's choice of
+   file comes out exactly as it does for the full frame: a phone that took
+   the 888 takes the 444. */
+const HERO_POS = 0.88;
+const heroCropFraction = heroSource.height / heroSource.width;
+const heroCropLeft = HERO_POS * (1 - heroCropFraction);
+const heroPortrait = DITHERED
+  ? await getImage({
+      src: heroSource,
+      format: DITHER_FORMAT,
+      dither: true,
+      crop: [heroCropLeft, heroCropLeft + heroCropFraction],
+      width: Math.round(heroSource.height * HERO_SCALE),
+      height: Math.round(heroSource.height * HERO_SCALE),
+      widths: ditherWidths(hero.WIDTHS, HERO_SCALE).map((w: number) => Math.round(w / 2)),
+      sizes: "50vw",
+    })
+  : null;
+
 // The awards: three marks in a row and nothing else, as the site has always
 // had them. The citation text and the hairline box around each one are gone —
 // an award mark is recognised, not read, and three boxed spec pairs turned the
@@ -104,6 +139,17 @@ const awards = [
   title="Jonothan Hunt"
   description="Creative technologist and developer. Part of WPP Innovation"
 >
+  <!-- The heading's face. Only this page sets anything in it, so only this
+       page fetches it early — at 10kB it costs less than the swap it saves on
+       the biggest type on the site. -->
+  <link
+    slot="head"
+    rel="preload"
+    href="/fonts/lastik-70-latin.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
   <!-- The photo is the top of the page itself, not a card: full width,
        ordered-dithered, dissolving into the page through a dithered alpha ramp
        rather than fading through a gradient.
@@ -137,18 +183,30 @@ const awards = [
           decoding="async"
         />
       ) : DITHERED ? (
-        <Image
-          class="page-photo__img is-dithered"
-          src={heroSource}
-          alt=""
-          format={DITHER_FORMAT}
-          dither
-          widths={ditherWidths(hero.WIDTHS, HERO_SCALE)}
-          sizes="100vw"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
+        <picture class="page-photo__pic">
+          {/* Only while the band is narrower than it is tall — 100vw at
+              most 88vh, so the viewport's own ratio at most 22:25 — because
+              that is all a square can cover. Wider than that, and on any
+              screen past the breakpoint, the full frame. */}
+          <source
+            media="(max-width: 767.98px) and (max-aspect-ratio: 22/25)"
+            srcset={heroPortrait!.srcSet.attribute}
+            sizes="50vw"
+            type="image/webp"
+          />
+          <Image
+            class="page-photo__img is-dithered"
+            src={heroSource}
+            alt=""
+            format={DITHER_FORMAT}
+            dither
+            widths={ditherWidths(hero.WIDTHS, HERO_SCALE)}
+            sizes="100vw"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
       ) : (
         <Picture
           class="page-photo__img"
@@ -753,20 +811,43 @@ const awards = [
     }
   }
 
-  /* Contact: the desk fills the panel edge to edge; the copy sits over it. */
+  /* Contact: the desk fills the panel edge to edge; the copy sits over it.
+     Narrow, there is no "beside", so the two stack — the desk as a band
+     across the top (see Desk.astro) and the copy under it. `--desk-bleed` is
+     the padding, handed to the desk so it can bleed out over it. */
   .contact {
     position: relative;
     overflow: hidden;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 8px;
     min-height: 320px;
     padding: 28px;
+    --desk-bleed: 28px;
+  }
+
+  /* The desk comes after the copy in the source, so a screen reader meets
+     the words first; it is decorative and aria-hidden either way. */
+  .contact :global(.desk) {
+    order: -1;
   }
 
   @media (min-width: 768px) {
     .contact {
       min-height: 360px;
       padding: 40px;
+      --desk-bleed: 40px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .contact {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0;
     }
   }
 
@@ -834,6 +915,14 @@ const awards = [
    * the document is measured once and re-measured only when something could
    * have moved it, and `scrollY` is a cheap read that forces nothing — so a
    * pointermove costs two property writes and some arithmetic.
+   *
+   * And nothing is read until a pointer actually turns up. This used to
+   * measure at parse time, on `load` and on `fonts.ready` as well, and the
+   * parse-time read was a forced reflow in the middle of the first render —
+   * Lighthouse flagged it — on every device, including the phones that will
+   * never show the halo at all. Now those moments only mark the measurement
+   * stale, and the read happens on the first hover after, when layout has
+   * long since settled and is clean.
    */
   const photo = document.querySelector<HTMLElement>(".page-photo");
 
@@ -849,10 +938,9 @@ const awards = [
 
     let left = 0;
     let top = 0;
-    const measure = () => {
-      const r = photo.getBoundingClientRect();
-      left = r.left + scrollX;
-      top = r.top + scrollY;
+    let stale = true;
+    const invalidate = () => {
+      stale = true;
     };
 
     /* Where the pointer last was, in the viewport. Kept so that scrolling can
@@ -886,6 +974,12 @@ const awards = [
     };
 
     const aim = () => {
+      if (stale) {
+        stale = false;
+        const r = photo.getBoundingClientRect();
+        left = r.left + scrollX;
+        top = r.top + scrollY;
+      }
       target = { x: clientX + scrollX - left, y: clientY + scrollY - top };
       if (!seen || still.matches) {
         // First sighting has nowhere to travel from, and a reader who has
@@ -921,7 +1015,7 @@ const awards = [
 
     addEventListener("pointermove", onMove, { passive: true });
     addEventListener("scroll", onScroll, { passive: true });
-    addEventListener("resize", () => { measure(); }, { passive: true });
+    addEventListener("resize", invalidate, { passive: true });
 
     /* Re-measure whenever the photograph actually moves or changes shape.
        ---
@@ -931,9 +1025,9 @@ const awards = [
        then sat a fixed distance from the pointer instead of under it, which
        reads as the effect not working at all in whichever part of the picture
        the offset had pushed it out of. */
-    new ResizeObserver(measure).observe(photo);
-    addEventListener("load", measure, { once: true });
-    if (document.fonts?.ready) document.fonts.ready.then(measure);
+    new ResizeObserver(invalidate).observe(photo);
+    addEventListener("load", invalidate, { once: true });
+    if (document.fonts?.ready) document.fonts.ready.then(invalidate);
 
     // Nothing to compute while the photograph is off screen.
     new IntersectionObserver(
@@ -946,7 +1040,5 @@ const awards = [
       },
       { threshold: 0 },
     ).observe(photo);
-
-    measure();
   }
 </script>

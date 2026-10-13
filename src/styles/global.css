@@ -50,11 +50,28 @@
 
 /* The original site's display face, back for the hero heading and nothing
    else. The metric overrides are what stop the fallback reflowing the two
-   biggest lines on the page while the file is in flight. */
+   biggest lines on the page while the file is in flight.
+
+   Pinned and cut down. The heading only ever asks for weight 70 and only ever
+   sets Latin, so the file is the variable source (src/fonts/lastik.woff2)
+   instanced at 70 and subset to printable ASCII plus curly quotes, dashes and
+   the ellipsis: 42kB to 10kB, every glyph the heading draws unchanged. To
+   regenerate, or to widen it if the heading ever needs another weight:
+
+     python3 -c 'from fontTools.ttLib import TTFont; from fontTools.varLib
+     import instancer; from fontTools import subset; f = instancer.
+     instantiateVariableFont(TTFont("src/fonts/lastik.woff2"), {"wght": 70});
+     o = subset.Options(); o.flavor = "woff2"; o.layout_features = ["kern",
+     "liga", "calt"]; o.name_IDs = ["*"]; s = subset.Subsetter(o); s.populate(
+     unicodes=[*range(0x20, 0x7f), 0xa0, 0x2018, 0x2019, 0x201c, 0x201d,
+     0x2013, 0x2014, 0x2026]); s.subset(f); f.flavor = "woff2"; f.save(
+     "public/fonts/lastik-70-latin.woff2")'
+
+   A new name rather than the old one, because /fonts/* is cached immutable. */
 @font-face {
   font-family: "Lastik";
-  src: url("/fonts/lastik.woff2") format("woff2-variations");
-  font-weight: 50 100;
+  src: url("/fonts/lastik-70-latin.woff2") format("woff2");
+  font-weight: 70;
   font-display: swap;
   size-adjust: 105%;
   ascent-override: 92%;

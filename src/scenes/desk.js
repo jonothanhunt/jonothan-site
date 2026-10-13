@@ -54,12 +54,16 @@ import {
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-const MODEL = "/models/desk.glb";
+const MODEL = "/models/desk.glb.gz";
+/* 128px WebP, cut from the 256px PNGs beside them. A sticker is never more
+   than about 90 cells of the retro grid across, even with the desk at its
+   widest, so the extra resolution was all averaged away before it reached
+   the screen: 46kB down to 16kB. */
 const TEXTURES = [
-  "/textures/desk/effect_house.png",
-  "/textures/desk/react_logo.png",
-  "/textures/desk/nextjs_logo.png",
-  "/textures/desk/blender_badge.png",
+  "/textures/desk/effect_house-128.webp",
+  "/textures/desk/react_logo-128.webp",
+  "/textures/desk/nextjs_logo-128.webp",
+  "/textures/desk/blender_badge-128.webp",
 ];
 
 /* The five parallax ridge layers behind the window, as data. */
@@ -345,6 +349,28 @@ const windowMaterial = () =>
     `,
   });
 
+/**
+ * The model, gzipped on the server and inflated here.
+ *
+ * Cloudflare won't compress a .glb (see scripts/model.mjs), so it is
+ * published pre-gzipped and this undoes it with the browser's own
+ * DecompressionStream — no decoder to download. The magic-number check is
+ * there in case anything between here and the file ever does decide to set
+ * Content-Encoding on it: fetch would then hand back bytes that are already
+ * inflated, and running them through gunzip again would throw.
+ */
+async function loadModel(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url}: ${res.status}`);
+  let bytes = await res.arrayBuffer();
+  const head = new Uint8Array(bytes, 0, 2);
+  if (head[0] === 0x1f && head[1] === 0x8b) {
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+    bytes = await new Response(stream).arrayBuffer();
+  }
+  return new GLTFLoader().parseAsync(bytes, "");
+}
+
 /** drei's <Float>, which is this and nothing else. */
 function floatAt(obj, t, offset, speed = 1, rotationIntensity = 0.4, floatIntensity = 0.4) {
   const s = offset + t;
@@ -395,7 +421,7 @@ export async function mount(el) {
   camera.rotation.set(-0.42, -0.4, -0.1);
 
   const [gltf, textures] = await Promise.all([
-    new GLTFLoader().loadAsync(MODEL),
+    loadModel(MODEL),
     Promise.all(TEXTURES.map((u) => new TextureLoader().loadAsync(u))),
   ]);
   for (const t of textures) t.colorSpace = SRGBColorSpace;
@@ -617,6 +643,11 @@ export async function mount(el) {
      innerHeight are free, where the old getBoundingClientRect forced a layout
      read on every single pointer move. */
   const onPointerMove = (e) => {
+    /* A finger is a contact, not a hover — the same call the hero halo makes.
+       On a phone every scroll is a run of touch pointermoves, and following
+       them had the desk lurching after the reader's thumb. The scroll tilt
+       still runs, so it is not left dead. */
+    if (e.pointerType === "touch") return;
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
     pointerLive = true;

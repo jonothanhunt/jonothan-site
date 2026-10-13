@@ -75,6 +75,19 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
   {...external ? { target: "_blank", rel: "noopener noreferrer" } : {}}
 >
   {
+    /* The card's ink again, as a layer of its own under the photograph.
+       ---
+       Invisible: it is the same colour as the card behind it. It exists for
+       accessibility checkers. axe-core — which is what Lighthouse and
+       PageSpeed run — flattens a stacking context's layers using the blend
+       mode of whichever layer comes *first*, and on a photo card that was the
+       photograph's `multiply`. So it multiplied the grape chip into the grape
+       card, read #644dff where the screen shows #a08cff, and failed the
+       contrast on text that actually clears 7:1. A plain layer first gives it
+       `normal` to work with, and it reads the colour that is really there. */
+    image && <span class="card__ground" aria-hidden="true"></span>
+  }
+  {
     /* A dithered image is a PNG and only a PNG.
        ---
        <Picture> offers the browser avif and webp and labels each <source> with
@@ -168,6 +181,17 @@ const dest = meta ?? (external ? new URL(href).hostname.replace(/^www\./, "") : 
 
   .card.block--paper {
     box-shadow: inset 0 0 0 1px var(--rule-mid);
+  }
+
+  /* A stacking context (z-index 0) so the checker counts it as a layer, and
+     first in source order so it paints under the photograph. It carries the
+     card's own inset rule too, or a paper card would lose its edge under it. */
+  .card__ground {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--block-ground);
+    box-shadow: inherit;
   }
 
   /* <picture> is only a wrapper for the format sources — it must not become a

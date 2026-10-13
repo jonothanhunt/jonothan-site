@@ -36,16 +36,26 @@
  *   fetched from gstatic at runtime, which is both a bad trade at this size
  *   and a third party on a site that has none.
  *
- * The far bigger lever is not in this file at all: the deployed .glb is served
- * with no Content-Encoding, because model/gltf-binary isn't in Cloudflare's
- * compressible list, so all of it goes over the wire raw. It brotlis to about
- * a fifth. See the note in public/_headers.
+ * The far bigger lever is the wire. A .glb is served with no
+ * Content-Encoding, because model/gltf-binary isn't in Cloudflare's
+ * compressible list, so it went over raw while the JS beside it arrived
+ * brotli'd. That can't be fixed with a header — Content-Encoding has to
+ * describe bytes the server actually encoded — so the file is gzipped here
+ * instead and published as desk.glb.gz, and the scene inflates it with the
+ * browser's own DecompressionStream (see loadModel in src/scenes/desk.js). No
+ * library, no wasm, lossless: 334kB to 124kB on the wire.
+ *
+ * Gzip and not brotli, which would get it to 84kB: DecompressionStream only
+ * speaks brotli in the newest browsers, and gzip in every one that can run
+ * the desk at all. meshopt's lossless mode under the gzip gets another 33kB,
+ * and costs a 29kB decoder to do it.
  *
  * Idempotent, like scripts/dither.mjs: an output newer than both its source
  * and this script is left alone.
  */
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
+import zlib from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -54,7 +64,7 @@ const SELF = fileURLToPath(import.meta.url);
 
 /* Source lives in src/ so it is never published; only the slimmed copy is
    written into public/, where it is gitignored and rebuilt on every build. */
-const MODELS = [{ from: "src/models/desk.glb", to: "public/models/desk.glb" }];
+const MODELS = [{ from: "src/models/desk.glb", to: "public/models/desk.glb.gz" }];
 
 const JSON_CHUNK = 0x4e4f534a; // "JSON"
 const BIN_CHUNK = 0x004e4942; // "BIN\0"
@@ -290,9 +300,10 @@ async function build({ from, to }) {
   const input = await fs.readFile(src);
   const { buf, dropped, normals } = slim(input);
   await fs.mkdir(path.dirname(dest), { recursive: true });
-  await fs.writeFile(dest, buf);
+  const gz = zlib.gzipSync(buf, { level: 9 });
+  await fs.writeFile(dest, gz);
   console.log(
-    `  model  ${to}  ${K(input.length)} -> ${K(buf.length)}` +
+    `  model  ${to}  ${K(input.length)} -> ${K(buf.length)} -> ${K(gz.length)} gzipped` +
       `  (${dropped} unused UV set${dropped === 1 ? "" : "s"} dropped,` +
       ` ${normals} normal set${normals === 1 ? "" : "s"} to bytes)`,
   );

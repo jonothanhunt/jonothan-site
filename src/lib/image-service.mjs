@@ -75,29 +75,61 @@ function ditherRGB(rgb, width, height, { levels, gamma = 0.85, contrast = 1.1 })
   return out;
 }
 
+/**
+ * `crop: [left, right]` — a vertical slice of the source, as fractions of its
+ * width, cut *before* anything else happens to it.
+ *
+ * For art direction: the hero's portrait source on a phone (see index.astro),
+ * which shows a narrow slice of a wide photograph and was downloading the
+ * whole width to do it. Cut before the resize and the dither, so the slice is
+ * resized and dithered exactly as the full frame is, at the same scale, and
+ * comes out the same pixels as the matching part of the full-width file.
+ */
+async function cropTo(inputBuffer, [left, right]) {
+  const img = sharp(inputBuffer);
+  const { width, height } = await img.metadata();
+  const x = Math.round(left * width);
+  const w = Math.min(width - x, Math.round((right - left) * width));
+  // PNG out: a lossless hand-off, so the crop costs nothing in quality.
+  return img.extract({ left: x, top: 0, width: w, height }).png().toBuffer();
+}
+
 export default {
   ...sharpService,
 
+  /* No `crop` in propertiesToHash, deliberately. Adding any property to that
+     list renames every generated image on the site — a full cache bust for
+     every returning visitor. A crop is told apart by its dimensions instead:
+     the hero's portrait cut is square where the full frame is 2:1, so the
+     two never share a width *and* a height. A future crop that keeps the
+     source's aspect would need the hash after all. */
+
   getURL(options, imageConfig) {
-    const url = sharpService.getURL(options, imageConfig);
+    let url = sharpService.getURL(options, imageConfig);
     // A plain string means the service declined to process it at all.
-    if (!options.dither || typeof url !== "string" || !url.includes("?")) return url;
-    return `${url}&dither=1`;
+    if (typeof url !== "string" || !url.includes("?")) return url;
+    if (options.dither) url += "&dither=1";
+    if (options.crop) url += `&crop=${options.crop.join(",")}`;
+    return url;
   },
 
   parseURL(url, imageConfig) {
     const transform = sharpService.parseURL(url, imageConfig);
     if (transform && url.searchParams.get("dither")) transform.dither = true;
+    const crop = url.searchParams.get("crop");
+    if (transform && crop) transform.crop = crop.split(",").map(Number);
     return transform;
   },
 
   getHTMLAttributes(options, imageConfig) {
-    // Or `dither` lands on the <img> as an unknown attribute.
-    const { dither, ...rest } = options;
+    // Or `dither` and `crop` land on the <img> as unknown attributes.
+    const { dither, crop, ...rest } = options;
     return sharpService.getHTMLAttributes(rest, imageConfig);
   },
 
   async transform(inputBuffer, transform, config) {
+    if (transform.crop) inputBuffer = await cropTo(inputBuffer, transform.crop);
+
     if (!transform.dither) {
       return sharpService.transform(inputBuffer, transform, config);
     }
