@@ -14,10 +14,10 @@
 /images/*
   Cache-Control: public, max-age=2592000
 
-# The desk. Cloudflare won't compress model/gltf-binary, so the model is
-# published already gzipped (desk.glb.gz) and inflated in the browser — see
-# scripts/model.mjs. Served as a plain application/gzip file, with no
-# Content-Encoding, which is what lets the scene's DecompressionStream see it.
+# The desk. model/gltf-binary isn't in Cloudflare's default compressible list,
+# so on its own the .glb would go over the wire raw. It is compressed by a
+# Cloudflare rule set up outside this repo, not by anything here — if the
+# model ever moves or is renamed, that rule has to follow it.
 /models/*
   Cache-Control: public, max-age=2592000
 

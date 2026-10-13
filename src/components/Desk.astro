@@ -29,8 +29,6 @@
     if (nav.connection?.saveData) return false;
     if ((nav.deviceMemory ?? 8) < 4) return false;
     if ((navigator.hardwareConcurrency ?? 8) < 4) return false;
-    // The model arrives gzipped and is inflated with this (see desk.js).
-    if (typeof DecompressionStream === "undefined") return false;
     try {
       const gl = document
         .createElement("canvas")

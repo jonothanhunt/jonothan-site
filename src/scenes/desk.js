@@ -54,7 +54,7 @@ import {
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-const MODEL = "/models/desk.glb.gz";
+const MODEL = "/models/desk.glb";
 /* 128px WebP, cut from the 256px PNGs beside them. A sticker is never more
    than about 90 cells of the retro grid across, even with the desk at its
    widest, so the extra resolution was all averaged away before it reached
@@ -349,28 +349,6 @@ const windowMaterial = () =>
     `,
   });
 
-/**
- * The model, gzipped on the server and inflated here.
- *
- * Cloudflare won't compress a .glb (see scripts/model.mjs), so it is
- * published pre-gzipped and this undoes it with the browser's own
- * DecompressionStream — no decoder to download. The magic-number check is
- * there in case anything between here and the file ever does decide to set
- * Content-Encoding on it: fetch would then hand back bytes that are already
- * inflated, and running them through gunzip again would throw.
- */
-async function loadModel(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${url}: ${res.status}`);
-  let bytes = await res.arrayBuffer();
-  const head = new Uint8Array(bytes, 0, 2);
-  if (head[0] === 0x1f && head[1] === 0x8b) {
-    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-    bytes = await new Response(stream).arrayBuffer();
-  }
-  return new GLTFLoader().parseAsync(bytes, "");
-}
-
 /** drei's <Float>, which is this and nothing else. */
 function floatAt(obj, t, offset, speed = 1, rotationIntensity = 0.4, floatIntensity = 0.4) {
   const s = offset + t;
@@ -421,7 +399,7 @@ export async function mount(el) {
   camera.rotation.set(-0.42, -0.4, -0.1);
 
   const [gltf, textures] = await Promise.all([
-    loadModel(MODEL),
+    new GLTFLoader().loadAsync(MODEL),
     Promise.all(TEXTURES.map((u) => new TextureLoader().loadAsync(u))),
   ]);
   for (const t of textures) t.colorSpace = SRGBColorSpace;
