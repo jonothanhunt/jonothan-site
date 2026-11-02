@@ -137,7 +137,7 @@ const awards = [
 
 <Base
   title="Jonothan Hunt"
-  description="Creative technologist and developer. Part of WPP Innovation"
+  description="Creative technologist and developer. Senior Director of Product Innovation, WPP."
 >
   {/* No preload for Lastik, deliberately. It was tried: Chrome holds the
        first paint for a preloaded font that is used above the fold, and on a
@@ -258,12 +258,12 @@ const awards = [
              The trailing space belongs inside the first span, for the same
              reason as in the h1 above — a flex container throws away
              whitespace-only text nodes between its items, so a space left
-             between the spans would make this read "…developer.Part of WPP
-             Innovation" to anything reading the markup rather than looking at
+             between the spans would make this read "…developer.Senior
+             Director…" to anything reading the markup rather than looking at
              it. At the end of a flex line it renders as nothing. -->
         <p class="lede lede--stacked">
           <span>Creative technologist and developer.{" "}</span><span
-            >Part of <a href="https://www.wpp.com">WPP</a> Innovation</span
+            >Senior Director of Product Innovation, <a href="https://www.wpp.com">WPP</a></span
           >
         </p>
 
@@ -747,10 +747,15 @@ const awards = [
     white-space: nowrap;
   }
 
+  /* A little air between the two sentences. Both now turn onto a second line
+     in the lede's column, and at the lede's tight leading the four lines ran
+     together as one paragraph; the gap keeps them reading as two statements,
+     the description and then the role. */
   .lede--stacked {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    row-gap: 0.4em;
   }
 
   /* Narrow enough that "and developer" turns onto a second line. The sentence
