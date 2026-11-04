@@ -620,6 +620,20 @@ const awards = [
        of the frame — the same anchor that is correct on a wide screen is the
        wrong one here. */
     object-position: 88% center;
+    /* Under side system UI (the iPhone Duo's status-bar-and-Dock column, a
+       landscape phone's camera housing) the box now runs on under it, and a
+       plain 88% would slide me right by 88% of that extra width, into the
+       UI. Taking 88% of the inset back off frames exactly what the visible
+       part of the screen showed before, so I stay just left of it and the
+       photograph simply carries on underneath.
+       ---
+       The `max` against 100% stops the frame from overshooting the picture's
+       right edge. The portrait square was cut to cover the visible window and
+       no more, so with a wide inset there may not be enough photograph to the
+       right of me: then it pins the picture to the edge instead of leaving a
+       strip of bare page, and I move right only as far as the pixels allow.
+       With no inset this is exactly `88%`. */
+    object-position: max(100%, calc(88% - 0.88 * var(--safe-r))) center;
   }
 
   @media (min-width: 768px) {
@@ -671,6 +685,8 @@ const awards = [
        overflow for it to act on. */
     .page-photo__img {
       object-position: 85% center;
+      /* As on narrow: frame the visible part, let the rest run under. */
+      object-position: max(100%, calc(85% - 0.85 * var(--safe-r))) center;
     }
 
   }

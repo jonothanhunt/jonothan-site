@@ -66,9 +66,9 @@
   .toast {
     position: fixed;
     z-index: 60;
-    left: var(--gap);
-    top: calc(var(--nav-pill) + var(--gap));
-    max-width: min(24rem, calc(100vw - var(--gap) * 2));
+    left: var(--gutter-l);
+    top: calc(var(--nav-pill) + var(--gap) + var(--safe-t));
+    max-width: min(24rem, calc(100vw - var(--gutter-l) - var(--gutter-r)));
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: start;

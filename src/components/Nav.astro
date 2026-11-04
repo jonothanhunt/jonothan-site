@@ -272,6 +272,9 @@ const isHome = Astro.url.pathname === "/";
     display: flex;
     justify-content: center;
     pointer-events: none;
+    /* Held clear of the status bar and any side UI — under viewport-fit=cover
+       the bar would otherwise sit beneath them. Zero on a desktop. */
+    padding: var(--safe-t) var(--safe-r) 0 var(--safe-l);
   }
 
   /* A hard-edged bar: square, panel fill, nothing round it. No frame, no

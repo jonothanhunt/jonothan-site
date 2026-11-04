@@ -126,7 +126,7 @@ const track = [...half, ...half];
        cap there is no margin for a fade to happen in — only 16px of gutter — so
        fading there dims the logos against the screen edge for no visible
        reason. Letting them simply go is the honest version of the same idea. */
-    margin-inline: calc(var(--gap) * -1);
+    margin-inline: calc(var(--gutter-l) * -1) calc(var(--gutter-r) * -1);
   }
 
   /* One pixel past --shell (1152px), which is where the strip stops touching

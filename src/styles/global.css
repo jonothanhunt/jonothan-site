@@ -123,6 +123,23 @@
   --leaf: #8ad45c;
 
   --gap: 16px;
+  /* The gutter at each edge: the usual --gap, or the device's safe area where
+     that is wider.
+     ---
+     The viewport meta asks for `viewport-fit=cover`, so on a phone with system
+     UI at its edges (a landscape iPhone's camera housing, or the iPhone Duo,
+     which moves the status bar, Dynamic Island and Dock to the sides of the
+     screen) the page draws right under that UI instead of stopping short of it
+     in a band of plain paper. The photograph and every block ground run
+     to the glass; only the content is held clear of the hardware. `max`
+     rather than a sum, so a phone with a 47px inset doesn't get 63px of
+     gutter, and on every screen without an inset these are just --gap. */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --gutter-l: max(var(--gap), var(--safe-l));
+  --gutter-r: max(var(--gap), var(--safe-r));
   --pad: 16px;
   --shell: 1152px;
   --read: 768px;
@@ -144,7 +161,7 @@
      bar's own height, since it sits on the edge rather than below it, plus one
      band under it. */
   --band: 36px;
-  --nav-space: calc(var(--band) + var(--nav-pill));
+  --nav-space: calc(var(--band) + var(--nav-pill) + var(--safe-t));
 
   /* One face, one stack. The symbol subset shares the family name, so a glyph
      the variable file doesn't carry is picked up by the other face without
@@ -373,12 +390,12 @@ p {
   width: 100%;
   max-width: var(--shell);
   margin-inline: auto;
-  padding-inline: var(--gap);
+  padding-inline: var(--gutter-l) var(--gutter-r);
 }
 
 .bleed {
   width: 100%;
-  padding-inline: var(--gap);
+  padding-inline: var(--gutter-l) var(--gutter-r);
 }
 
 .stack > * + * {
@@ -806,7 +823,8 @@ p {
    rather than a decision. */
 .site-foot {
   margin-top: auto;
-  padding: 56px 0 var(--gap);
+  /* Plus the home indicator, so the last line isn't sitting under it. */
+  padding: 56px 0 calc(var(--gap) + var(--safe-b));
   font-size: var(--t-label);
 }
 
