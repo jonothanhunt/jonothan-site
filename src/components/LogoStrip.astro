@@ -1,0 +1,92 @@
+---
+import { Image } from "astro:assets";
+
+// Eagerly collected at build time so each logo keeps its intrinsic size.
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/logos/{adobe,beko,bt,coca_cola,duracell,ee,hsbc,microsoft,nhs,tiktok,unilever}_logo.svg",
+  { eager: true },
+);
+
+const logos = Object.entries(files)
+  .map(([path, mod]) => ({
+    src: mod.default,
+    alt: `${
+      path
+        .split("/")
+        .pop()!
+        .replace("_logo.svg", "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+    } logo`,
+  }))
+  .sort((a, b) => a.alt.localeCompare(b.alt));
+
+// Duplicated once so the -50% translate loops seamlessly.
+const track = [...logos, ...logos];
+---
+
+<div class="strip">
+  <ul>
+    {
+      track.map(({ src, alt }, i) => (
+        <li>
+          <Image src={src} alt={i < logos.length ? alt : ""} height={30} loading="lazy" />
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  /* No edge mask — the rounded container already gives the strip its edges. */
+  .strip {
+    overflow: hidden;
+    border-radius: var(--pill);
+    background: #fffdf8;
+    padding: 22px 0;
+  }
+
+  ul {
+    display: flex;
+    align-items: center;
+    gap: 3.5rem;
+    padding: 0 1.75rem;
+    width: max-content;
+    list-style: none;
+    /* One compositor-only transform. No JS, no layout, no paint. */
+    animation: slide 46s linear infinite;
+  }
+
+  li {
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+
+  /* Logos vary wildly in aspect ratio — a wordmark like Duracell would
+     otherwise dwarf a square mark. Cap the width at 3:1 and let object-fit
+     scale the wide ones down rather than letting them stretch the row. */
+  img {
+    height: 30px;
+    width: auto;
+    max-width: 90px;
+    object-fit: contain;
+    opacity: 0.9;
+  }
+
+  @keyframes slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ul {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: auto;
+      gap: 2rem;
+    }
+  }
+</style>

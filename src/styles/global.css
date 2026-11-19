@@ -1,0 +1,396 @@
+/* ============================================================
+   Fonts — swap, so text paints immediately in a fallback.
+   ============================================================ */
+@font-face {
+  font-family: "Lastik";
+  src: url("/fonts/lastik.woff2") format("woff2-variations");
+  font-weight: 50 100;
+  font-display: swap;
+  /* Tuned so the fallback occupies near-identical space; kills the reflow. */
+  size-adjust: 105%;
+  ascent-override: 92%;
+  descent-override: 22%;
+}
+
+@font-face {
+  font-family: "Hyperlegible";
+  src: url("/fonts/hyperlegible.woff2") format("woff2-variations");
+  font-weight: 100 1000;
+  font-display: swap;
+}
+
+/* ============================================================
+   Tokens
+   ============================================================ */
+:root {
+  --paper: #f6f1e8;
+  --ink: #17130f;
+  --ink-soft: #5b5147;
+
+  /* Carried over from the original site. */
+  --heading: #065f46; /* emerald-800 */
+  --body-ink: #075985; /* sky-800 */
+
+  /* Bright block colours — saturated against the neutral paper. */
+  --sun: #ffb703;
+  --flame: #ff5436;
+  --grape: #6d4aff;
+  --sea: #009e8e;
+  --sky: #2b8cf0;
+  --rose: #ff4d8d;
+  --leaf: #4aa72a;
+
+  --r-lg: 40px;
+  --r-md: 26px;
+  --r-sm: 14px;
+  --pill: 999px;
+
+  --gap: 16px;
+  /* Fixed, not fluid: the inset inside every block is the same on a phone as
+     on a 4K display. Roughly half what the old clamp gave on desktop. */
+  --pad: 24px;
+  --shell: 1180px;
+  --read: 920px;
+  /* Article measure in rem, so the prose and the buttons under it line up
+     regardless of their own font sizes (72ch differs per font-size). */
+  --measure: 41rem;
+
+  /* One height for every chip, pill and button on the site, so nothing is
+     subtly out of step. The nav bar is this plus its own 8px padding. */
+  --ui-h: 36px;
+  --ui-pad: 8px;
+
+  /* The nav floats: --gap above it, then the bar, then --gap before content.
+     Every page uses --nav-space as its top padding so the rhythm matches the
+     side gutters exactly. */
+  --nav-pill: calc(var(--ui-h) + var(--ui-pad) * 2);
+  --nav-space: calc(var(--gap) * 2 + var(--nav-pill));
+
+  --display: "Lastik", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --body: "Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ============================================================
+   Reset — small and deliberate
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+/* No global smooth scrolling: arriving at /#work from another page should land
+   instantly. The places that want easing ask for it explicitly. */
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: var(--nav-space);
+}
+
+body {
+  font-family: var(--body);
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.075rem);
+  line-height: 1.6;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+video,
+svg,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   Type
+   ============================================================ */
+/* Lastik's weight axis runs 50–100. 70 is the original site's display weight —
+   100 is the very top of the axis and reads far too heavy. */
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 70;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.9rem, 1.6rem + 5.6vw, 6rem);
+}
+h2 {
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.2rem);
+}
+h3 {
+  font-size: clamp(1.35rem, 1.15rem + 0.9vw, 1.9rem);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+/* Reading width — used by the blog and about pages. */
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gap);
+}
+
+/* Full-bleed: edge to edge with only a gutter, so the blocks read as one
+   full-page surface rather than a centred column. */
+.bleed {
+  width: 100%;
+  padding-inline: var(--gap);
+}
+
+.stack > * + * {
+  margin-top: var(--gap);
+}
+
+/* Explicit column counts rather than auto-fit: at full-bleed widths auto-fit
+   would keep adding columns and the cards would shrink to nothing. */
+.grid {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1080px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* A block is the core unit: a big rounded slab of colour. */
+.block {
+  border-radius: var(--r-lg);
+  padding: var(--pad);
+  position: relative;
+  overflow: hidden;
+}
+
+.block--sun {
+  background: var(--sun);
+}
+.block--flame {
+  background: var(--flame);
+  color: #fff;
+}
+.block--grape {
+  background: var(--grape);
+  color: #fff;
+}
+.block--sea {
+  background: var(--sea);
+  color: #fff;
+}
+.block--sky {
+  background: var(--sky);
+  color: #fff;
+}
+.block--rose {
+  background: var(--rose);
+  color: #fff;
+}
+.block--leaf {
+  background: var(--leaf);
+  color: #fff;
+}
+.block--paper {
+  background: #fffdf8;
+}
+
+/* ============================================================
+   Pills / buttons
+   ============================================================ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  height: var(--ui-h);
+  padding-inline: 1.05em;
+  border-radius: var(--pill);
+  background: rgb(0 0 0 / 0.07);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  /* UI chrome isn't prose — dragging across it shouldn't select it. */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pill--solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.pill--ghost {
+  background: none;
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.pill--on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+a.pill,
+button.pill {
+  transition: transform 0.12s ease;
+}
+
+@media (hover: hover) {
+  a.pill:hover,
+  button.pill:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* ============================================================
+   Header / footer
+   ============================================================ */
+.site-foot {
+  margin-top: auto;
+  padding: 48px 0 32px;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+.site-foot .shell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.site-foot a {
+  color: inherit;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+}
+
+/* ============================================================
+   Marquee — one transform animation, compositor only
+   ============================================================ */
+.marquee {
+  overflow: hidden;
+  border-radius: var(--pill);
+  background: var(--flame);
+  color: #fff;
+  padding: 14px 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee ul {
+  display: flex;
+  gap: 2.5rem;
+  width: max-content;
+  list-style: none;
+  padding: 0;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  animation: slide 38s linear infinite;
+}
+
+@keyframes slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee ul {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.lede {
+  font-size: clamp(1.1rem, 1rem + 0.6vw, 1.4rem);
+  line-height: 1.45;
+}

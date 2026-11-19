@@ -1,0 +1,212 @@
+---
+import { Image } from "astro:assets";
+import { render } from "astro:content";
+import Prose from "./Prose.astro";
+import YouTube from "./mdx/YouTube.astro";
+import TikTok from "./mdx/TikTok.astro";
+import Video from "./mdx/Video.astro";
+import CodeDemo from "./mdx/CodeDemo.astro";
+import { formatDate, tagSlug, type Post } from "../lib/posts";
+import { bottomTint } from "../lib/tint";
+
+interface Props {
+  post: Post;
+  colour: string;
+  open?: boolean;
+  loading?: "lazy" | "eager";
+}
+const { post, colour, open = false, loading = "lazy" } = Astro.props;
+const { title, date, excerpt, type, image, links } = post.data;
+
+// Slugged tags drive the CSS-only filter in PostGrid.
+const tagTokens = type.map(tagSlug).join(" ");
+
+// The whole post is rendered here, at build time. Opening a row reveals HTML
+// that is already on the page — no request, no import, no loading state.
+const { Content } = await render(post);
+
+// Sampled from the image's lower band at build time.
+const t = image ? await bottomTint(image) : null;
+---
+
+<details class="row" open={open} id={post.id} data-tags={tagTokens}>
+  <summary
+    class:list={["card", `block block--${colour}`]}
+    style={t && `--tint:${t.tint};--on-tint:${t.ink}`}
+  >
+    {
+      image && (
+        <Image
+          class="card__img"
+          src={image}
+          alt=""
+          widths={[560, 900, 1200]}
+          sizes="(max-width: 940px) 100vw, 900px"
+          loading={loading}
+          decoding="async"
+        />
+      )
+    }
+    <div class="card__text">
+      <p class="eyebrow">
+        {`${type.join(" · ")} · `}<time datetime={date.toISOString()}
+          >{formatDate(date)}</time
+        >
+      </p>
+      <h2>{title}</h2>
+      {excerpt && <p class="card__excerpt">{excerpt}</p>}
+    </div>
+  </summary>
+
+  <!-- Sits below the card, directly on the page background — no panel. -->
+  <article class="body">
+    <Prose>
+      <Content components={{ YouTube, TikTok, Video, CodeDemo }} />
+    </Prose>
+
+    <footer class="body__foot">
+      {
+        links.map((l) => (
+          <a
+            class="pill pill--solid"
+            href={l.url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {l.title} ↗
+          </a>
+        ))
+      }
+      <button
+        class="pill pill--ghost"
+        type="button"
+        data-share={`/blog/${post.id}`}
+        data-title={title}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 15.5V3.5m0 0L8.25 7.25M12 3.5l3.75 3.75"></path>
+          <path d="M5 13v5.75A1.75 1.75 0 0 0 6.75 20.5h10.5A1.75 1.75 0 0 0 19 18.75V13"
+          ></path>
+        </svg>
+        Share
+      </button>
+    </footer>
+  </article>
+</details>
+
+<style>
+  .row {
+    scroll-margin-top: var(--nav-space);
+  }
+
+  /* --- Card (always visible) --- */
+  .card {
+    position: relative;
+    isolation: isolate;
+    cursor: pointer;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    list-style: none;
+    transition: transform 0.18s ease;
+  }
+
+  .card::-webkit-details-marker {
+    display: none;
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  .card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    z-index: -2;
+  }
+
+  /* Overlay tinted with the image's own bottom colour, pushed light or dark
+     so the text always contrasts. */
+  .card:has(.card__img)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(
+      to top,
+      var(--tint) 0%,
+      var(--tint) 30%,
+      transparent 88%
+    );
+  }
+
+  .card:has(.card__img) .card__text {
+    color: var(--on-tint, #fff);
+  }
+
+  .card__text h2 {
+    margin: 0.25em 0 0;
+    font-size: clamp(1.6rem, 1.25rem + 1.6vw, 2.4rem);
+  }
+
+  .card__excerpt {
+    margin-top: 0.6em;
+    max-width: 60ch;
+    opacity: 0.92;
+  }
+
+  /* --- Body (revealed, sitting on the page background) --- */
+  .body {
+    padding-block: clamp(32px, 5vw, 60px);
+  }
+
+  /* Same column as the prose, so the buttons line up with the article text. */
+  .body__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 40px auto 0;
+    max-width: 72ch;
+    width: 100%;
+  }
+
+  .body__foot svg {
+    width: 1.05em;
+    height: 1.05em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Animate open/close where supported. Elsewhere it simply snaps — no JS. */
+  @supports (interpolate-size: allow-keywords) {
+    .row::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size 0.45s ease,
+        content-visibility 0.45s allow-discrete;
+    }
+
+    .row[open]::details-content {
+      block-size: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .row::details-content,
+    .card {
+      transition: none;
+    }
+  }
+</style>

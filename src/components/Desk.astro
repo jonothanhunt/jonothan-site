@@ -1,0 +1,80 @@
+---
+// The 3D desk. Everything about it is opt-in:
+//   * its JS lives in a separate chunk that is only fetched if the gate passes
+//   * the gate rejects small screens, low-memory/low-core devices, Save-Data,
+//     reduced-motion and anything without WebGL
+//   * even then it only loads once scrolled near
+// A device that fails the gate downloads zero bytes of three.js.
+---
+
+<div class="desk" data-desk aria-hidden="true"></div>
+
+<script>
+  const mount = document.querySelector<HTMLElement>("[data-desk]");
+
+  const capable = () => {
+    const nav = navigator as Navigator & {
+      deviceMemory?: number;
+      connection?: { saveData?: boolean };
+    };
+    if (!window.matchMedia("(min-width: 900px)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return false;
+    if (nav.connection?.saveData) return false;
+    if ((nav.deviceMemory ?? 8) < 4) return false;
+    if ((navigator.hardwareConcurrency ?? 8) < 4) return false;
+    try {
+      const gl = document
+        .createElement("canvas")
+        .getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+      if (!gl) return false;
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+    } catch {
+      return false;
+    }
+    return true;
+  };
+
+  if (mount && capable()) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        import("../scenes/desk.jsx")
+          .then((m) => m.mount(mount))
+          .catch(() => {});
+      },
+      { rootMargin: "300px" },
+    );
+    io.observe(mount);
+  }
+</script>
+
+<style>
+  .desk {
+    display: none;
+  }
+
+  /* Bleeds to the top, right and bottom edges of the panel so the desk is
+     never cropped, starting partway left so the copy overlaps it slightly.
+     Absolutely positioned, so mounting it shifts no layout at all. */
+  @media (min-width: 900px) {
+    .desk {
+      display: block;
+      position: absolute;
+      inset: 0 0 0 34%;
+    }
+
+    .desk :global(canvas) {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .desk {
+      display: none;
+    }
+  }
+</style>

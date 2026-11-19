@@ -1,0 +1,136 @@
+---
+const email = "hey@jonothan.dev";
+
+interface Props {
+  /** `bar` sits inside the nav's own padding; `solo` carries its own. */
+  variant?: "bar" | "solo";
+}
+const { variant = "bar" } = Astro.props;
+---
+
+<div class:list={["copy", `copy--${variant}`]}>
+  <a class="copy__link" href={`mailto:${email}`}>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="2.75" y="4.75" width="18.5" height="14.5" rx="2.25"></rect>
+      <path d="m3.5 7.5 8.5 5.6 8.5-5.6"></path>
+    </svg>
+    {email}
+  </a>
+  <button
+    class="copy__btn"
+    type="button"
+    data-copy={email}
+    aria-label="Copy email address"
+  >
+    <svg class="i-clip" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 20.5 5v9a1.5 1.5 0 0 1-1.5 1.5h-1.5"></path>
+      <rect x="3.5" y="8.5" width="12" height="12" rx="1.75"></rect>
+    </svg>
+    <svg class="i-tick" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m4.5 12.5 5 5 10-10.5"></path>
+    </svg>
+    <span class="copy__label">Copy</span>
+  </button>
+</div>
+
+<script>
+  // The only interactive script on the page. No framework, no dependencies.
+  document.querySelectorAll<HTMLButtonElement>(".copy__btn").forEach((btn) => {
+    const label = btn.querySelector(".copy__label");
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+        if (label) label.textContent = "Copied";
+        btn.classList.add("done");
+      } catch {
+        if (label) label.textContent = "Press ⌘C";
+      }
+      setTimeout(() => {
+        btn.classList.remove("done");
+        if (label) label.textContent = "Copy";
+      }, 1600);
+    });
+  });
+</script>
+
+<style>
+  .copy {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--pill);
+    background: #fffdf8;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.95rem;
+    /* UI chrome isn't prose. */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Standing on its own (in the contact block) it needs its own frame, so it
+     matches the nav bar: 8px around a 36px row. */
+  .copy--solo {
+    padding: var(--ui-pad);
+  }
+
+  .copy__link,
+  .copy__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    height: var(--ui-h);
+    padding-inline: 1em;
+    border-radius: var(--pill);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+  }
+
+  .copy__btn {
+    min-width: 6.6em;
+  }
+
+  /* A hairline between the two halves rather than a heavy border. */
+  .copy__link + .copy__btn::before {
+    content: "";
+    position: absolute;
+    margin-left: -1em;
+    width: 1px;
+    height: 1.15em;
+    background: rgb(0 0 0 / 0.15);
+  }
+
+  .copy__btn {
+    position: relative;
+  }
+
+  svg {
+    width: 1.1em;
+    height: 1.1em;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Swap clipboard for tick on success — no layout change, so nothing jumps. */
+  .i-tick {
+    display: none;
+  }
+  .copy__btn.done .i-clip {
+    display: none;
+  }
+  .copy__btn.done .i-tick {
+    display: block;
+    stroke: var(--leaf);
+  }
+
+  @media (hover: hover) {
+    .copy__link:hover,
+    .copy__btn:hover {
+      background: var(--sun);
+    }
+  }
+</style>

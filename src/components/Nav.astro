@@ -1,0 +1,249 @@
+---
+import CopyEmail from "./CopyEmail.astro";
+
+const isBlog = Astro.url.pathname.startsWith("/blog");
+const isHome = Astro.url.pathname === "/";
+---
+
+<header class="site-head">
+  <nav aria-label="Main" data-nav data-home={isHome ? "" : undefined}>
+    <!-- Collapsed while the hero is on screen (the big "Hey, I'm Jonothan"
+         already says it), sliding in once you scroll past. -->
+    <a class="brand" href="/" data-brand>
+      <span>Jonothan</span>
+    </a>
+
+    <a class="nav-pill t-work" href="/#work" data-link="work">Work</a>
+
+    <a
+      class:list={["nav-pill", "t-blog", isBlog && "on"]}
+      href="/blog"
+      data-link="blog"
+      aria-current={isBlog ? "page" : undefined}>Blog</a
+    >
+
+    <!-- Contact opens a panel in place. No page, no JS for the disclosure. -->
+    <details class="contact">
+      <summary class="nav-pill t-contact">Contact</summary>
+      <div class="contact__panel">
+        <CopyEmail />
+      </div>
+    </details>
+  </nav>
+</header>
+
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-nav]");
+
+  // Close the contact panel on outside click or Escape.
+  const box = document.querySelector<HTMLDetailsElement>("details.contact");
+  if (box) {
+    addEventListener("click", (e) => {
+      if (box.open && !box.contains(e.target as Node)) box.open = false;
+    });
+    addEventListener("keydown", (e) => {
+      if (e.key === "Escape") box.open = false;
+    });
+  }
+
+  // Home only. One observer drives both the brand reveal and the Work
+  // highlight, so they happen on the same beat instead of competing for
+  // attention as you scroll. IntersectionObserver rather than a scroll
+  // handler, so there's no main-thread work while scrolling.
+  if (nav?.dataset.home !== undefined) {
+    const work = document.querySelector("#work");
+    const workLink = nav.querySelector('[data-link="work"]');
+
+    if (work && workLink) {
+      new IntersectionObserver(
+        ([e]) => {
+          const on = e.isIntersecting;
+          nav.classList.toggle("at-top", !on);
+          workLink.classList.toggle("on", on);
+          if (on) workLink.setAttribute("aria-current", "true");
+          else workLink.removeAttribute("aria-current");
+        },
+        // Counts once the section reaches the middle of the viewport.
+        { rootMargin: "-45% 0px -45% 0px" },
+      ).observe(work);
+    }
+  }
+
+  // Smooth-scroll to #work only when we're already on the page. Arriving from
+  // another page should land there immediately — we've changed page anyway,
+  // and animating the whole document afterwards just feels slow.
+  nav?.querySelector('[data-link="work"]')?.addEventListener("click", (e) => {
+    if (location.pathname !== "/") return;
+    const target = document.querySelector("#work");
+    if (!target) return;
+
+    e.preventDefault();
+    target.scrollIntoView({ behavior: "smooth" });
+
+    // Writing a URL that carries a fragment cancels an in-flight smooth
+    // scroll, so only set the hash once the scroll has settled.
+    const setHash = () => history.pushState(null, "", "/#work");
+    if ("onscrollend" in window)
+      addEventListener("scrollend", setHash, { once: true });
+    else setTimeout(setHash, 700);
+  });
+</script>
+
+<style>
+  .site-head {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    /* Matches the page gutter, so the nav aligns with everything below it. */
+    padding: var(--gap);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  /* Flat and fully opaque — no blur, no shadow, no gradient. */
+  nav {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: var(--ui-pad);
+    border-radius: var(--pill);
+    background: #fffdf8;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    height: var(--ui-h);
+    overflow: hidden;
+    font-family: var(--display);
+    font-weight: 70;
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--heading);
+    /* Width and opacity animate; nothing else reflows around it. A plain
+       ease-in-out reads as calm next to the Work pill lighting up at the
+       same moment. */
+    max-width: 8em;
+    opacity: 1;
+    padding-inline: 0.6em 0.55em;
+    transition:
+      max-width 0.4s ease-in-out,
+      opacity 0.4s ease-in-out,
+      padding 0.4s ease-in-out;
+  }
+
+  .brand span {
+    white-space: nowrap;
+  }
+
+  nav.at-top .brand {
+    max-width: 0;
+    opacity: 0;
+    padding-inline: 0;
+  }
+
+  /* Inactive sits at the narrower padding; active widens into a tinted
+     capsule. Only padding and colour animate, so it stays cheap. */
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    height: var(--ui-h);
+    padding-inline: 0.8em;
+    border-radius: var(--pill);
+    font-family: var(--display);
+    font-weight: 70;
+    font-size: 1.15rem;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+    transition:
+      padding 0.3s ease,
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .nav-pill::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-pill.on,
+  details[open] > .nav-pill {
+    padding-inline: 1.15em;
+  }
+
+  .t-work {
+    color: #b34700;
+  }
+  .t-work.on,
+  .t-work:hover {
+    background: #ffe9d5;
+  }
+
+  .t-blog {
+    color: #0a6bbd;
+  }
+  .t-blog.on,
+  .t-blog:hover {
+    background: #ddeeff;
+  }
+
+  .t-contact {
+    color: #c11a52;
+  }
+  .t-contact:hover,
+  details[open] > .t-contact {
+    background: #ffe0eb;
+  }
+
+  /* --- Contact panel: same height and padding as the nav bar itself --- */
+  .contact {
+    position: relative;
+  }
+
+  .contact__panel {
+    position: absolute;
+    /* Offset is measured from the summary, so add back the nav's own padding
+       to leave a true --gap between the bar and the panel. */
+    top: calc(100% + var(--ui-pad) + var(--gap));
+    right: 0;
+    padding: var(--ui-pad);
+    border-radius: var(--pill);
+    background: #fffdf8;
+    animation: drop 0.28s ease;
+  }
+
+  @keyframes drop {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact__panel {
+      animation: none;
+    }
+    .brand {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .brand {
+      display: none;
+    }
+    .nav-pill {
+      font-size: 1.05rem;
+      padding-inline: 0.7em;
+    }
+    .contact__panel {
+      right: -8px;
+    }
+  }
+</style>

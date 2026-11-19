@@ -1,0 +1,40 @@
+---
+interface Props {
+  url: string;
+}
+const { url } = Astro.props;
+const id = url.match(/\/video\/(\d+)/)?.[1] ?? "";
+---
+
+<!--
+  A real embed, deferred by the browser rather than by us: `loading="lazy"`
+  means the iframe (and TikTok's JS) is only fetched once it nears the
+  viewport. No click required, nothing to go wrong.
+-->
+<div class="tt">
+  <iframe
+    src={`https://www.tiktok.com/player/v1/${id}?music_info=1&description=1`}
+    title="TikTok video"
+    loading="lazy"
+    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen></iframe>
+</div>
+
+<style>
+  .tt {
+    width: min(325px, 100%);
+    aspect-ratio: 325 / 575;
+    margin: 1.75rem auto;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: rgb(0 0 0 / 0.06);
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+</style>

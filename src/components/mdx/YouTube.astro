@@ -1,0 +1,126 @@
+---
+interface Props {
+  url: string;
+}
+const { url } = Astro.props;
+
+const id =
+  url.match(/(?:youtu\.be\/|v\/|embed\/|watch\?v=|&v=)([^#&?]{11})/)?.[1] ?? "";
+const start = url.match(/[?&]t=(\d+)/)?.[1];
+const src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&iv_load_policy=3&autoplay=1${
+  start ? `&start=${start}` : ""
+}`;
+
+// Facade: YouTube's own thumbnail plus a play button. The iframe — and the
+// megabyte of player JS behind it — only loads if the reader presses play.
+// maxresdefault is a true 16:9 frame; hqdefault is 4:3 with black bars baked
+// in, which is where the black strip above the video came from.
+const poster = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+const fallback = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+---
+
+<div class="yt" data-src={src}>
+  <img
+    src={poster}
+    data-fallback={fallback}
+    alt=""
+    width="1280"
+    height="720"
+    loading="lazy"
+    decoding="async"
+  />
+  <button type="button" aria-label="Play video">
+    <svg viewBox="0 0 68 48" width="68" height="48" aria-hidden="true">
+      <path
+        d="M66.5 7.7a8.5 8.5 0 0 0-6-6C55.3 0 34 0 34 0S12.7 0 7.5 1.7a8.5 8.5 0 0 0-6 6A89 89 0 0 0 0 24a89 89 0 0 0 1.5 16.3 8.5 8.5 0 0 0 6 6C12.7 48 34 48 34 48s21.3 0 26.5-1.7a8.5 8.5 0 0 0 6-6A89 89 0 0 0 68 24a89 89 0 0 0-1.5-16.3z"
+        fill="#f00"></path>
+      <path d="M27 34l18-10-18-10z" fill="#fff"></path>
+    </svg>
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".yt").forEach((el) => {
+    const img = el.querySelector("img");
+
+    // Not every video has a maxres thumbnail. When it's missing YouTube serves
+    // a 120x90 placeholder, so swap to hqdefault and crop its letterboxing.
+    if (img) {
+      const useFallback = () => {
+        if (img.classList.contains("crop")) return;
+        img.classList.add("crop");
+        img.src = img.dataset.fallback ?? "";
+      };
+      img.addEventListener("error", useFallback);
+      img.addEventListener("load", () => {
+        if (img.naturalWidth < 320) useFallback();
+      });
+      if (img.complete && img.naturalWidth && img.naturalWidth < 320)
+        useFallback();
+    }
+
+    el.querySelector("button")?.addEventListener("click", () => {
+      const f = document.createElement("iframe");
+      f.src = el.dataset.src ?? "";
+      f.title = "YouTube video";
+      f.allow =
+        "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
+      f.allowFullscreen = true;
+      el.replaceChildren(f);
+    });
+  });
+</script>
+
+<style>
+  .yt {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: rgb(0 0 0 / 0.06);
+    margin-block: 1.75rem;
+  }
+
+  /* The attribute selector out-specifies `.prose img`, whose margin and radius
+     would otherwise push the poster down inside its frame. */
+  .yt :global(img[data-fallback]),
+  .yt :global(iframe) {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* hqdefault is 4:3 with black bars; scale up to crop them out. */
+  .yt :global(img.crop) {
+    transform: scale(1.35);
+  }
+
+  .yt button {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .yt button svg {
+    opacity: 0.9;
+    transition:
+      opacity 0.15s,
+      transform 0.15s;
+  }
+
+  .yt button:hover svg {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .yt button svg {
+      transition: none;
+    }
+  }
+</style>

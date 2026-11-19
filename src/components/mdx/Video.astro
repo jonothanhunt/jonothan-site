@@ -1,0 +1,36 @@
+---
+interface Props {
+  src: string;
+  /** Defaults to a same-named .jpg beside the video. */
+  poster?: string;
+  caption?: string;
+}
+const { src, caption } = Astro.props;
+const poster = Astro.props.poster ?? src.replace(/\.(mp4|webm|mov)$/i, ".jpg");
+---
+
+<figure>
+  <!--
+    These were animated GIFs (15MB and 3.7MB). As muted looping video they are
+    413KB and 220KB, decode on the GPU, and stay paused until scrolled to.
+  -->
+  <video
+    src={src}
+    poster={poster}
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="none"
+    aria-label={caption}></video>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  video {
+    width: 100%;
+    height: auto;
+    border-radius: var(--r-md);
+    background: #ddd;
+  }
+</style>
